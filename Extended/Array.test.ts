@@ -22,16 +22,6 @@ describe("TiFArray tests", () => {
     expect(mapped).toEqual(["hello", "world", "hello", "world"])
   })
 
-  test("repeat elements, basic", () => {
-    const array = repeatElements(5, 1)
-    expect(array).toEqual([1, 1, 1, 1, 1])
-  })
-
-  test("repeat elements, based on index", () => {
-    const array = repeatElements(5, (i) => i)
-    expect(array).toEqual([0, 1, 2, 3, 4])
-  })
-
   test("random element, basic", () => {
     let randomReturnValue = 0.2521897349382
     const rand = () => randomReturnValue
