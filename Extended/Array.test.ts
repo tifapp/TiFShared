@@ -1,7 +1,8 @@
-import { repeatElements } from "./Array"
 import { ext } from "./Extend"
 
 describe("TiFArray tests", () => {
+  console.log(Array.prototype)
+
   test("compact map, basic", () => {
     const results = {
       hello: 1,
@@ -40,5 +41,15 @@ describe("TiFArray tests", () => {
 
   test("random element, empty", () => {
     expect(ext([]).randomElement()).toBeUndefined()
+  })
+
+  test("various transforms", () => {
+    const arr = ext(["hello", "worlds", "h"])
+      .compactMap((e) => e.length)
+      .map((e) => e * 2)
+      .sort()
+      .filter((e) => e > 2)
+      .compactMap((e) => (e > 10 ? undefined : e / 2))
+    expect(arr).toEqual([5])
   })
 })

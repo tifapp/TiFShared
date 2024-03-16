@@ -1,7 +1,20 @@
+import { ReplaceReturnType } from "../Utils/Types"
+
+type ArrayExtensions<Element> = Omit<
+  Array<Element>,
+  "map" | "sort" | "filter" | "slice" | "splice"
+> & {
+  map: ReplaceReturnType<Array<Element>["map"], ExtendedArray<Element>>
+  filter: ReplaceReturnType<Array<Element>["filter"], ExtendedArray<Element>>
+  slice: ReplaceReturnType<Array<Element>["slice"], ExtendedArray<Element>>
+  sort: ReplaceReturnType<Array<Element>["sort"], ExtendedArray<Element>>
+  splice: ReplaceReturnType<Array<Element>["splice"], ExtendedArray<Element>>
+}
+
 /**
  * An interface that adds some extra methods to an array.
  */
-export interface ExtendedArray<Element> extends Array<Element> {
+export interface ExtendedArray<Element> extends ArrayExtensions<Element> {
   /**
    * Maps the values in the array based on the given function, but removes
    * any null or undefined values from the resulting array.
@@ -31,6 +44,8 @@ export interface ExtendedArray<Element> extends Array<Element> {
   randomElement(randomValue?: () => number): Element | undefined
 }
 
+const IS_EXTENDED_PROPERTY = "__ext"
+
 /**
  * Do not call this, use {@link ext} instead.
  *
@@ -39,14 +54,37 @@ export interface ExtendedArray<Element> extends Array<Element> {
 export const _extendArray = <Element,>(
   array: Element[]
 ): ExtendedArray<Element> => {
+  if (array.hasOwnProperty(IS_EXTENDED_PROPERTY)) {
+    return array as unknown as ExtendedArray<Element>
+  }
+  Object.defineProperty(array, IS_EXTENDED_PROPERTY, {})
   Object.defineProperty(array, "compactMap", {
     value: compactMap.bind(undefined, array)
   })
   Object.defineProperty(array, "randomElement", {
     value: randomElement.bind(undefined, array)
   })
+  for (const [key, value] of TRANSFORMATION_ENTRIES) {
+    Object.defineProperty(array, key, {
+      value: value.bind(undefined, array)
+    })
+  }
   return array as unknown as ExtendedArray<Element>
 }
+
+const extendArrayFunction = <T,>(name: keyof T[]) => {
+  return (array: T[], ...args: any) => {
+    return _extendArray(Array.prototype[name].call(array, ...args))
+  }
+}
+
+const TRANSFORMATION_ENTRIES = Object.entries({
+  sort: extendArrayFunction("sort"),
+  filter: extendArrayFunction("filter"),
+  map: extendArrayFunction("map"),
+  slice: extendArrayFunction("slice"),
+  splice: extendArrayFunction("splice")
+})
 
 const compactMap = <A, B>(
   array: A[],
