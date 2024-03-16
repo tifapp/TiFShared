@@ -52,7 +52,7 @@ const IS_EXTENDED_PROPERTY = "__ext"
  * @internal
  */
 export const _extendArray = <Element,>(
-  array: Element[]
+  array: Element[] | ExtendedArray<Element>
 ): ExtendedArray<Element> => {
   if (array.hasOwnProperty(IS_EXTENDED_PROPERTY)) {
     return array as unknown as ExtendedArray<Element>

@@ -1,4 +1,4 @@
-import { _extendArray } from "./Array"
+import { ExtendedArray, _extendArray } from "./Array"
 
 /**
  * Returns the same reference to the given value with extended super powers.
@@ -13,6 +13,6 @@ import { _extendArray } from "./Array"
  * console.log(arr === baseArr) // Logs true, same reference.
  * ```
  */
-export function ext<T>(value: T[]) {
+export function ext<T>(value: T[] | ExtendedArray<T>) {
   return _extendArray(value)
 }
