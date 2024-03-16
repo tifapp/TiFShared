@@ -16,7 +16,11 @@ export interface ExtendedArray<Element> extends Array<Element> {
    * @param mapper A function to map an element from this array to an element in the new array.
    */
   compactMap<NewElement>(
-    mapper: (element: Element) => NewElement | undefined | null
+    mapper: (
+      element: Element,
+      index: number,
+      array: ExtendedArray<Element>
+    ) => NewElement | undefined | null
   ): ExtendedArray<NonNullable<NewElement>>
 
   /**
@@ -66,11 +70,11 @@ export const _extendArray = <Element,>(
 
 const compactMap = <A, B>(
   array: A[],
-  mapper: (element: A) => B | null | undefined
+  mapper: (element: A, index: number, array: A[]) => B | null | undefined
 ) => {
   const mappedArray = [] as NonNullable<B>[]
-  for (const element of array) {
-    const mapped = mapper(element)
+  for (let i = 0; i < array.length; i++) {
+    const mapped = mapper(array[i], i, array)
     if (mapped) mappedArray.push(mapped)
   }
   return _extendArray(mappedArray)

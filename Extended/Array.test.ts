@@ -2,7 +2,7 @@ import { repeatElements } from "./Array"
 import { ext } from "./Extend"
 
 describe("TiFArray tests", () => {
-  test("compact map", () => {
+  test("compact map, basic", () => {
     const results = {
       hello: 1,
       world: undefined,
@@ -11,7 +11,15 @@ describe("TiFArray tests", () => {
     }
     const arr = ext<keyof typeof results>(["hello", "world", "again", "three"])
     const mapped = arr.compactMap((e) => results[e])
-    expect(mapped).toEqual(ext([1, 2]))
+    expect(mapped).toEqual([1, 2])
+  })
+
+  test("compact map, full", () => {
+    const arr = ext(["hello", "world", "again", "three"])
+    const mapped = arr.compactMap((e, i, array) => {
+      return array[i - 2] ?? e
+    })
+    expect(mapped).toEqual(["hello", "world", "hello", "world"])
   })
 
   test("repeat elements, basic", () => {
