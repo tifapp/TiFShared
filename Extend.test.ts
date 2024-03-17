@@ -1,12 +1,13 @@
 import { extension } from "./Extend"
+import "./Array"
 
 describe("Extension tests", () => {
   test("extending basic type", () => {
     class Thing {
       prop = 1
     }
-    const ext = extension(Thing, { double: (t) => t.prop * 2 })
-    expect(ext(new Thing()).double()).toEqual(2)
+    const thing = extension(new Thing(), { double: (t) => t.prop * 2 })
+    expect(thing.double()).toEqual(2)
   })
 
   it("should return the same reference to the array", () => {

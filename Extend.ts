@@ -13,49 +13,48 @@ export type Extension<
  * the prototype of the class, but rather adds the extension methods to the
  * given object itself.
  *
- * Ex.
- * ```ts
- * class Thing {
- *   prop = 1
- * }
- *
- * const ext = extension(Thing, { double: (thing) => thing.prop * 2 })
- * const value = ext(new Thing()).double() // value === 2
- * ```
- *
  * This is particularly useful for extending builtin classes.
  *
  * Ex.
  * ```ts
- * const ext = extension(Date, {
- *   unixTimestamp: (date) => date.getTime() / 1000
- * })
+ * const ext = (date: Date) => {
+ *   return extension(date, { unixTimestamp: (date) => date.getTime() / 1000 })
+ * }
  * const unixTimestamp = ext(new Date()).unixTimestamp()
  * ```
  */
 export const extension = <
-  Class extends AnyClass,
-  Extensions extends Record<
-    string,
-    (instance: InstanceType<Class>, ...args: any) => any
-  >
+  Value extends object,
+  Extensions extends Record<string, (instance: Value, ...args: any) => any>
 >(
-  _: Class,
+  value: Value,
   extensions: Extensions
 ) => {
-  return (
-    instance: InstanceType<Class>
-  ): Extension<InstanceType<Class>, Extensions> => {
-    Object.keys(extensions).forEach((name) => {
-      Object.defineProperty(instance, name, {
-        writable: true,
-        value: extensions[name].bind(undefined, instance)
-      })
+  Object.keys(extensions).forEach((name) => {
+    Object.defineProperty(value, name, {
+      writable: true,
+      value: extensions[name].bind(undefined, value)
     })
-    return instance
-  }
+  })
+  return value as Extension<Value, Extensions>
 }
 
+/**
+ * Applies an extension to the prototype of an object constructor to a property
+ * called `"ext"`.
+ *
+ * This should only be used for very generic extensions, as it extends the
+ * prototype of potentially native/built-in objects.
+ *
+ * Ex.
+ * ```ts
+ * class Thing {
+ *   property = "hello"
+ * }
+ * prototypeExtension(Thing, { length: (t) => t.property.length })
+ * const length = new Thing().ext.length()
+ * ```
+ */
 export const protoypeExtension = <
   Class extends AnyClass,
   Extensions extends Record<
@@ -66,10 +65,9 @@ export const protoypeExtension = <
   clazz: Class,
   extensions: Extensions
 ) => {
-  const ext = extension(clazz, extensions)
   Object.defineProperty(clazz.prototype, "ext", {
     get() {
-      return ext(this)
+      return extension(this, extensions)
     }
   })
 }
