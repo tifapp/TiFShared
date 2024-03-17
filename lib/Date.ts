@@ -1,4 +1,4 @@
-import { dayjs } from "./Date/Dayjs"
+import { dayjs } from "./Dayjs"
 import { Extension, protoypeExtension } from "./Extend"
 
 export type DateUnit = dayjs.ManipulateType
