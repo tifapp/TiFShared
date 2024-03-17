@@ -1,4 +1,4 @@
-import { ext, repeatElements } from "./Array"
+import { repeatElements } from "./Array"
 
 describe("TiFArray tests", () => {
   test("compact map, basic", () => {
@@ -8,13 +8,13 @@ describe("TiFArray tests", () => {
       again: 2,
       three: null
     }
-    const arr = ext<keyof typeof results>(["hello", "world", "again", "three"])
-    const mapped = arr.compactMap((e) => results[e])
+    const arr = ["hello", "world", "again", "three"].ext
+    const mapped = arr.compactMap((e: keyof typeof results) => results[e])
     expect(mapped).toEqual([1, 2])
   })
 
   test("compact map, full", () => {
-    const arr = ext(["hello", "world", "again", "three"])
+    const arr = ["hello", "world", "again", "three"].ext
     const mapped = arr.compactMap((e, i, array) => {
       return array[i - 2] ?? e
     })
@@ -24,7 +24,7 @@ describe("TiFArray tests", () => {
   test("random element, basic", () => {
     let randomReturnValue = 0.2521897349382
     const rand = () => randomReturnValue
-    const array = ext([true, 2, {}, "hello"])
+    const array = [true, 2, {}, "hello"].ext
     expect(array.randomElement(rand)).toEqual(2)
 
     randomReturnValue = 0.19798739
@@ -38,16 +38,16 @@ describe("TiFArray tests", () => {
   })
 
   test("random element, empty", () => {
-    expect(ext([]).randomElement()).toBeUndefined()
+    expect([].ext.randomElement()).toBeUndefined()
   })
 
   test("various transforms", () => {
-    const arr = ext(["hello", "worlds", "h"])
+    const arr = ["hello", "worlds", "h"].ext
       .compactMap((e) => e.length)
       .map((e) => e * 2)
-      .sort()
+      .ext.sort()
       .filter((e) => e > 2)
-      .compactMap((e) => (e > 10 ? undefined : e / 2))
+      .ext.compactMap((e) => (e > 10 ? undefined : e / 2))
     expect(arr).toEqual([5])
   })
 

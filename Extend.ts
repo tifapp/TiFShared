@@ -1,5 +1,12 @@
 import { AnyClass, OmitFirstArgument } from "./HelperTypes"
 
+export type Extension<
+  Type,
+  Extensions extends Record<string, (instance: Type, ...args: any) => any>
+> = Type & {
+  [key in keyof Extensions]: OmitFirstArgument<Extensions[key]>
+}
+
 /**
  * Returns a function to extend an existing class type with the supplied
  * functions from the given object. The returned function does not edit
@@ -38,9 +45,7 @@ export const extension = <
 ) => {
   return (
     instance: InstanceType<Class>
-  ): InstanceType<Class> & {
-    [key in keyof Extensions]: OmitFirstArgument<Extensions[key]>
-  } => {
+  ): Extension<InstanceType<Class>, Extensions> => {
     Object.keys(extensions).forEach((name) => {
       Object.defineProperty(instance, name, {
         writable: true,
@@ -49,4 +54,22 @@ export const extension = <
     })
     return instance
   }
+}
+
+export const protoypeExtension = <
+  Class extends AnyClass,
+  Extensions extends Record<
+    string,
+    (instance: InstanceType<Class>, ...args: any) => any
+  >
+>(
+  clazz: Class,
+  extensions: Extensions
+) => {
+  const ext = extension(clazz, extensions)
+  Object.defineProperty(clazz.prototype, "ext", {
+    get() {
+      return ext(this)
+    }
+  })
 }

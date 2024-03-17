@@ -1,4 +1,3 @@
-import { ext } from "./Array"
 import { extension } from "./Extend"
 
 describe("Extension tests", () => {
@@ -12,11 +11,11 @@ describe("Extension tests", () => {
 
   it("should return the same reference to the array", () => {
     const nums = [1, 2, 3, 4]
-    expect(nums).toBe(ext(nums))
+    expect(nums).toBe(nums.ext)
   })
 
-  it("should return the same reference to the array with double extensions", () => {
+  it("should return the same reference to the array with multiple extensions", () => {
     const nums = [1, 2, 3, 4]
-    expect(nums).toBe(ext(ext(ext(nums))))
+    expect(nums).toBe(nums.ext.ext.ext)
   })
 })

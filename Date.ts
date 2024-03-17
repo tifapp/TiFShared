@@ -1,9 +1,9 @@
 import { dayjs } from "./Date/Dayjs"
-import { extension } from "./Extend"
+import { Extension, protoypeExtension } from "./Extend"
 
 export type DateUnit = dayjs.ManipulateType
 
-export type ExtendedDate = ReturnType<typeof ext>
+export interface ExtendedDate extends Extension<Date, typeof extensions> {}
 
 declare global {
   interface Date {
@@ -42,10 +42,5 @@ const extensions = {
     return date.ext.add(amount, "seconds")
   }
 }
-const ext = extension(Date, extensions)
 
-Object.defineProperty(Date.prototype, "ext", {
-  get() {
-    return ext(this)
-  }
-})
+protoypeExtension(Date, extensions)
