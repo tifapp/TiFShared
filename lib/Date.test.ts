@@ -1,4 +1,3 @@
-import { dayjs } from "./Date/Dayjs"
 import "./Date"
 
 describe("ExtendedDate tests", () => {
