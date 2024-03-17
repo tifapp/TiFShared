@@ -14,3 +14,10 @@ export type OmitFirstArgument<F> = F extends (
 ) => infer R
   ? (...args: P) => R
   : never
+
+/**
+ * A type representing any variable that is an instance of a class.
+ */
+export interface AnyClassInstance {
+  get constructor(): any
+}
