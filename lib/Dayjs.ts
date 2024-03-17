@@ -31,9 +31,12 @@ const durationExtensions = {
   }
 }
 
+export interface ExtendedDuration
+  extends Extension<Duration, typeof durationExtensions> {}
+
 declare module "dayjs/plugin/duration" {
   export interface Duration {
-    get ext(): Extension<Duration, typeof durationExtensions>
+    get ext(): ExtendedDuration
   }
 }
 
