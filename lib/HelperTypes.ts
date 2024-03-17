@@ -7,6 +7,9 @@ export interface AnyClass {
 
 /**
  * Omits the first argument from the given function type.
+ *
+ * **Note:** If this type is used on a function with generic arguments, then
+ * those arguments will be inferred as unknown.
  */
 export type OmitFirstArgument<F> = F extends (
   x: any,
@@ -20,4 +23,36 @@ export type OmitFirstArgument<F> = F extends (
  */
 export interface AnyClassInstance {
   get constructor(): any
+}
+
+/**
+ * A simple type for representing a JSON serializable value (ie. It works with `JSON.stringify`).
+ */
+export type JSONSerializableValue =
+  | string
+  | number
+  | boolean
+  | { [key: string | number]: JSONSerializableValue }
+  | JSONSerializableValue[]
+  | null
+  | Date
+  | { toJSON: () => JSONSerializableValue }
+
+/**
+ * Unions all properties of a given object with `Type`.
+ */
+export type DeepUnion<Obj, Type> = {
+  [K in keyof Obj]: DeepNullable<Obj[K]> | Type
+}
+
+/**
+ * Unions all properties of a given object with `null`.
+ */
+export type DeepNullable<Obj> = DeepUnion<Obj, null>
+
+/**
+ * Reassigns the type of the given keys the specified type value.
+ */
+export type Reassign<Obj, Key extends keyof Obj, Type> = {
+  [K in keyof Obj]: K extends Key ? Type : Obj[K]
 }
