@@ -1,8 +1,6 @@
-import { ext } from "./Extend"
+import { ext, repeatElements } from "./Array"
 
 describe("TiFArray tests", () => {
-  console.log(Array.prototype)
-
   test("compact map, basic", () => {
     const results = {
       hello: 1,
@@ -51,5 +49,15 @@ describe("TiFArray tests", () => {
       .filter((e) => e > 2)
       .compactMap((e) => (e > 10 ? undefined : e / 2))
     expect(arr).toEqual([5])
+  })
+
+  test("repeat elements, basic", () => {
+    const array = repeatElements(5, 1)
+    expect(array).toEqual([1, 1, 1, 1, 1])
+  })
+
+  test("repeat elements, based on index", () => {
+    const array = repeatElements(5, (i) => i)
+    expect(array).toEqual([0, 1, 2, 3, 4])
   })
 })
