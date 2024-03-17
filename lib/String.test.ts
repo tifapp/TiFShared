@@ -1,31 +1,33 @@
-import { StringUtils } from "./String"
+import {
+  capitalizeFirstLetter,
+  isWhitespaceCharacter,
+  extractNumbers
+} from "./String"
 
 describe("StringUtils tests", () => {
   test("capitalize first letter", () => {
-    expect(StringUtils.capitalizeFirstLetter("")).toEqual("")
-    expect(StringUtils.capitalizeFirstLetter("8")).toEqual("8")
-    expect(StringUtils.capitalizeFirstLetter("hello world")).toEqual(
-      "Hello world"
-    )
+    expect(capitalizeFirstLetter("")).toEqual("")
+    expect(capitalizeFirstLetter("8")).toEqual("8")
+    expect(capitalizeFirstLetter("hello world")).toEqual("Hello world")
   })
 
   test("is whitespace character", () => {
-    expect(StringUtils.isWhitespaceCharacter(" ", 0)).toEqual(true)
-    expect(StringUtils.isWhitespaceCharacter("h ", 0)).toEqual(false)
-    expect(StringUtils.isWhitespaceCharacter("hello world", 5)).toEqual(true)
-    expect(StringUtils.isWhitespaceCharacter("\n", 0)).toEqual(true)
-    expect(StringUtils.isWhitespaceCharacter("\t", 0)).toEqual(true)
-    expect(StringUtils.isWhitespaceCharacter("\r\n", 0)).toEqual(true)
-    expect(StringUtils.isWhitespaceCharacter("", 0)).toEqual(false)
-    expect(StringUtils.isWhitespaceCharacter("hello", 400)).toEqual(false)
+    expect(isWhitespaceCharacter(" ", 0)).toEqual(true)
+    expect(isWhitespaceCharacter("h ", 0)).toEqual(false)
+    expect(isWhitespaceCharacter("hello world", 5)).toEqual(true)
+    expect(isWhitespaceCharacter("\n", 0)).toEqual(true)
+    expect(isWhitespaceCharacter("\t", 0)).toEqual(true)
+    expect(isWhitespaceCharacter("\r\n", 0)).toEqual(true)
+    expect(isWhitespaceCharacter("", 0)).toEqual(false)
+    expect(isWhitespaceCharacter("hello", 400)).toEqual(false)
   })
 
   test("extract numbers", () => {
-    expect(StringUtils.extractNumbers("")).toEqual("")
-    expect(StringUtils.extractNumbers("hello world")).toEqual("")
-    expect(StringUtils.extractNumbers("hello 123")).toEqual("123")
-    expect(StringUtils.extractNumbers("hello 00world")).toEqual("00")
-    expect(StringUtils.extractNumbers("123")).toEqual("123")
-    expect(StringUtils.extractNumbers("123abc")).toEqual("123")
+    expect(extractNumbers("")).toEqual("")
+    expect(extractNumbers("hello world")).toEqual("")
+    expect(extractNumbers("hello 123")).toEqual("123")
+    expect(extractNumbers("hello 00world")).toEqual("00")
+    expect(extractNumbers("123")).toEqual("123")
+    expect(extractNumbers("123abc")).toEqual("123")
   })
 })
