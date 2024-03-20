@@ -55,6 +55,11 @@ declare module "zod" {
       parseable: OptionalParseable<Input, Output>,
       errorMessage?: (input: Input) => string
     ): ReturnType<typeof optionalParse>
+
+    /**
+     * Infers a type as "Readonly".
+     */
+    type rInfer<Schema extends ZodSchema> = Readonly<z.infer<Schema>>
   }
 }
 
