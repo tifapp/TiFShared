@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { ZodSchema, z } from "zod"
 
 /**
  * An interface which defines a method of parsing that returns either an output type or `undefined`.

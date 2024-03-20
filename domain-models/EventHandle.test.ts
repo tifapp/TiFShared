@@ -36,6 +36,12 @@ describe("EventHandle tests", () => {
     expect(
       EventHandle.parse("17|123/#ZZZZZZ/Pickup Basketball")
     ).toBeUndefined()
+    expect(
+      EventHandle.parse("abc|123/#123456/Pickup Basketball")
+    ).toBeUndefined()
+    expect(
+      EventHandle.parse("17|abc/#123456/Pickup Basketball")
+    ).toBeUndefined()
   })
 
   test("toString", () => {
