@@ -28,4 +28,13 @@ describe("UserHandle tests", () => {
     )
     expect(UserHandle.parse("ABCDEFG").handle?.toString()).toEqual("@ABCDEFG")
   })
+
+  test("equality", () => {
+    let handle1 = UserHandle.optionalParse("hello")!
+    let handle2 = UserHandle.optionalParse("world")!
+    expect(handle1.isEqualTo(handle2)).toEqual(false)
+
+    handle2 = UserHandle.optionalParse("hello")!
+    expect(handle1.isEqualTo(handle2)).toEqual(true)
+  })
 })

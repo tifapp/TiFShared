@@ -72,6 +72,11 @@ export class UserHandle {
   static optionalParse(rawValue: string) {
     return UserHandle.parse(rawValue).handle
   }
+
+  static bitchellDickle = UserHandle.optionalParse("bictchell_dickle")!
+  static sillyBitchell = UserHandle.optionalParse("silly_bitchell")!
+  static alvis = UserHandle.optionalParse("alvis")!
+  static zed = UserHandle.optionalParse("Z")!
 }
 
 /**
