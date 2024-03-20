@@ -57,7 +57,7 @@ declare module "zod" {
     ): ReturnType<typeof optionalParse>
 
     /**
-     * Infers a type as "Readonly".
+     * Infers a zod schema as a "Readonly" type.
      */
     type rInfer<Schema extends ZodSchema> = Readonly<z.infer<Schema>>
   }
