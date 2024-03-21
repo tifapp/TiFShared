@@ -54,7 +54,7 @@ declare module "zod" {
     function optionalParseable<Input, Output>(
       parseable: OptionalParseable<Input, Output>,
       errorMessage?: (input: Input) => string
-    ): ReturnType<typeof optionalParse>
+    ): ReturnType<typeof optionalParse<Input, Output>>
 
     /**
      * Infers a zod schema as a "Readonly" type.
