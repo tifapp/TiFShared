@@ -115,7 +115,42 @@ describe("Result tests", () => {
   it("should observe promise results without modifying them", async () => {
     const currentFailure = promiseResult(failure("failed"))
     currentFailure.observe((result) => expect(result).toBe("failed"))
-    expect(currentFailure).toMatchObject(currentFailure)
+    const result = await currentFailure
+    expect(result).toMatchObject(failedResult)
+  })
+
+  it("should should not observe failure result when successful", async () => {
+    const observeFn = jest.fn()
+    let currentSuccess = promiseResult(success("passed"))
+    currentSuccess = currentSuccess.observeFailure(observeFn)
+    await currentSuccess
+    expect(observeFn).not.toHaveBeenCalled()
+  })
+
+  it("should should observe failure without modifying current result", async () => {
+    const observeFn = jest.fn()
+    const result1 = promiseResult(failure("failed"))
+    const result2 = result1.observeFailure(observeFn)
+    await result2
+    expect(result1).toBe(result2)
+    expect(observeFn).toHaveBeenCalledWith("failed")
+  })
+
+  it("should should not observe success result when failure", async () => {
+    const observeFn = jest.fn()
+    let currentFailure = promiseResult(failure("failed"))
+    currentFailure = currentFailure.observeSuccess(observeFn)
+    await currentFailure
+    expect(observeFn).not.toHaveBeenCalled()
+  })
+
+  it("should should observe failure without modifying current result", async () => {
+    const observeFn = jest.fn()
+    const result1 = promiseResult(success("passed"))
+    const result2 = result1.observeSuccess(observeFn)
+    await result2
+    expect(result1).toBe(result2)
+    expect(observeFn).toHaveBeenCalledWith("passed")
   })
 
   it("should allow promise results to be transformed", async () => {
