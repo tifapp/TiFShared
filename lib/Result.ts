@@ -44,6 +44,27 @@ export class SuccessResult<Success, Failure> {
   }
 
   /**
+   * Runs the handler with the given success value if the result returns a
+   * successful value.
+   *
+   * @param handler a function to observe the value and perform a side effect.
+   */
+  observeSuccess(handler: (value: Success) => void) {
+    this.observe(handler)
+    return this
+  }
+
+  /**
+   * Runs the handler with the given success value if the result returns a
+   * failure value.
+   *
+   * @param handler a function to observe the value and perform a side effect.
+   */
+  observeFailure(_: (value: Failure) => void) {
+    return this
+  }
+
+  /**
    * Transforms the success result into an entirely new result.
    *
    * @param mapper a function to transform the current result into a new result.
@@ -125,6 +146,27 @@ export class FailureResult<Success, Failure> {
   }
 
   /**
+   * Runs the handler with the given success value if the result returns a
+   * successful value.
+   *
+   * @param handler a function to observe the value and perform a side effect.
+   */
+  observeSuccess(_: (value: Success) => void) {
+    return this
+  }
+
+  /**
+   * Runs the handler with the given success value if the result returns a
+   * failure value.
+   *
+   * @param handler a function to observe the value and perform a side effect.
+   */
+  observeFailure(handler: (value: Failure) => void) {
+    this.observe(handler)
+    return this
+  }
+
+  /**
    * Returns this result typecasted as the failure type unioned with the success
    * type and failure type returned from the given mapper function.
    */
@@ -143,8 +185,7 @@ export class FailureResult<Success, Failure> {
   flatMapFailure<NewSuccess, NewFailure>(
     mapper: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
   ): AnyResult<Success | NewSuccess, NewFailure> {
-    const result = mapper(this.value)
-    return result
+    return mapper(this.value)
   }
 
   /**
@@ -205,6 +246,28 @@ export class PromiseResult<Success, Failure> extends Promise<
    */
   observe(handler: (value: Success | Failure) => void) {
     this.then((result) => result.observe(handler))
+    return this
+  }
+
+  /**
+   * Waits for the promiseResult to settle, then runs the handler with the
+   * given success value if the result returns a successful value.
+   *
+   * @param handler a function to observe the value and perform a side effect.
+   */
+  observeSuccess(handler: (value: Success) => void) {
+    this.then((result) => result.observeSuccess(handler))
+    return this
+  }
+
+  /**
+   * Waits for the promiseResult to settle, then runs the handler with the
+   * given failure value if the result returns a failure value.
+   *
+   * @param handler a function to observe the value and perform a side effect.
+   */
+  observeFailure(handler: (value: Failure) => void) {
+    this.then((result) => result.observeFailure(handler))
     return this
   }
 
