@@ -2,6 +2,7 @@ import { JSONSerializableValue, Reassign } from "../lib/HelperTypes"
 import { logger } from "../logging"
 import { ToStringable } from "../lib/String"
 import { ZodSchema, ZodType, z } from "zod"
+import { TiFAPIMiddleware } from "./Middleware"
 
 export type TiFHTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
@@ -114,10 +115,7 @@ const log = logger("tif.api.client")
  * @param loadAuthBearerToken a function that returns the loaded JWT.
  * @returns a function to make an API call.
  */
-export const tifAPITransport = (
-  baseURL: URL,
-  loadAuthBearerToken: () => Promise<string | undefined>
-) => {
+export const tifAPITransport = (baseURL: URL, middleware: TiFAPIMiddleware) => {
   return async <
     Method extends TiFHTTPMethod,
     Schemas extends TiFAPIResponseSchemas
@@ -127,8 +125,7 @@ export const tifAPITransport = (
     signal?: AbortSignal
   ): Promise<TiFAPIResponse<Schemas>> => {
     try {
-      const token = await loadAuthBearerToken()
-      const resp = await performRequest(token, request, baseURL, signal)
+      const resp = await performRequest(request, middleware, baseURL, signal)
       const json = await tryResponseBody(resp)
       const schema = tryResponseSchema(resp.status, responseSchemas, json)
       return {
@@ -151,22 +148,24 @@ export const tifAPITransport = (
 export type TiFAPITransport = ReturnType<typeof tifAPITransport>
 
 const performRequest = async (
-  token: string | undefined,
   request: TiFAPIRequest<TiFHTTPMethod>,
+  middleware: TiFAPIMiddleware,
   baseURL: URL,
   signal?: AbortSignal
 ) => {
   const searchParams = queryToSearchParams(request.query ?? {})
   const url = `${baseURL}${request.endpoint.slice(1)}?${searchParams}`
-  return await fetch(url, {
-    method: request.method,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
+  return await middleware(
+    {
+      method: request.method,
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(request.body),
+      signal
     },
-    body: JSON.stringify(request.body),
-    signal
-  })
+    (request) => fetch(url, request)
+  )
 }
 
 const tryResponseSchema = (

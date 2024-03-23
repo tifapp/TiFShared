@@ -3,6 +3,7 @@ import { HttpResponse, http } from "msw"
 import { z } from "zod"
 import { noContentResponse, mswServer } from "../test-helpers/MSW"
 import { tifAPITransport } from "./Transport"
+import { jwtMiddleware } from "./Middleware"
 
 const TEST_BASE_URL = new URL("http://localhost:8080")
 
@@ -10,7 +11,7 @@ const TEST_JWT = "this is a totally a JWT"
 
 const apiFetch = tifAPITransport(
   TEST_BASE_URL,
-  jest.fn().mockResolvedValue(TEST_JWT)
+  jwtMiddleware(async () => TEST_JWT)
 )
 
 const successResponse = () => HttpResponse.json({ a: 1 })
