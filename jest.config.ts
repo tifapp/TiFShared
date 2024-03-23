@@ -6,8 +6,13 @@ export default {
   transform: {
     "^.+\\.(t|j)s?$": "@swc/jest"
   },
-  setupFiles: ["<rootDir>/jest/setupExtensions.js"],
-  transformIgnorePatterns: ["/node_modules/(?!(node-fetch))"],
+  setupFiles: [
+    "<rootDir>/jest/setupExtensions.js",
+    "<rootDir>/jest/setupNodeFetch.js"
+  ],
+  transformIgnorePatterns: [
+    "/node_modules/(?!(node-fetch|data-uri-to-buffer|fetch-blob|formdata-polyfill))"
+  ],
   testPathIgnorePatterns: ["/dist/"],
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1"
