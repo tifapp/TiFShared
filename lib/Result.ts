@@ -29,7 +29,7 @@ export type AwaitableResult<Success, Failure> =
 export class SuccessResult<Success, Failure> {
   status = "success" as const
 
-  constructor (public value: Success) {
+  constructor(public value: Success) {
     this.value = value
   }
 
@@ -38,10 +38,29 @@ export class SuccessResult<Success, Failure> {
    *
    * @param handler a function to observe the value and perform a side effect.
    */
-  observe (
-    handler: (value: Success) => void
-  ) {
+  observe(handler: (value: Success) => void) {
     handler(this.value)
+    return this
+  }
+
+  /**
+   * Runs the handler with the given success value if the result returns a
+   * successful value.
+   *
+   * @param handler a function to observe the value and perform a side effect.
+   */
+  observeSuccess(handler: (value: Success) => void) {
+    this.observe(handler)
+    return this
+  }
+
+  /**
+   * Runs the handler with the given success value if the result returns a
+   * failure value.
+   *
+   * @param handler a function to observe the value and perform a side effect.
+   */
+  observeFailure(_: (value: Failure) => void) {
     return this
   }
 
@@ -50,7 +69,7 @@ export class SuccessResult<Success, Failure> {
    *
    * @param mapper a function to transform the current result into a new result.
    */
-  flatMapSuccess<NewSuccess, NewFailure> (
+  flatMapSuccess<NewSuccess, NewFailure>(
     mapper: (value: Success) => AwaitableResult<NewSuccess, NewFailure>
   ): AnyResult<NewSuccess, Failure | NewFailure> {
     const result = mapper(this.value)
@@ -61,7 +80,7 @@ export class SuccessResult<Success, Failure> {
    * Returns this result typecasted as the success type unioned with the success
    * type and failure type returned from the given mapper function.
    */
-  flatMapFailure<NewSuccess, NewFailure> (
+  flatMapFailure<NewSuccess, NewFailure>(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
   ) {
@@ -73,35 +92,35 @@ export class SuccessResult<Success, Failure> {
    *
    * @param mapper a function to transform the current success value to a new success result.
    */
-  mapSuccess<NewSuccess> (mapper: (value: Success) => NewSuccess) {
+  mapSuccess<NewSuccess>(mapper: (value: Success) => NewSuccess) {
     return success(mapper(this.value)) as SuccessResult<NewSuccess, Failure>
   }
 
   /**
    * Returns the failure result typecasted as the failure type returned from the map function.
    */
-  mapFailure<NewFailure> (_: (value: Failure) => NewFailure) {
+  mapFailure<NewFailure>(_: (value: Failure) => NewFailure) {
     return this as unknown as SuccessResult<Success, NewFailure>
   }
 
   /**
    * Returns the failure result typecasted as the new failure type.
    */
-  withFailure<NewFailure> (_: NewFailure) {
+  withFailure<NewFailure>(_: NewFailure) {
     return this as unknown as SuccessResult<Success, NewFailure>
   }
 
   /**
    * Sets the success result to the new value.
    */
-  withSuccess<NewSuccess> (value: NewSuccess) {
+  withSuccess<NewSuccess>(value: NewSuccess) {
     return success(value)
   }
 
   /**
    * Inverts this result to a failure result with the current value being treated as the new failure value.
    */
-  inverted () {
+  inverted() {
     return failure(this.value) as FailureResult<Failure, Success>
   }
 }
@@ -112,7 +131,7 @@ export class SuccessResult<Success, Failure> {
 export class FailureResult<Success, Failure> {
   status = "failure" as const
 
-  constructor (public value: Failure) {
+  constructor(public value: Failure) {
     this.value = value
   }
 
@@ -121,10 +140,29 @@ export class FailureResult<Success, Failure> {
    *
    * @param handler a function to observe the value and perform a side effect.
    */
-  observe (
-    handler: (value: Failure) => void
-  ) {
+  observe(handler: (value: Failure) => void) {
     handler(this.value)
+    return this
+  }
+
+  /**
+   * Runs the handler with the given success value if the result returns a
+   * successful value.
+   *
+   * @param handler a function to observe the value and perform a side effect.
+   */
+  observeSuccess(_: (value: Success) => void) {
+    return this
+  }
+
+  /**
+   * Runs the handler with the given success value if the result returns a
+   * failure value.
+   *
+   * @param handler a function to observe the value and perform a side effect.
+   */
+  observeFailure(handler: (value: Failure) => void) {
+    this.observe(handler)
     return this
   }
 
@@ -132,7 +170,7 @@ export class FailureResult<Success, Failure> {
    * Returns this result typecasted as the failure type unioned with the success
    * type and failure type returned from the given mapper function.
    */
-  flatMapSuccess<NewSuccess, NewFailure> (
+  flatMapSuccess<NewSuccess, NewFailure>(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _: (value: Success) => AwaitableResult<NewSuccess, NewFailure>
   ) {
@@ -144,32 +182,31 @@ export class FailureResult<Success, Failure> {
    *
    * @param mapper a function to transform the current result into a new result.
    */
-  flatMapFailure<NewSuccess, NewFailure> (
+  flatMapFailure<NewSuccess, NewFailure>(
     mapper: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
   ): AnyResult<Success | NewSuccess, NewFailure> {
-    const result = mapper(this.value)
-    return result
+    return mapper(this.value)
   }
 
   /**
    * Returns the success result typecasted as the success type returned from the map function.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  mapSuccess<NewSuccess> (_: (value: Success) => NewSuccess) {
+  mapSuccess<NewSuccess>(_: (value: Success) => NewSuccess) {
     return this as unknown as FailureResult<NewSuccess, Failure>
   }
 
   /**
    * Maps the current failure value to a new one lazily.
    */
-  mapFailure<NewFailure> (mapper: (value: Failure) => NewFailure) {
+  mapFailure<NewFailure>(mapper: (value: Failure) => NewFailure) {
     return failure(mapper(this.value)) as FailureResult<Success, NewFailure>
   }
 
   /**
    * Sets the failure result to a new value.
    */
-  withFailure<NewFailure> (value: NewFailure) {
+  withFailure<NewFailure>(value: NewFailure) {
     return failure(value)
   }
 
@@ -177,14 +214,14 @@ export class FailureResult<Success, Failure> {
    * Returns the success result typecasted as the new success type.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  withSuccess<NewSuccess> (_: NewSuccess) {
+  withSuccess<NewSuccess>(_: NewSuccess) {
     return this as unknown as FailureResult<NewSuccess, Failure>
   }
 
   /**
    * Inverts this result to a success result with the current value being treated as the new success value.
    */
-  inverted () {
+  inverted() {
     return success(this.value) as SuccessResult<Failure, Success>
   }
 }
@@ -195,7 +232,7 @@ export class FailureResult<Success, Failure> {
 export class PromiseResult<Success, Failure> extends Promise<
   Result<Success, Failure>
 > {
-  constructor (executor) {
+  constructor(executor) {
     if (typeof executor !== "function") {
       throw new TypeError("Promise resolver " + executor + " is not a function")
     }
@@ -207,10 +244,30 @@ export class PromiseResult<Success, Failure> extends Promise<
    *
    * @param handler a function to observe the value and perform a side effect.
    */
-  observe (
-    handler: (value: Success | Failure) => void
-  ) {
+  observe(handler: (value: Success | Failure) => void) {
     this.then((result) => result.observe(handler))
+    return this
+  }
+
+  /**
+   * Waits for the promiseResult to settle, then runs the handler with the
+   * given success value if the result returns a successful value.
+   *
+   * @param handler a function to observe the value and perform a side effect.
+   */
+  observeSuccess(handler: (value: Success) => void) {
+    this.then((result) => result.observeSuccess(handler))
+    return this
+  }
+
+  /**
+   * Waits for the promiseResult to settle, then runs the handler with the
+   * given failure value if the result returns a failure value.
+   *
+   * @param handler a function to observe the value and perform a side effect.
+   */
+  observeFailure(handler: (value: Failure) => void) {
+    this.then((result) => result.observeFailure(handler))
     return this
   }
 
@@ -219,7 +276,7 @@ export class PromiseResult<Success, Failure> extends Promise<
    *
    * @param mapper a function to map the success value into a new result.
    */
-  flatMapSuccess<NewSuccess, NewFailure> (
+  flatMapSuccess<NewSuccess, NewFailure>(
     mapper: (value: Success) => AwaitableResult<NewSuccess, NewFailure>
   ): PromiseResult<NewSuccess, Failure | NewFailure> {
     const result = this.then((result) => result.flatMapSuccess(mapper))
@@ -231,7 +288,7 @@ export class PromiseResult<Success, Failure> extends Promise<
    *
    * @param mapper a function to map the failure value into a new result.
    */
-  flatMapFailure<NewSuccess, NewFailure> (
+  flatMapFailure<NewSuccess, NewFailure>(
     mapper: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
   ) {
     const result = this.then((result) => result.flatMapFailure(mapper))
@@ -241,7 +298,7 @@ export class PromiseResult<Success, Failure> extends Promise<
   /**
    * Transforms the success value into a new one lazily.
    */
-  mapSuccess<NewSuccess> (mapper: (value: Success) => NewSuccess) {
+  mapSuccess<NewSuccess>(mapper: (value: Success) => NewSuccess) {
     const result = this.then((result) => result.mapSuccess(mapper))
     return promiseResult(result)
   }
@@ -249,7 +306,7 @@ export class PromiseResult<Success, Failure> extends Promise<
   /**
    * Transforms the failure value into a new one lazily.
    */
-  mapFailure<NewFailure> (mapper: (value: Failure) => NewFailure) {
+  mapFailure<NewFailure>(mapper: (value: Failure) => NewFailure) {
     const result = this.then((result) => result.mapFailure(mapper))
     return promiseResult(result)
   }
@@ -257,21 +314,21 @@ export class PromiseResult<Success, Failure> extends Promise<
   /**
    * If this result is successful, inverts this result into an unsuccessful one and vice-versa.
    */
-  inverted () {
+  inverted() {
     return promiseResult(this.then((res) => res.inverted()))
   }
 
   /**
    * Sets the failure value to the given value eagerly.
    */
-  withFailure<NewFailure> (value: NewFailure) {
+  withFailure<NewFailure>(value: NewFailure) {
     return promiseResult(this.then((result) => result.withFailure(value)))
   }
 
   /**
    * Sets the success value to the given value eagerly.
    */
-  withSuccess<NewSuccess> (value: NewSuccess) {
+  withSuccess<NewSuccess>(value: NewSuccess) {
     return promiseResult(this.then((result) => result.withSuccess(value)))
   }
 }
@@ -306,7 +363,7 @@ export const promiseResult = <Success, Failure>(
  */
 export function success(): SuccessResult<undefined, never>
 export function success<Success>(value: Success): SuccessResult<Success, never>
-export function success<Success> (value?: Success) {
+export function success<Success>(value?: Success) {
   if (!value) return new SuccessResult<undefined, never>(undefined)
   return new SuccessResult<Success, never>(value)
 }
@@ -316,7 +373,7 @@ export function success<Success> (value?: Success) {
  */
 export function failure(): FailureResult<never, undefined>
 export function failure<Failure>(value: Failure): FailureResult<never, Failure>
-export function failure<Failure> (value?: Failure) {
+export function failure<Failure>(value?: Failure) {
   if (!value) return new FailureResult<never, undefined>(undefined)
   return new FailureResult<never, Failure>(value)
 }

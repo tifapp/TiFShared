@@ -1,5 +1,6 @@
 import { dayjs } from "./Dayjs"
 import { Extension, protoypeExtension } from "./Extend"
+import { z } from "zod"
 
 export type DateUnit = dayjs.ManipulateType
 
@@ -44,3 +45,11 @@ const extensions = {
 }
 
 protoypeExtension(Date, extensions)
+
+/**
+ * A zod schema that parses from a string to a date.
+ */
+export const StringDateSchema = z
+  .string()
+  .datetime()
+  .transform((date) => new Date(date))
