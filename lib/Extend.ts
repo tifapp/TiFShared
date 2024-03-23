@@ -7,6 +7,12 @@ export type Extension<
   [key in keyof Extensions]: OmitFirstArgument<Extensions[key]>
 }
 
+const insecureNameErrorMessage = (name: string) => {
+  return `${name} is an insecure extension name due to prototype pollution.`
+}
+
+const INSECURE_NAMES = ["__proto__", "constructor", "prototype"]
+
 /**
  * Returns a function to extend an existing class type with the supplied
  * functions from the given object. The returned function does not edit
@@ -31,6 +37,9 @@ export const extension = <
   extensions: Extensions
 ) => {
   Object.keys(extensions).forEach((name) => {
+    if (INSECURE_NAMES.includes(name)) {
+      throw new Error(insecureNameErrorMessage(name))
+    }
     Object.defineProperty(value, name, {
       writable: true,
       value: extensions[name].bind(undefined, value)

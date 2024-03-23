@@ -19,4 +19,13 @@ describe("Extension tests", () => {
     const nums = [1, 2, 3, 4]
     expect(nums).toBe(nums.ext.ext.ext)
   })
+
+  it("should throw an error, if a forbidden extension name is used", () => {
+    const expectThrows = (name: string) => {
+      expect(() => extension({}, { [name]: () => {} })).toThrow()
+    }
+    expectThrows("__proto__")
+    expectThrows("constructor")
+    expectThrows("prototype")
+  })
 })
