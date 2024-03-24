@@ -1,5 +1,5 @@
 import { AnyClass, OmitFirstArgument } from "./HelperTypes"
-import { throwIfInsecurePropertyName } from "./InsecureProperties"
+import { throwIfContainsInsecurePropertyName } from "./InsecureProperties"
 
 export type Extension<
   Type,
@@ -52,7 +52,7 @@ const _extension = <
   extensions: Extensions,
   preexistingNames: string[]
 ) => {
-  throwIfInsecurePropertyName(extensions)
+  throwIfContainsInsecurePropertyName(extensions)
   Object.keys(extensions).forEach((name) => {
     if (preexistingNames.includes(name)) {
       throw new ExtendedPropertyExistsError(name)
@@ -115,7 +115,7 @@ export const protoypeExtension = <
   if (!canExtendPrototype(clazz)) {
     throw new UnableToExtendPrototypeError(clazz)
   }
-  throwIfInsecurePropertyName(extensions)
+  throwIfContainsInsecurePropertyName(extensions)
   const properties = Object.keys(table.get(clazz.name) ?? {}).concat(
     Object.getOwnPropertyNames(clazz.prototype)
   )
