@@ -1,18 +1,11 @@
 import { AnyClass, OmitFirstArgument } from "./HelperTypes"
+import { throwIfInsecurePropertyName } from "./InsecureProperties"
 
 export type Extension<
   Type,
   Extensions extends Record<string, (instance: Type, ...args: any) => any>
 > = Type & {
   [key in keyof Extensions]: OmitFirstArgument<Extensions[key]>
-}
-
-const INSECURE_NAMES = ["constructor", "prototype"]
-
-export class InsecureExtensionError extends Error {
-  constructor(name: string) {
-    super(`${name} is an insecure extension name due to prototype pollution.`)
-  }
 }
 
 export class ExtendedPropertyExistsError extends Error {
@@ -59,10 +52,9 @@ const _extension = <
   extensions: Extensions,
   preexistingNames: string[]
 ) => {
+  throwIfInsecurePropertyName(extensions)
   Object.keys(extensions).forEach((name) => {
-    if (INSECURE_NAMES.includes(name)) {
-      throw new InsecureExtensionError(name)
-    } else if (preexistingNames.includes(name)) {
+    if (preexistingNames.includes(name)) {
       throw new ExtendedPropertyExistsError(name)
     }
     Object.defineProperty(value, name, {
@@ -73,10 +65,26 @@ const _extension = <
   return value as Extension<Value, Extensions>
 }
 
+export class UnableToExtendPrototypeError extends Error {
+  constructor(clazz: AnyClass) {
+    super(
+      `Cannot extend prototype on ${clazz.name} since it contains an ext property.`
+    )
+  }
+}
+
 const table = new Map<
   string,
   Record<string, (instance: any, ...args: any) => any>
 >()
+
+const didExtendPrototype = (clazz: AnyClass) => {
+  return "__tifDidExtendPrototype__" in clazz.prototype
+}
+
+const canExtendPrototype = (clazz: AnyClass) => {
+  return !("ext" in clazz.prototype) || didExtendPrototype(clazz)
+}
 
 /**
  * Applies an extension to the prototype of an object constructor to a property
@@ -104,18 +112,25 @@ export const protoypeExtension = <
   clazz: Class,
   extensions: Extensions
 ) => {
+  if (!canExtendPrototype(clazz)) {
+    throw new UnableToExtendPrototypeError(clazz)
+  }
+  throwIfInsecurePropertyName(extensions)
   const properties = Object.keys(table.get(clazz.name) ?? {}).concat(
     Object.getOwnPropertyNames(clazz.prototype)
   )
   Object.keys(extensions).forEach((name) => {
     if (properties.includes(name)) {
       throw new ExtendedPropertyExistsError(name, clazz)
-    } else if (INSECURE_NAMES.includes(name)) {
-      throw new InsecureExtensionError(name)
     }
   })
   const allExtensions = { ...table.get(clazz.name), ...extensions }
   table.set(clazz.name, allExtensions)
+  if (!didExtendPrototype(clazz)) {
+    Object.defineProperty(clazz.prototype, "__tifDidExtendPrototype__", {
+      value: true
+    })
+  }
   Object.defineProperty(clazz.prototype, "ext", {
     configurable: true,
     get() {
