@@ -41,6 +41,7 @@ export const extension = <
   value: Value,
   extensions: Extensions
 ) => {
+  throwIfContainsInsecurePropertyName(extensions)
   return _extension(value, extensions, Object.getOwnPropertyNames(value))
 }
 
@@ -50,16 +51,15 @@ const _extension = <
 >(
   value: Value,
   extensions: Extensions,
-  preexistingNames: string[]
+  preexistsingProperties: string[]
 ) => {
-  throwIfContainsInsecurePropertyName(extensions)
-  Object.keys(extensions).forEach((name) => {
-    if (preexistingNames.includes(name)) {
-      throw new ExtendedPropertyExistsError(name)
+  Object.keys(extensions).forEach((extensionProperty) => {
+    if (preexistsingProperties.includes(extensionProperty)) {
+      throw new ExtendedPropertyExistsError(extensionProperty)
     }
-    Object.defineProperty(value, name, {
+    Object.defineProperty(value, extensionProperty, {
       writable: true,
-      value: extensions[name].bind(undefined, value)
+      value: extensions[extensionProperty].bind(undefined, value)
     })
   })
   return value as Extension<Value, Extensions>
@@ -68,22 +68,9 @@ const _extension = <
 export class UnableToExtendPrototypeError extends Error {
   constructor(clazz: AnyClass) {
     super(
-      `Cannot extend prototype on ${clazz.name} since it contains an ext property.`
+      `Cannot extend prototype on ${clazz.name} since it already contains an ext property.`
     )
   }
-}
-
-const table = new Map<
-  string,
-  Record<string, (instance: any, ...args: any) => any>
->()
-
-const didExtendPrototype = (clazz: AnyClass) => {
-  return "__tifDidExtendPrototype__" in clazz.prototype
-}
-
-const canExtendPrototype = (clazz: AnyClass) => {
-  return !("ext" in clazz.prototype) || didExtendPrototype(clazz)
 }
 
 /**
@@ -115,22 +102,7 @@ export const protoypeExtension = <
   if (!canExtendPrototype(clazz)) {
     throw new UnableToExtendPrototypeError(clazz)
   }
-  throwIfContainsInsecurePropertyName(extensions)
-  const properties = Object.keys(table.get(clazz.name) ?? {}).concat(
-    Object.getOwnPropertyNames(clazz.prototype)
-  )
-  Object.keys(extensions).forEach((name) => {
-    if (properties.includes(name)) {
-      throw new ExtendedPropertyExistsError(name, clazz)
-    }
-  })
-  const allExtensions = { ...table.get(clazz.name), ...extensions }
-  table.set(clazz.name, allExtensions)
-  if (!didExtendPrototype(clazz)) {
-    Object.defineProperty(clazz.prototype, "__tifDidExtendPrototype__", {
-      value: true
-    })
-  }
+  const allExtensions = protoStorage.tryToStore(clazz, extensions)
   Object.defineProperty(clazz.prototype, "ext", {
     configurable: true,
     get() {
@@ -142,3 +114,41 @@ export const protoypeExtension = <
     }
   })
 }
+
+const canExtendPrototype = (clazz: AnyClass) => {
+  return !("ext" in clazz.prototype) || protoStorage.hasExtended(clazz)
+}
+
+type AnyExtensionFunction = (instance: any, ...args: any) => any
+
+class PrototypeExtensionsStorage {
+  private map = new Map<string, Record<string, AnyExtensionFunction>>()
+
+  hasExtended(clazz: AnyClass) {
+    return !!this.map.get(clazz.name)
+  }
+
+  tryToStore(
+    clazz: AnyClass,
+    extensions: Record<string, AnyExtensionFunction>
+  ) {
+    throwIfContainsInsecurePropertyName(extensions)
+    const clazzProperties = this.allPropertiesOf(clazz)
+    Object.keys(extensions).forEach((extensionProperty) => {
+      if (clazzProperties.includes(extensionProperty)) {
+        throw new ExtendedPropertyExistsError(extensionProperty, clazz)
+      }
+    })
+    const allExtensions = { ...this.map.get(clazz.name), ...extensions }
+    this.map.set(clazz.name, allExtensions)
+    return allExtensions
+  }
+
+  private allPropertiesOf(clazz: AnyClass) {
+    return Object.keys(this.map.get(clazz.name) ?? {}).concat(
+      Object.getOwnPropertyNames(clazz.prototype)
+    )
+  }
+}
+
+const protoStorage = new PrototypeExtensionsStorage()
