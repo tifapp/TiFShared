@@ -1,4 +1,4 @@
-import { throwIfContainsInsecurePropertyName } from "./InsecureProperties"
+import { removeInsecureProperties } from "./InsecureProperties"
 
 /**
  * Removes all keys that have a value of undefined from the given object.
@@ -19,6 +19,5 @@ export const mergeWithPartial = <Obj extends { [key: string]: any }>(
   obj: Obj,
   partial: Partial<Obj>
 ): Obj => {
-  throwIfContainsInsecurePropertyName(partial)
-  return { ...obj, ...removeUndefined(partial) }
+  return { ...obj, ...removeInsecureProperties(removeUndefined(partial)) }
 }

@@ -1,4 +1,3 @@
-import { insecurePropertiesTest } from "../test-helpers/InsecurePropertiesTest"
 import { mergeWithPartial, removeUndefined } from "./Object"
 
 describe("ObjectUtils tests", () => {
@@ -19,9 +18,13 @@ describe("ObjectUtils tests", () => {
     })
   })
 
-  test("merge with partial, insecure properties in partial", () => {
-    insecurePropertiesTest((name) => {
-      return mergeWithPartial({ a: 1 }, { [name]: 2 })
+  test("merge with partial, removes insecure properties in partial", () => {
+    const obj = mergeWithPartial({ a: 1 } as object, {
+      ["__proto__"]: 2,
+      constructor: 3,
+      prototype: 4,
+      hello: "world"
     })
+    expect(obj).toEqual({ a: 1, hello: "world" })
   })
 })

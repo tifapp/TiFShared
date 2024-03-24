@@ -1,6 +1,8 @@
 import { AnyClass, OmitFirstArgument } from "./HelperTypes"
 import { throwIfContainsInsecurePropertyName } from "./InsecureProperties"
 
+export type AnyExtensionFunction = (instance: any, ...args: any) => any
+
 export type Extension<
   Type,
   Extensions extends Record<string, (instance: Type, ...args: any) => any>
@@ -118,8 +120,6 @@ export const protoypeExtension = <
 const canExtendPrototype = (clazz: AnyClass) => {
   return !("ext" in clazz.prototype) || protoStorage.hasExtended(clazz)
 }
-
-type AnyExtensionFunction = (instance: any, ...args: any) => any
 
 class PrototypeExtensionsStorage {
   private map = new Map<string, Record<string, AnyExtensionFunction>>()
