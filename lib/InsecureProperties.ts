@@ -4,12 +4,21 @@ export const INSECURE_OBJECT_PROPERTY_NAMES = [
   "prototype"
 ] as const
 
+export type InsecureObjectPropertyNameMessage<PropertyName extends string> =
+  ReturnType<typeof errorMessage<PropertyName>>
+
+const errorMessage = <PropertyName extends string>(
+  propertyName: PropertyName
+) => {
+  return `${propertyName} is an insecure property name due to prototype pollution.` as const
+}
+
 export type InsecureObjectPropertyName =
   (typeof INSECURE_OBJECT_PROPERTY_NAMES)[number]
 
 export class InsecureObjectPropertyError extends Error {
   constructor(name: string) {
-    super(`${name} is an insecure property name due to prototype pollution.`)
+    super(errorMessage(name))
   }
 }
 

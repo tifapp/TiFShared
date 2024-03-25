@@ -1,7 +1,19 @@
 import { AnyClass, OmitFirstArgument } from "./HelperTypes"
-import { throwIfContainsInsecurePropertyName } from "./InsecureProperties"
+import {
+  InsecureObjectPropertyName,
+  InsecureObjectPropertyNameErrorMessage,
+  throwIfContainsInsecurePropertyName
+} from "./InsecureProperties"
 
 export type AnyExtensionFunction = (instance: any, ...args: any) => any
+
+export type ExtensionsRecord<
+  Extensions extends Record<string, AnyExtensionFunction>
+> = {
+  [propertyName in keyof Extensions]: propertyName extends InsecureObjectPropertyName
+    ? InsecureObjectPropertyNameErrorMessage<propertyName>
+    : Extensions[propertyName]
+}
 
 export type Extension<
   Type,
@@ -38,10 +50,13 @@ export class ExtendedPropertyExistsError extends Error {
  */
 export const extension = <
   Value extends object,
-  Extensions extends Record<string, (instance: Value, ...args: any) => any>
+  const Extensions extends Record<
+    string,
+    (instance: Value, ...args: any) => any
+  >
 >(
   value: Value,
-  extensions: Extensions
+  extensions: ExtensionsRecord<Extensions>
 ) => {
   throwIfContainsInsecurePropertyName(extensions)
   return _extension(value, extensions, Object.getOwnPropertyNames(value))
@@ -52,7 +67,7 @@ const _extension = <
   Extensions extends Record<string, (instance: Value, ...args: any) => any>
 >(
   value: Value,
-  extensions: Extensions,
+  extensions: ExtensionsRecord<Extensions>,
   preexistsingProperties: string[]
 ) => {
   Object.keys(extensions).forEach((extensionProperty) => {
@@ -93,13 +108,13 @@ export class UnableToExtendPrototypeError extends Error {
  */
 export const protoypeExtension = <
   Class extends AnyClass,
-  Extensions extends Record<
+  const Extensions extends Record<
     string,
     (instance: InstanceType<Class>, ...args: any) => any
   >
 >(
   clazz: Class,
-  extensions: Extensions
+  extensions: ExtensionsRecord<Extensions>
 ) => {
   if (!canExtendPrototype(clazz)) {
     throw new UnableToExtendPrototypeError(clazz)
@@ -130,7 +145,7 @@ class PrototypeExtensionsStorage {
 
   tryToStore(
     clazz: AnyClass,
-    extensions: Record<string, AnyExtensionFunction>
+    extensions: ExtensionsRecord<Record<string, AnyExtensionFunction>>
   ) {
     throwIfContainsInsecurePropertyName(extensions)
     const clazzProperties = this.allPropertiesOf(clazz)
