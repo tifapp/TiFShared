@@ -14,6 +14,7 @@ import { z } from "zod"
 import { FixedDateRangeSchema } from "../../domain-models/FixedDateRange"
 import { StringDateSchema } from "../../lib/Date"
 import { tifAPIErrorSchema } from "./Error"
+import { ChatTokenRequestSchema } from "./ChatToken"
 
 export const EventTimeResponseSchema = z.object({
   secondsToStart: z.number(),
@@ -71,7 +72,7 @@ export type EventWhenBlockedByHostResponse = z.infer<
 export const JoinEventResponseSchema =
   TrackableEventArrivalRegionsSchema.extend({
     id: EventIDSchema,
-    chatToken: z.string(),
+    chatToken: ChatTokenRequestSchema,
     hasArrived: z.boolean()
   })
 
