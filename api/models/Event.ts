@@ -78,3 +78,9 @@ export const JoinEventResponseSchema =
 export type JoinEventResponse = z.infer<typeof JoinEventResponseSchema>
 
 export const EventNotFoundErrorSchema = tifAPIErrorSchema("event-not-found")
+
+export const EventsInAreaResponseSchema = z.object({
+  events: z.array(EventResponseSchema)
+})
+
+export type EventsInAreaResponse = z.rInfer<typeof EventsInAreaResponseSchema>

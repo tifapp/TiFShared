@@ -21,8 +21,10 @@ import {
   EventNotFoundErrorSchema,
   EventResponseSchema,
   EventWhenBlockedByHostResponseSchema,
+  EventsInAreaResponseSchema,
   JoinEventResponseSchema
 } from "./models/Event"
+import { LocationCoordinate2D } from "domain-models/LocationCoordinate2D"
 
 /**
  * A high-level client for the TiF API.
@@ -307,6 +309,25 @@ export class TiFAPI {
         status404: UserNotFoundResponseSchema,
         status403: userTiFAPIErrorSchema("user-not-blocked")
       }
+    )
+  }
+
+  /**
+   * Returns the events in the area of the center with the given radius in
+   * meters.
+   */
+  async eventsInArea(center: LocationCoordinate2D, radiusMeters: number) {
+    return await this.apiFetch(
+      {
+        method: "POST",
+        endpoint: "/event/region",
+        body: {
+          userLatitude: center.latitude,
+          userLongitude: center.longitude,
+          radius: radiusMeters
+        }
+      },
+      { status200: EventsInAreaResponseSchema }
     )
   }
 }
