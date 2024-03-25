@@ -69,9 +69,15 @@ export class FixedDateRange {
  * are represented as raw date strings.
  */
 export const FixedDateRangeSchema = z.optionalParseable({
-  parse: ({ startDate, endDate }: { startDate: string; endDate: string }) => {
-    const sDate = StringDateSchema.safeParse(startDate)
-    const eDate = StringDateSchema.safeParse(endDate)
+  parse: ({
+    startDateTime,
+    endDateTime
+  }: {
+    startDateTime: string
+    endDateTime: string
+  }) => {
+    const sDate = StringDateSchema.safeParse(startDateTime)
+    const eDate = StringDateSchema.safeParse(endDateTime)
     if (!sDate.success || !eDate.success) return undefined
     return dateRange(sDate.data, eDate.data)
   }
