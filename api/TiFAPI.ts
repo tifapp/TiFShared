@@ -316,7 +316,11 @@ export class TiFAPI {
    * Returns the events in the area of the center with the given radius in
    * meters.
    */
-  async eventsInArea(center: LocationCoordinate2D, radiusMeters: number) {
+  async exploreEvents(
+    center: LocationCoordinate2D,
+    radiusMeters: number,
+    signal?: AbortSignal
+  ) {
     return await this.apiFetch(
       {
         method: "POST",
@@ -327,7 +331,8 @@ export class TiFAPI {
           radius: radiusMeters
         }
       },
-      { status200: EventsInAreaResponseSchema }
+      { status200: EventsInAreaResponseSchema },
+      signal
     )
   }
 }
