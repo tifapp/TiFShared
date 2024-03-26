@@ -15,7 +15,6 @@
   "bugs": {
     "url": "https://github.com/tifapp/TiFShared/issues"
   },
-  "files": ["dist"],
   "homepage": "https://github.com/tifapp/TiFShared#readme",
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
