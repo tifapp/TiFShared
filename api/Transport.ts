@@ -136,7 +136,8 @@ export const tifAPITransport = (baseURL: URL, middleware: TiFAPIMiddleware) => {
       if (!(error instanceof DOMException) || error.name !== "AbortError") {
         log.error("Failed to make tif API request.", {
           error,
-          errorMessage: error.message
+          errorMessage: error.message,
+          request
         })
       }
       throw error
@@ -201,7 +202,9 @@ const tryParseBody = async (
       return await responseSchema.parseAsync(json)
     } catch (e) {
       if (e instanceof ZodError) {
-        log.trace("Zod Schema Error Message", { error: e.message })
+        log.trace("Zod Schema Error Message", {
+          zodError: JSON.parse(e.message)
+        })
       }
       throw new Error(
         `TiF API responded with an invalid JSON body ${JSON.stringify(
