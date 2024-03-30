@@ -201,7 +201,7 @@ const tryParseBody = async (
       return await responseSchema.parseAsync(json)
     } catch (e) {
       if (e instanceof ZodError) {
-        log.info("Zod Schema Error Message", { error: e.message })
+        log.trace("Zod Schema Error Message", { error: e.message })
       }
       throw new Error(
         `TiF API responded with an invalid JSON body ${JSON.stringify(
