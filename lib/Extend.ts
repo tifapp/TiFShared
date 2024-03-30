@@ -1,10 +1,35 @@
 import { AnyClass, OmitFirstArgument } from "./HelperTypes"
+import {
+  InsecureObjectPropertyName,
+  InsecureObjectPropertyNameErrorMessage,
+  throwIfContainsInsecurePropertyName
+} from "./InsecureProperties"
+
+export type AnyExtensionFunction = (instance: any, ...args: any) => any
+
+export type ExtensionsRecord<
+  Extensions extends Record<string, AnyExtensionFunction>
+> = {
+  [propertyName in keyof Extensions]: propertyName extends InsecureObjectPropertyName
+    ? InsecureObjectPropertyNameErrorMessage<propertyName>
+    : Extensions[propertyName]
+}
 
 export type Extension<
   Type,
   Extensions extends Record<string, (instance: Type, ...args: any) => any>
 > = Type & {
   [key in keyof Extensions]: OmitFirstArgument<Extensions[key]>
+}
+
+export class ExtendedPropertyExistsError extends Error {
+  constructor(propertyName: string, clazz?: AnyClass) {
+    if (clazz) {
+      super(`${clazz.name} already contains a property named ${propertyName}.`)
+    } else {
+      super(`${propertyName} already exists on object.`)
+    }
+  }
 }
 
 /**
@@ -25,18 +50,44 @@ export type Extension<
  */
 export const extension = <
   Value extends object,
+  const Extensions extends Record<
+    string,
+    (instance: Value, ...args: any) => any
+  >
+>(
+  value: Value,
+  extensions: ExtensionsRecord<Extensions>
+) => {
+  throwIfContainsInsecurePropertyName(extensions)
+  return _extension(value, extensions, Object.getOwnPropertyNames(value))
+}
+
+const _extension = <
+  Value extends object,
   Extensions extends Record<string, (instance: Value, ...args: any) => any>
 >(
   value: Value,
-  extensions: Extensions
+  extensions: ExtensionsRecord<Extensions>,
+  preexistsingProperties: string[]
 ) => {
-  Object.keys(extensions).forEach((name) => {
-    Object.defineProperty(value, name, {
+  Object.keys(extensions).forEach((extensionProperty) => {
+    if (preexistsingProperties.includes(extensionProperty)) {
+      throw new ExtendedPropertyExistsError(extensionProperty)
+    }
+    Object.defineProperty(value, extensionProperty, {
       writable: true,
-      value: extensions[name].bind(undefined, value)
+      value: extensions[extensionProperty].bind(undefined, value)
     })
   })
   return value as Extension<Value, Extensions>
+}
+
+export class UnableToExtendPrototypeError extends Error {
+  constructor(clazz: AnyClass) {
+    super(
+      `Cannot extend prototype on ${clazz.name} since it already contains an ext property.`
+    )
+  }
 }
 
 /**
@@ -57,17 +108,62 @@ export const extension = <
  */
 export const protoypeExtension = <
   Class extends AnyClass,
-  Extensions extends Record<
+  const Extensions extends Record<
     string,
     (instance: InstanceType<Class>, ...args: any) => any
   >
 >(
   clazz: Class,
-  extensions: Extensions
+  extensions: ExtensionsRecord<Extensions>
 ) => {
+  if (!canExtendPrototype(clazz)) {
+    throw new UnableToExtendPrototypeError(clazz)
+  }
+  const allExtensions = protoStorage.tryToStore(clazz, extensions)
   Object.defineProperty(clazz.prototype, "ext", {
+    configurable: true,
     get() {
-      return extension(this, extensions)
+      return _extension(
+        this,
+        allExtensions,
+        Object.getOwnPropertyNames(clazz.prototype)
+      )
     }
   })
 }
+
+const canExtendPrototype = (clazz: AnyClass) => {
+  return !("ext" in clazz.prototype) || protoStorage.hasExtended(clazz)
+}
+
+class PrototypeExtensionsStorage {
+  private map = new Map<string, Record<string, AnyExtensionFunction>>()
+
+  hasExtended(clazz: AnyClass) {
+    return !!this.map.get(clazz.name)
+  }
+
+  tryToStore(
+    clazz: AnyClass,
+    extensions: ExtensionsRecord<Record<string, AnyExtensionFunction>>
+  ) {
+    throwIfContainsInsecurePropertyName(extensions)
+    const clazzProperties = this.allPropertiesOf(clazz)
+    Object.keys(extensions).forEach((extensionProperty) => {
+      if (clazzProperties.includes(extensionProperty)) {
+        throw new ExtendedPropertyExistsError(extensionProperty, clazz)
+      }
+    })
+    const allExtensions = { ...this.map.get(clazz.name), ...extensions }
+    this.map.set(clazz.name, allExtensions)
+    return allExtensions
+  }
+
+  private allPropertiesOf(clazz: AnyClass) {
+    return Object.keys(this.map.get(clazz.name) ?? {}).concat(
+      Object.getOwnPropertyNames(clazz.prototype)
+    )
+  }
+}
+
+const protoStorage = new PrototypeExtensionsStorage()
