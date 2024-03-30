@@ -21,12 +21,12 @@ describe("ExtendedZod tests", () => {
   test("optional parseable, error message", () => {
     const NonZeroSchema = z.optionalParseable(
       NonZero,
-      (num) => `Invalid number: ${num}`
+      (num) => `Invalid number: ${num}.`
     )
     const result = NonZeroSchema.safeParse(-1000) as { error: ZodError }
     expect(JSON.parse(result.error.message)).toMatchObject([
       {
-        message: "Invalid number: -1000"
+        message: "Invalid number: -1000. (Received: -1000)"
       }
     ])
   })

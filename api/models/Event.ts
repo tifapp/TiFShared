@@ -11,10 +11,10 @@ import {
   TrackableEventArrivalRegionsSchema
 } from "../../domain-models/Event"
 import { z } from "zod"
-import { FixedDateRangeSchema } from "../../domain-models/FixedDateRange"
 import { StringDateSchema } from "../../lib/Date"
 import { tifAPIErrorSchema } from "./Error"
 import { ChatTokenRequestSchema } from "./Chat"
+import { FixedDateRangeSchema } from "./FixedDateRange"
 
 export const EventTimeResponseSchema = z.object({
   secondsToStart: z.number(),

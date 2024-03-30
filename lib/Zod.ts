@@ -17,9 +17,10 @@ const optionalParse = <Input, Output>(
     .superRefine((arg, ctx) => {
       parsedValue = parseable.parse(arg)
       if (!parsedValue) {
+        const message = errorMessage?.(arg)
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: errorMessage?.(arg),
+          message: `${message ? message + " " : ""}(Received: ${arg})`,
           fatal: true
         })
       }
