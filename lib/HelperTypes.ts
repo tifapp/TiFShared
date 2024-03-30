@@ -56,3 +56,9 @@ export type DeepNullable<Obj> = DeepUnion<Obj, null>
 export type Reassign<Obj, Key extends keyof Obj, Type> = {
   [K in keyof Obj]: K extends Key ? Type : Obj[K]
 }
+
+declare global {
+  class DOMException extends Error {
+    new(message: string): DOMException
+  }
+}

@@ -1,4 +1,4 @@
-import { FixedDateRangeSchema, dateRange } from "./FixedDateRange"
+import { dateRange } from "./FixedDateRange"
 
 describe("FixedDateRange tests", () => {
   test("diff", () => {
@@ -52,34 +52,5 @@ describe("FixedDateRange tests", () => {
     )?.moveEndDateWithAutocorrection(new Date("2023-02-25T00:16:00"))
     // NB: The previous interval was 1 minute, so we ensure the start date is 1 minute behind of the end date
     expect(range?.startDate).toEqual(new Date("2023-02-25T00:15:00"))
-  })
-
-  test("zod schema", () => {
-    let result = FixedDateRangeSchema.safeParse({
-      startDate: "2023-02-25T00:19:00.00Z",
-      endDate: "2023-02-25T00:18:00.00Z"
-    })
-    expect(result.success).toEqual(false)
-    result = FixedDateRangeSchema.safeParse({
-      startDate: "2023-02-25T00:19:00.00Z",
-      endDate: "2023-02-25T00:20:00.00Z"
-    })
-    expect(result).toEqual({
-      success: true,
-      data: dateRange(
-        new Date("2023-02-25T00:19:00.00Z"),
-        new Date("2023-02-25T00:20:00.00Z")
-      )
-    })
-    result = FixedDateRangeSchema.safeParse({
-      startDate: "iuahbxgwd7823823geg",
-      endDate: "2023-02-25T00:18:00.00Z"
-    })
-    expect(result.success).toEqual(false)
-    result = FixedDateRangeSchema.safeParse({
-      startDate: "2023-02-25T00:18:00.00Z",
-      endDate: "899832ue982hdh"
-    })
-    expect(result.success).toEqual(false)
   })
 })

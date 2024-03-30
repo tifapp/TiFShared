@@ -14,6 +14,7 @@ import { z } from "zod"
 import { FixedDateRangeSchema } from "../../domain-models/FixedDateRange"
 import { StringDateSchema } from "../../lib/Date"
 import { tifAPIErrorSchema } from "./Error"
+import { ChatTokenRequestSchema } from "./ChatToken"
 
 export const EventTimeResponseSchema = z.object({
   secondsToStart: z.number(),
@@ -71,10 +72,16 @@ export type EventWhenBlockedByHostResponse = z.infer<
 export const JoinEventResponseSchema =
   TrackableEventArrivalRegionsSchema.extend({
     id: EventIDSchema,
-    chatToken: z.string(),
+    chatToken: ChatTokenRequestSchema,
     hasArrived: z.boolean()
   })
 
 export type JoinEventResponse = z.infer<typeof JoinEventResponseSchema>
 
 export const EventNotFoundErrorSchema = tifAPIErrorSchema("event-not-found")
+
+export const EventsInAreaResponseSchema = z.object({
+  events: z.array(EventResponseSchema)
+})
+
+export type EventsInAreaResponse = z.rInfer<typeof EventsInAreaResponseSchema>
