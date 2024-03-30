@@ -86,9 +86,9 @@ const log = logger("tif.api.client")
  * fetch function.
  *
  * ```ts
- * const apiFetch = createTiFAPIFetch(
+ * const apiFetch = tifAPITransport(
  *   TEST_BASE_URL,
- *   () => TEST_JWT
+ *   middleware
  * )
  *
  * const ResponseSchema = {
@@ -133,10 +133,12 @@ export const tifAPITransport = (baseURL: URL, middleware: TiFAPIMiddleware) => {
         data: await tryParseBody(json, resp.status, schema)
       } as TiFAPIResponse<Schemas>
     } catch (error) {
-      log.error("Failed to make tif API request.", {
-        error,
-        errorMessage: error.message
-      })
+      if (!(error instanceof DOMException) || error.name !== "AbortError") {
+        log.error("Failed to make tif API request.", {
+          error,
+          errorMessage: error.message
+        })
+      }
       throw error
     }
   }

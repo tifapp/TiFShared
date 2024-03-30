@@ -239,8 +239,29 @@ describe("TiFAPITransport tests", () => {
       controller.signal
     )
 
-    controller.abort()
+    process.nextTick(() => controller.abort())
 
-    await expect(respPromise).rejects.toBeInstanceOf(Error)
+    await expect(respPromise).rejects.toThrow(
+      new DOMException("This operation was aborted")
+    )
+  })
+
+  test("cancellation, does not log error", async () => {
+    const logHandler = jest.fn()
+    addLogHandler(logHandler)
+    const controller = new AbortController()
+    const respPromise = apiFetch(
+      {
+        method: "GET",
+        endpoint: "/test7"
+      },
+      TestResponseSchema,
+      controller.signal
+    )
+
+    process.nextTick(() => controller.abort())
+    await expect(respPromise).rejects.toThrow()
+    expect(logHandler).not.toHaveBeenCalled()
+    resetLogHandlers()
   })
 })
