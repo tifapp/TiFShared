@@ -4,6 +4,7 @@ import { z } from "zod"
 import { noContentResponse, mswServer } from "../test-helpers/MSW"
 import { tifAPITransport } from "./Transport"
 import { jwtMiddleware } from "./Middleware"
+import { addLogHandler, consoleLogHandler, resetLogHandlers } from "../logging"
 
 const TEST_BASE_URL = new URL("http://localhost:8080")
 
@@ -86,6 +87,9 @@ describe("TiFAPITransport tests", () => {
     )
   })
 
+  beforeAll(() => addLogHandler(consoleLogHandler()))
+  afterAll(() => resetLogHandlers())
+
   test("api client fetch", async () => {
     const resp = await apiFetch(
       {
@@ -135,7 +139,7 @@ describe("TiFAPITransport tests", () => {
   })
 
   test("api client fetch, response code not in schema", async () => {
-    expect(
+    await expect(
       apiFetch(
         {
           method: "GET",
@@ -151,7 +155,7 @@ describe("TiFAPITransport tests", () => {
   })
 
   test("api client fetch, json not returned from API", async () => {
-    expect(
+    await expect(
       apiFetch(
         {
           method: "GET",
@@ -165,7 +169,7 @@ describe("TiFAPITransport tests", () => {
   })
 
   test("api client fetch, invalid json returned from API", async () => {
-    expect(
+    await expect(
       apiFetch(
         {
           method: "GET",
@@ -181,7 +185,7 @@ describe("TiFAPITransport tests", () => {
   })
 
   test("api client fetch, empty body on 204, response schema doesn't list a 204 response", async () => {
-    expect(
+    await expect(
       apiFetch(
         {
           method: "GET",
@@ -209,7 +213,7 @@ describe("TiFAPITransport tests", () => {
   })
 
   test("api client fetch, non-empty body on 204, response schema lists a 204 response", async () => {
-    expect(
+    await expect(
       apiFetch(
         {
           method: "GET",
@@ -237,6 +241,6 @@ describe("TiFAPITransport tests", () => {
 
     controller.abort()
 
-    expect(respPromise).rejects.toBeInstanceOf(Error)
+    await expect(respPromise).rejects.toBeInstanceOf(Error)
   })
 })

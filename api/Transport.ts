@@ -1,7 +1,7 @@
 import { JSONSerializableValue, Reassign } from "../lib/HelperTypes"
 import { logger } from "../logging"
 import { ToStringable } from "../lib/String"
-import { ZodSchema, ZodType, z } from "zod"
+import { ZodError, ZodSchema, ZodType, z } from "zod"
 import { TiFAPIMiddleware } from "./Middleware"
 
 export type TiFHTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
@@ -197,7 +197,10 @@ const tryParseBody = async (
   } else {
     try {
       return await responseSchema.parseAsync(json)
-    } catch {
+    } catch (e) {
+      if (e instanceof ZodError) {
+        log.info("Zod Schema Error Message", { error: e.message })
+      }
       throw new Error(
         `TiF API responded with an invalid JSON body ${JSON.stringify(
           json
