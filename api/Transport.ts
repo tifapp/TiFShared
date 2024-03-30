@@ -1,7 +1,7 @@
 import { JSONSerializableValue, Reassign } from "../lib/HelperTypes"
 import { logger } from "../logging"
 import { ToStringable } from "../lib/String"
-import { ZodSchema, ZodType, z } from "zod"
+import { ZodError, ZodSchema, ZodType, z } from "zod"
 import { TiFAPIMiddleware } from "./Middleware"
 
 export type TiFHTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
@@ -86,9 +86,9 @@ const log = logger("tif.api.client")
  * fetch function.
  *
  * ```ts
- * const apiFetch = createTiFAPIFetch(
+ * const apiFetch = tifAPITransport(
  *   TEST_BASE_URL,
- *   () => TEST_JWT
+ *   middleware
  * )
  *
  * const ResponseSchema = {
@@ -133,10 +133,13 @@ export const tifAPITransport = (baseURL: URL, middleware: TiFAPIMiddleware) => {
         data: await tryParseBody(json, resp.status, schema)
       } as TiFAPIResponse<Schemas>
     } catch (error) {
-      log.error("Failed to make tif API request.", {
-        error,
-        errorMessage: error.message
-      })
+      if (!(error instanceof DOMException) || error.name !== "AbortError") {
+        log.error("Failed to make tif API request.", {
+          error,
+          errorMessage: error.message,
+          request
+        })
+      }
       throw error
     }
   }
@@ -197,7 +200,12 @@ const tryParseBody = async (
   } else {
     try {
       return await responseSchema.parseAsync(json)
-    } catch {
+    } catch (e) {
+      if (e instanceof ZodError) {
+        log.trace("Zod Schema Error Message", {
+          zodError: JSON.parse(e.message)
+        })
+      }
       throw new Error(
         `TiF API responded with an invalid JSON body ${JSON.stringify(
           json

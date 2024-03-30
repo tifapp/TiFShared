@@ -65,19 +65,6 @@ export class FixedDateRange {
 }
 
 /**
- * A zod schema to parse an {@link FixedDateRange} where the start and end dates
- * are represented as raw date strings.
- */
-export const FixedDateRangeSchema = z.optionalParseable({
-  parse: ({ startDate, endDate }: { startDate: string; endDate: string }) => {
-    const sDate = StringDateSchema.safeParse(startDate)
-    const eDate = StringDateSchema.safeParse(endDate)
-    if (!sDate.success || !eDate.success) return undefined
-    return dateRange(sDate.data, eDate.data)
-  }
-})
-
-/**
  * Creates a date range object iff the start date is less than or equal to the
  * end date.
  */

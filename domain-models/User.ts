@@ -169,6 +169,11 @@ export class UserHandle {
 /**
  * A zod schema that converts a string to an {@link UserHandle}.
  */
-export const UserHandleSchema = z.optionalParseable({
-  parse: (rawValue: string) => UserHandle.optionalParse(rawValue)
-})
+export const UserHandleSchema = z.optionalParseable(
+  {
+    parse: (rawValue: string) => UserHandle.optionalParse(rawValue)
+  },
+  () => {
+    return "A valid user handle only contains letters, numbers, underscores, and can only be upto 15 characters long."
+  }
+)
