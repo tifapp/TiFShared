@@ -25,3 +25,37 @@ export const jwtMiddleware = (
     })
   }
 }
+
+/**
+ * Chains 2 {@link TiFAPIMiddleware} instances together in the order they were
+ * passed into this function.
+ *
+ * ```ts
+ *  // Every request will run the jwtMiddleware, followed by
+ *  // someOtherMiddleware, followed by middleware3.
+ *  const middleware = chainMiddleware(
+ *   jwtMiddleware(loadJWT),
+ *   someOtherMiddleware,
+ *   middleware3
+ * )
+ * const api = new TiFAPI(tifAPITransport(API_URL, middleware))
+ * ```
+ */
+export const chainMiddleware = (
+  middleware1: TiFAPIMiddleware,
+  ...middlewares: TiFAPIMiddleware[]
+): TiFAPIMiddleware => {
+  return async (
+    request: RequestInit,
+    next: (request: RequestInit) => Promise<Response>
+  ) => {
+    let callMiddlewareChain = next
+    for (const middleware of middlewares.reverse()) {
+      const callNextMiddleware = callMiddlewareChain
+      callMiddlewareChain = async (request: RequestInit) => {
+        return await middleware(request, callNextMiddleware)
+      }
+    }
+    return await middleware1(request, callMiddlewareChain)
+  }
+}
