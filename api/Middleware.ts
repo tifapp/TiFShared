@@ -42,9 +42,7 @@ export const chainMiddleware = (
   middleware1: TiFAPIMiddleware,
   ...middlewares: TiFAPIMiddleware[]
 ): TiFAPIMiddleware => {
-  return middlewares.reduce((acc, middleware) => {
-    return chain2Middleware(acc, middleware)
-  }, middleware1)
+  return middlewares.reduce(chain2Middleware, middleware1)
 }
 
 const chain2Middleware = (
