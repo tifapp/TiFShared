@@ -13,10 +13,7 @@ export type TiFAPIMiddleware = (
 export const jwtMiddleware = (
   jwt: () => Promise<string | undefined>
 ): TiFAPIMiddleware => {
-  return async (
-    request: RequestInit,
-    next: (request: RequestInit) => Promise<Response>
-  ) => {
+  return async (request, next) => {
     const token = await jwt()
     if (!token) return await next(request)
     return await next({
@@ -45,17 +42,14 @@ export const chainMiddleware = (
   middleware1: TiFAPIMiddleware,
   ...middlewares: TiFAPIMiddleware[]
 ): TiFAPIMiddleware => {
-  return async (
-    request: RequestInit,
-    next: (request: RequestInit) => Promise<Response>
-  ) => {
-    let callMiddlewareChain = next
-    for (const middleware of middlewares.reverse()) {
-      const callNextMiddleware = callMiddlewareChain
-      callMiddlewareChain = async (request: RequestInit) => {
-        return await middleware(request, callNextMiddleware)
-      }
-    }
-    return await middleware1(request, callMiddlewareChain)
+  return middlewares.reduce(chain2Middleware, middleware1)
+}
+
+const chain2Middleware = (
+  m1: TiFAPIMiddleware,
+  m2: TiFAPIMiddleware
+): TiFAPIMiddleware => {
+  return async (request, next) => {
+    return await m1(request, async (request) => await m2(request, next))
   }
 }
