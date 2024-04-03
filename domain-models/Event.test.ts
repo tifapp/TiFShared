@@ -1,6 +1,11 @@
 import { linkify } from "../lib/LinkifyIt"
 import { ColorString } from "./ColorString"
-import { EventHandle, EventHandleLinkifyMatch, isAttendingEvent } from "./Event"
+import {
+  EventHandle,
+  EventHandleLinkifyMatch,
+  isAttendingEvent,
+  isHostingEvent
+} from "./Event"
 
 describe("EventModels tests", () => {
   describe("EventHandle tests", () => {
