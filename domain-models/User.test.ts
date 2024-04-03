@@ -1,4 +1,5 @@
-import { UserHandle } from "./User"
+import { linkify } from "../lib/LinkifyIt"
+import { UserHandle, UserHandleLinkifyMatch } from "./User"
 
 describe("User tests", () => {
   describe("UserHandle tests", () => {
@@ -37,6 +38,21 @@ describe("User tests", () => {
 
       handle2 = UserHandle.optionalParse("hello")!
       expect(handle1.isEqualTo(handle2)).toEqual(true)
+    })
+
+    test("linkify parsing", () => {
+      const str =
+        "Hello @user @hello, make sure@interlinked names aren't parsed. Also the name has to be @valid(#*&$. @*($&) @world Now for a @superduperlongname"
+      const matches = linkify
+        .match(str)
+        ?.map((m: UserHandleLinkifyMatch) => m.userHandle.toString())
+      expect(matches).toEqual([
+        "@user",
+        "@hello",
+        "@valid",
+        "@world",
+        "@superduperlongn"
+      ])
     })
   })
 })

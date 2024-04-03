@@ -1,4 +1,9 @@
 import { ColorString } from "./ColorString"
+import {
+  linkify,
+  ensureWhitespaceBeforeSchemaValidator
+} from "../lib/LinkifyIt"
+import { Match } from "linkify-it"
 import { z } from "zod"
 import {
   LocationCoordinate2DSchema,
@@ -163,6 +168,8 @@ export type TrackableEventArrivalRegions = z.rInfer<
  * the resulting text to the user.
  */
 export class EventHandle {
+  static readonly LINKIFY_SCHEMA = "!"
+
   readonly eventId: number
   readonly eventName: string
   readonly color: ColorString
@@ -225,3 +232,17 @@ export class EventHandle {
     )
   }
 }
+
+export type EventHandleLinkifyMatch = Match & { eventHandle: EventHandle }
+
+let _linkifyParsedHandle: EventHandle | undefined
+linkify.add(EventHandle.LINKIFY_SCHEMA, {
+  validate: ensureWhitespaceBeforeSchemaValidator((text, pos) => {
+    _linkifyParsedHandle = EventHandle.parse(text, pos)
+    return _linkifyParsedHandle
+  }),
+  normalize: (match: EventHandleLinkifyMatch) => {
+    // NB: We shouldn't get past validate if the parsed handle is undefined.
+    match.eventHandle = _linkifyParsedHandle!
+  }
+})

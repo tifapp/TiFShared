@@ -1,5 +1,6 @@
+import { linkify } from "../lib/LinkifyIt"
 import { ColorString } from "./ColorString"
-import { EventHandle } from "./Event"
+import { EventHandle, EventHandleLinkifyMatch } from "./Event"
 
 describe("EventModels tests", () => {
   describe("EventHandle tests", () => {
@@ -56,6 +57,26 @@ describe("EventModels tests", () => {
           ColorString.parse("#123456")!
         ).toString()
       ).toEqual("!17|123/#123456/Pickup Basketball")
+    })
+
+    test("linkify parsing", () => {
+      const str =
+        "Want to play some !17|123/#123456/Pickup Basketball? It!17|123/#123456/Pickup Basketball !17|123/#hibdc/Invalid is really fun! !21|124/#ABCDEF/Riku lied people died"
+      const matches = linkify
+        .match(str)
+        ?.map((m: EventHandleLinkifyMatch) => m.eventHandle)
+      expect(matches).toEqual([
+        new EventHandle(
+          123,
+          "Pickup Basketball",
+          ColorString.parse("#123456")!
+        ),
+        new EventHandle(
+          124,
+          "Riku lied people died",
+          ColorString.parse("#ABCDEF")!
+        )
+      ])
     })
   })
 })

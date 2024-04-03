@@ -1,3 +1,8 @@
+import {
+  ensureWhitespaceBeforeSchemaValidator,
+  linkify
+} from "../lib/LinkifyIt"
+import { Match } from "linkify-it"
 import { z } from "zod"
 
 export type UserID = string
@@ -106,6 +111,8 @@ export type UserHandleError = "already-taken" | UserHandleParsingError
  * A class representing a valid user handle string.
  */
 export class UserHandle {
+  static readonly LINKIFY_SCHEMA = "@"
+
   readonly rawValue: string
 
   private constructor(rawValue: string) {
@@ -127,7 +134,7 @@ export class UserHandle {
     return this.rawValue === other.rawValue
   }
 
-  private static REGEX = /^[A-Za-z0-9_]{1,15}$/
+  private static REGEX = /^[A-Za-z0-9_]{1,15}/
 
   /**
    * Validates a raw user handle string and returns an instance of this
@@ -146,7 +153,9 @@ export class UserHandle {
       return { handle: undefined, error: "empty" }
     } else if (rawValue.length > 15) {
       return { handle: undefined, error: "too-long" }
-    } else if (!UserHandle.REGEX.test(rawValue)) {
+    } else if (
+      UserHandle.parseUntilInvalidCharacter(rawValue)?.rawValue !== rawValue
+    ) {
       return { handle: undefined, error: "bad-format" }
     } else {
       return { handle: new UserHandle(rawValue), error: undefined }
@@ -158,6 +167,18 @@ export class UserHandle {
    */
   static optionalParse(rawValue: string) {
     return UserHandle.parse(rawValue).handle
+  }
+
+  /**
+   * Parses this user handle using only the first valid characters from the
+   * string.
+   *
+   * Ex. `"hello#$*(&$"` -> `"@hello"`
+   */
+  static parseUntilInvalidCharacter(rawValue: string) {
+    const match = rawValue.match(UserHandle.REGEX)
+    if (!match) return undefined
+    return new UserHandle(match[0])
   }
 
   static bitchellDickle = UserHandle.optionalParse("bictchell_dickle")!
@@ -177,3 +198,20 @@ export const UserHandleSchema = z.optionalParseable(
     return "A valid user handle only contains letters, numbers, underscores, and can only be upto 15 characters long."
   }
 )
+
+export type UserHandleLinkifyMatch = Match & { userHandle: UserHandle }
+
+let _linkifyParsedHandle: UserHandle | undefined
+linkify.add(UserHandle.LINKIFY_SCHEMA, {
+  validate: ensureWhitespaceBeforeSchemaValidator((text, pos) => {
+    const slice = text.slice(pos)
+    _linkifyParsedHandle = UserHandle.parseUntilInvalidCharacter(
+      slice.split(/\s/, 1)[0] ?? slice
+    )
+    return _linkifyParsedHandle
+  }),
+  normalize: (match: UserHandleLinkifyMatch) => {
+    // NB: We shouldn't get past validate if the parsed handle is undefined.
+    match.userHandle = _linkifyParsedHandle!
+  }
+})
