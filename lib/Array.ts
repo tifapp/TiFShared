@@ -31,8 +31,8 @@ declare global {
   }
 }
 
-const extensions = <T,>() => ({
-  compactMap: <B,>(
+const extensions = <T>() => ({
+  compactMap: <B>(
     array: T[],
     mapper: (element: T, index: number, array: T[]) => B | null | undefined
   ) => {
@@ -61,7 +61,7 @@ protoypeExtension(Array, extensions())
  * @param times The number of times to repeat `element`.
  * @param element The repeated value, or function to compute the repeated value.
  */
-export const repeatElements = <T,>(
+export const repeatElements = <T>(
   times: number,
   element: T | ((index: number) => T)
 ) => {
