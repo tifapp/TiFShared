@@ -1,5 +1,15 @@
 import { Extension, protoypeExtension } from "./Extend"
 
+// eslint-disable-next-line no-extend-native
+Array.prototype.with =
+  Array.prototype.with ||
+  function (index: number, element: any) {
+    return this.map((value: any, i: number) => {
+      if (index === i) return element
+      return value
+    })
+  }
+
 type BaseFunctions<Element> = Omit<
   ReturnType<typeof extensions<Element>>,
   "compactMap"
@@ -52,16 +62,6 @@ const extensions = <T>() => ({
     return array[Math.floor(array.length * randomValue())]
   }
 })
-
-// eslint-disable-next-line no-extend-native
-Array.prototype.with =
-  Array.prototype.with ||
-  function (index: number, element: any) {
-    return this.map((value: any, i: number) => {
-      if (index === i) return element
-      return value
-    })
-  }
 
 protoypeExtension(Array, extensions())
 
