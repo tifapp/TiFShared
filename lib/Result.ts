@@ -17,6 +17,7 @@ export type Result<Success, Failure> =
 
 export type AwaitableResult<Success, Failure> =
   | Result<Success, Failure>
+  | Promise<Result<Success, Failure>>
   | PromiseResult<Success, Failure>
 
 /**
@@ -58,6 +59,28 @@ export class SuccessResult<Success, Failure> {
    */
   observeFailure(_: (value: Failure) => void) {
     return this
+  }
+
+  /**
+   * Runs the handler with the current success value and passes the current success value through
+   * if the handler is successful.
+   *
+   * @param handler a function to process the current success value and either passthrough the value or return a failure.
+   */
+  passthroughSuccess<NewSuccess, NewFailure>(
+    handler: (value: Success) => AwaitableResult<NewSuccess, NewFailure>
+  ): AwaitableResult<Success, NewFailure | Failure> {
+    return handler(this.value).withSuccess(this.value)
+  }
+  
+  /**
+   * Runs the handler with the current failure value and passes the current failure value through
+   * if the handler is successful.
+   *
+   * @param handler a function to process the current failure value and either passthrough the value or return a failure.
+   */
+  passthroughFailure<NewSuccess, NewFailure>(_: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>) {
+    return this as unknown as AwaitableResult<Success, NewFailure | Failure>
   }
 
   /**
@@ -160,6 +183,28 @@ export class FailureResult<Success, Failure> {
   observeFailure(handler: (value: Failure) => void) {
     this.observe(handler)
     return this
+  }
+  
+  /**
+   * Runs the handler with the current success value and passes the current success value through
+   * if the handler is successful.
+   *
+   * @param handler a function to process the current success value and either passthrough the value or return a failure.
+   */
+  passthroughSuccess<NewSuccess, NewFailure>(_: (value: Success) => AwaitableResult<NewSuccess, NewFailure>) {
+    return this as unknown as AwaitableResult<Success, NewFailure | Failure>
+  }
+  
+  /**
+   * Runs the handler with the current failure value and passes the current failure value through
+   * if the handler is successful.
+   *
+   * @param handler a function to process the current failure value and either passthrough the value or return a failure.
+   */
+  passthroughFailure<NewSuccess, NewFailure>(
+    handler: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
+  ): AwaitableResult<Success, NewFailure | Failure> {
+    return handler(this.value).withFailure(this.value)
   }
 
   /**
@@ -265,6 +310,32 @@ export class PromiseResult<Success, Failure> extends Promise<
   observeFailure(handler: (value: Failure) => void) {
     this.then((result) => result.observeFailure(handler))
     return this
+  }
+  
+  /**
+   * Runs the handler with the current success value and passes the current success value through
+   * if the handler is successful.
+   *
+   * @param handler a function to process the current success value and either passthrough the value or return a failure.
+   */
+  passthroughSuccess<NewSuccess, NewFailure>(
+    handler: (value: Success) => AwaitableResult<NewSuccess, NewFailure>
+  ): AwaitableResult<Success, Failure | NewFailure> {
+    const result = this.then((result) => result.passthroughSuccess(handler))
+    return promiseResult(result)
+  }
+
+  /**
+   * Runs the handler with the current failure value and passes the current failure value through
+   * if the handler is successful.
+   *
+   * @param handler a function to process the current failure value and either passthrough the value or return a failure.
+   */
+  passthroughFailure<NewSuccess, NewFailure>(
+    handler: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
+  ): AwaitableResult<NewSuccess, Failure | NewFailure> {
+    const result = this.then((result) => result.passthroughFailure(handler))
+    return promiseResult(result)
   }
 
   /**
