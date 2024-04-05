@@ -35,8 +35,8 @@ describe("Result tests", () => {
       currentSuccess.flatMapSuccess(() => failure("failed" as const))
     ).toMatchObject(failureResult)
     expect(currentSuccess.inverted()).toMatchObject({
-      status: "failure",
-      value: "passed"
+      status: "failure" as const,
+      value: "passed" as const
     })
   })
 
@@ -69,19 +69,19 @@ describe("Result tests", () => {
   it("should allow failure results to be transformed", () => {
     const currentFailure = failure("failed" as const)
     expect(currentFailure.withFailure("newFailure")).toMatchObject({
-      status: "failure",
+      status: "failure" as const,
       value: "newFailure"
     })
     expect(currentFailure.mapFailure(() => "mappedFailure")).toMatchObject({
-      status: "failure",
+      status: "failure" as const,
       value: "mappedFailure"
     })
     expect(
       currentFailure.flatMapFailure(() => success("passed" as const))
     ).toMatchObject(successResult)
     expect(currentFailure.inverted()).toMatchObject({
-      status: "success",
-      value: "failed"
+      status: "success" as const,
+      value: "failed" as const
     })
   })
 
@@ -125,7 +125,7 @@ describe("Result tests", () => {
     const result2 = result1.observeFailure(observeFn)
     await result2
     expect(result1).toBe(result2)
-    expect(observeFn).toHaveBeenCalledWith("failed")
+    expect(observeFn).toHaveBeenCalledWith("failed" as const)
   })
 
   it("should should not observe success result when failure", async () => {
@@ -142,27 +142,27 @@ describe("Result tests", () => {
     const result2 = result1.observeSuccess(observeFn)
     await result2
     expect(result1).toBe(result2)
-    expect(observeFn).toHaveBeenCalledWith("passed")
+    expect(observeFn).toHaveBeenCalledWith("passed" as const)
   })
 
   it("should allow promise results to be transformed", async () => {
     const currentResult = promiseResult(failure("failed" as const))
     expect(await currentResult.withFailure("newFailure")).toMatchObject({
-      status: "failure",
+      status: "failure" as const,
       value: "newFailure"
     })
     expect(await currentResult.mapFailure(() => "mappedFailure")).toMatchObject(
-      { status: "failure", value: "mappedFailure" }
+      { status: "failure" as const, value: "mappedFailure" }
     )
     expect(
       await currentResult.flatMapFailure(() => success("passed" as const))
     ).toMatchObject(successResult)
     expect(
       await currentResult.inverted().withSuccess("newSuccess")
-    ).toMatchObject({ status: "success", value: "newSuccess" })
+    ).toMatchObject({ status: "success" as const, value: "newSuccess" })
     expect(
       await currentResult.inverted().mapSuccess(() => "mappedSuccess")
-    ).toMatchObject({ status: "success", value: "mappedSuccess" })
+    ).toMatchObject({ status: "success" as const, value: "mappedSuccess" })
     expect(
       await currentResult.inverted().flatMapSuccess(() => failure("failed" as const))
     ).toMatchObject(failureResult)
