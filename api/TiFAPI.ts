@@ -22,23 +22,14 @@ import {
 import { LocationCoordinate2D } from "domain-models/LocationCoordinate2D"
 import { jwtMiddleware } from "./Middleware"
 
-class _TiFAPI {
-  static readonly TEST_URL = new URL("https://localhost:8080")
+export const TEST_API_URL = new URL("http://localhost:8080")
 
-  /**
-   * A {@link TiFAPI} instance to use for unit testing.
-   */
-  static readonly testAuthenticatedInstance = new TiFAPI(
-    tifAPITransport(
-      new URL("http://localhost:8080"),
-      jwtMiddleware(async () => "test jwt")
-    )
-  )
+type _StaticTiFAPI = typeof _TiFAPIClass
+export interface TiFAPIConstructor extends _StaticTiFAPI {}
 
-  static testPath(endpoint: TiFAPIEndpoint) {
-    return `${TiFAPI.TEST_URL}${endpoint.slice(1)}`
-  }
+export interface TiFAPI extends InstanceType<TiFAPIConstructor> {}
 
+class _TiFAPIClass {
   private readonly apiFetch: TiFAPITransport
 
   constructor(apiFetch: TiFAPITransport) {
@@ -337,11 +328,6 @@ class _TiFAPI {
   }
 }
 
-type _StaticTiFAPI = typeof _TiFAPI
-export interface TiFAPIConstructor extends _StaticTiFAPI {}
-
-export interface TiFAPI extends InstanceType<TiFAPIConstructor> {}
-
 /**
  * A high-level client for the TiF API.
  *
@@ -352,4 +338,27 @@ export interface TiFAPI extends InstanceType<TiFAPIConstructor> {}
  * or frontend layer (eg. react), and should instead be used inside a data
  * layer that the UI can call into.
  */
-export declare var TiFAPI: TiFAPIConstructor
+export const TiFAPI = _TiFAPIClass as TiFAPIConstructor
+
+export interface TiFAPIConstructor {
+  /**
+   * A {@link TiFAPI} instance to use for unit testing.
+   */
+  testAuthenticatedInstance: TiFAPI
+
+  /**
+   * Creates a test URL string that can be used with MSW.
+   */
+  testPath(endpoint: TiFAPIEndpoint): string
+}
+
+TiFAPI.testAuthenticatedInstance = new TiFAPI(
+  tifAPITransport(
+    TEST_API_URL,
+    jwtMiddleware(
+      async () => "I was here at the beginning, and I will proclaim the end."
+    )
+  )
+)
+
+TiFAPI.testPath = (endpoint) => `${TEST_API_URL}${endpoint.slice(1)}`
