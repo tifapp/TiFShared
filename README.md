@@ -8,7 +8,6 @@ Make sure you import "TiFShared" in the root of any application you use this in.
 
 ```ts
 import { thing } from "some-other-library"
-// Ensure this import is the last import in the entrypoint file
 import "TiFShared"
 
 // Code to launch the app.
