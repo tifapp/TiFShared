@@ -10,7 +10,7 @@ import {
   TrackableEventArrivalRegionsSchema
 } from "../domain-models/Event"
 import { z } from "zod"
-import { TiFAPIEndpoint, TiFAPITransport } from "./Transport"
+import { TiFAPIEndpoint, TiFAPITransport, tifAPITransport } from "./Transport"
 import {
   UpdateCurrentUserProfileRequest,
   UserNotFoundResponseSchema,
@@ -25,6 +25,7 @@ import {
   JoinEventResponseSchema
 } from "./models/Event"
 import { LocationCoordinate2D } from "domain-models/LocationCoordinate2D"
+import { jwtMiddleware } from "./Middleware"
 
 /**
  * A high-level client for the TiF API.
@@ -36,9 +37,20 @@ import { LocationCoordinate2D } from "domain-models/LocationCoordinate2D"
 export class TiFAPI {
   static readonly TEST_URL = new URL("https://localhost:8080")
 
+  /**
+   * A {@link TiFAPI} instance to use for unit testing.
+   */
+  static readonly testAuthenticatedInstance = new TiFAPI(
+    tifAPITransport(
+      new URL("http://localhost:8080"),
+      jwtMiddleware(async () => "test jwt")
+    )
+  )
+
   static testPath(endpoint: TiFAPIEndpoint) {
     return `${TiFAPI.TEST_URL}${endpoint.slice(1)}`
   }
+
   private readonly apiFetch: TiFAPITransport
 
   constructor(apiFetch: TiFAPITransport) {
