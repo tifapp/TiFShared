@@ -1,9 +1,4 @@
-import {
-  UserHandle,
-  UserHandleSchema,
-  UserID,
-  UserIDSchema
-} from "../domain-models/User"
+import { UserHandleSchema, UserID, UserIDSchema } from "../domain-models/User"
 import {
   EventAttendeesPageSchema,
   EventRegion,
@@ -27,14 +22,7 @@ import {
 import { LocationCoordinate2D } from "domain-models/LocationCoordinate2D"
 import { jwtMiddleware } from "./Middleware"
 
-/**
- * A high-level client for the TiF API.
- *
- * This class provides wrapper functions which use the lower level {@link TiFAPIFetch}
- * function. The lower level function automatically tracks the current user's session
- * and handles authorization headers as well as response parsing.
- */
-export class TiFAPI {
+class _TiFAPI {
   static readonly TEST_URL = new URL("https://localhost:8080")
 
   /**
@@ -348,3 +336,18 @@ export class TiFAPI {
     )
   }
 }
+
+type _StaticTiFAPI = typeof _TiFAPI
+export interface TiFAPIConstructor extends _StaticTiFAPI {}
+
+/**
+ * A high-level client for the TiF API.
+ *
+ * This class provides wrapper functions which use the lower level
+ * {@link TiFAPITransport} function. Function parameters and return values in
+ * this class represent honest data from the API, and not the exact data that
+ * the UI may need. Therefore, this class should not be used directly in a UI
+ * or frontend layer (eg. react), and should instead be used inside a data
+ * layer that the UI can call into.
+ */
+export declare var TiFAPI: TiFAPIConstructor
