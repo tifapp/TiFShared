@@ -340,6 +340,8 @@ class _TiFAPI {
 type _StaticTiFAPI = typeof _TiFAPI
 export interface TiFAPIConstructor extends _StaticTiFAPI {}
 
+export interface TiFAPI extends InstanceType<TiFAPIConstructor> {}
+
 /**
  * A high-level client for the TiF API.
  *
