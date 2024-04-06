@@ -419,6 +419,37 @@ export const promiseResult = <Success, Failure>(
 }
 
 /**
+ * Acts like Promise.all but for PromiseResult objects. If any of the PromiseResults
+ * resolve to a FailureResult, the entire operation is considered a failure. Otherwise,
+ * it aggregates all success values into an array.
+ *
+ * @param promises An array of PromiseResult objects.
+ * @returns A PromiseResult that either contains an array of all success values or the first failure encountered.
+ */
+export function promiseResultAllSettled<Success, Failure>(
+  promises: Array<PromiseResult<Success, Failure>>
+): PromiseResult<Success[], Failure[]> {
+  return new PromiseResult<Success[], Failure[]>((resolve) => {
+    Promise.all(promises)
+      .then(results => {
+        const successes: Success[] = [];
+        const failures: Failure[] = [];
+        for (const result of results) {
+          if (result.status === 'failure') {
+            failures.push(result.value);
+          } else {
+            successes.push(result.value);
+          }
+        }
+        if (failures.length > 0) {
+          return resolve(failure(failures))
+        }
+        resolve(success(successes));
+      })
+  });
+}
+
+/**
  * Creates a {@link SuccessResult} with the given value.
  */
 export function success(): SuccessResult<undefined, never>

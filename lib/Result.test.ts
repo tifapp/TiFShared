@@ -1,4 +1,4 @@
-import { failure, promiseResult, promiseResultAll, promiseResultAllSettled, success } from "./Result"
+import { failure, promiseResult, promiseResultAllSettled, success } from "./Result"
 
 describe("Result tests", () => {
   const successResult = { status: "success" as const, value: "passed" as const }
@@ -220,5 +220,17 @@ describe("Result tests", () => {
     expect(
       await currentResult.inverted().flatMapSuccess(() => failure("failed" as const))
     ).toMatchObject({ status: "failure" as const, value: "failed" as const })
+  })
+  
+  it("should allow an array of promise results to resolve as one success result containing the array of success values", async () => {
+    expect(
+      await promiseResultAllSettled([promiseResult(success("success1" as const)), promiseResult(success("success2" as const))])
+    ).toMatchObject({ status: "success" as const, value: ["success1", "success2"] })
+  })
+  
+  it("should allow an array of promise results to resolve as one failure result containing the array of failure values", async () => {
+    expect(
+      await promiseResultAllSettled([promiseResult(success("success1" as const)), promiseResult(failure("failed1" as const)), promiseResult(failure("failed2" as const))])
+    ).toMatchObject({ status: "failure" as const, value: ["failed1", "failed2"] as const })
   })
 })
