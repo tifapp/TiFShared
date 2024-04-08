@@ -112,6 +112,18 @@ export type EventUserAttendeeStatus = z.rInfer<
   typeof EventUserAttendeeStatusSchema
 >
 
+export const EventWhenBlockedByHostSchema = z.object({
+  id: EventIDSchema,
+  title: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  host: EventWhenBlockedByHostAttendeeSchema
+})
+
+export type EventWhenBlockedByHost = z.rInfer<
+  typeof EventWhenBlockedByHostSchema
+>
+
 export const EventPreviewAttendeeSchema = EventAttendeeSchema.pick({
   id: true,
   profileImageURL: true

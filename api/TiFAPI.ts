@@ -2,6 +2,7 @@ import { UserHandleSchema, UserID, UserIDSchema } from "../domain-models/User"
 import {
   EventAttendeesPageSchema,
   EventRegion,
+  EventWhenBlockedByHostSchema,
   TrackableEventArrivalRegionsSchema
 } from "../domain-models/Event"
 import { z } from "zod"
@@ -15,7 +16,6 @@ import { tifAPIErrorSchema } from "./models/Error"
 import {
   EventNotFoundErrorSchema,
   EventResponseSchema,
-  EventWhenBlockedByHostResponseSchema,
   EventsInAreaResponseSchema,
   JoinEventResponseSchema
 } from "./models/Event"
@@ -166,7 +166,7 @@ class _TiFAPIClass {
         status200: EventResponseSchema.refine((resp) => resp.id === eventId),
         status204: "no-content",
         status404: EventNotFoundErrorSchema,
-        status403: EventWhenBlockedByHostResponseSchema.refine(
+        status403: EventWhenBlockedByHostSchema.refine(
           (resp) => resp.id === eventId
         )
       }
