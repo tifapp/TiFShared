@@ -95,7 +95,7 @@ export type UnblockedBidirectionalUserRelations = z.rInfer<
 /**
  * A descriptor of a 2-way relationship between 2 users.
  */
-export type BidrectionalUserRelations =
+export type BidirectionalUserRelations =
   | UnblockedBidirectionalUserRelations
   | BlockedBidirectionalUserRelations
 
