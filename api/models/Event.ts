@@ -7,6 +7,7 @@ import {
   EventPreviewAttendeeSchema,
   EventSettingsSchema,
   EventUserAttendeeStatusSchema,
+  EventWhenBlockedByHostSchema,
   TrackableEventArrivalRegionsSchema
 } from "../../domain-models/Event"
 import { z } from "zod"
@@ -69,3 +70,9 @@ export const EventsInAreaResponseSchema = z.object({
 })
 
 export type EventsInAreaResponse = z.rInfer<typeof EventsInAreaResponseSchema>
+
+export const EventWhenBlockedByHostResponseSchema =
+  EventWhenBlockedByHostSchema.omit({
+    createdAt: true,
+    updatedAt: true
+  }).extend({ createdAt: StringDateSchema, updatedAt: StringDateSchema })

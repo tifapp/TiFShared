@@ -16,6 +16,7 @@ import { tifAPIErrorSchema } from "./models/Error"
 import {
   EventNotFoundErrorSchema,
   EventResponseSchema,
+  EventWhenBlockedByHostResponseSchema,
   EventsInAreaResponseSchema,
   JoinEventResponseSchema
 } from "./models/Event"
@@ -166,7 +167,7 @@ class _TiFAPIClass {
         status200: EventResponseSchema.refine((resp) => resp.id === eventId),
         status204: "no-content",
         status404: EventNotFoundErrorSchema,
-        status403: EventWhenBlockedByHostSchema.refine(
+        status403: EventWhenBlockedByHostResponseSchema.refine(
           (resp) => resp.id === eventId
         )
       }
