@@ -132,6 +132,14 @@ export const DEFAULT_USER_SETTINGS = {
   updatedDateTime: null
 } as const satisfies UserSettings
 
+export const UpdateUserSettingsRequestSchema = UserSettingsSchema.omit({
+  updatedDateTime: true
+}).partial()
+
+export type UpdateUserSettingsRequest = z.rInfer<
+  typeof UpdateUserSettingsRequestSchema
+>
+
 /**
  * An reason that a user handle's raw text was unable to be parsed.
  */

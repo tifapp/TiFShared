@@ -1,8 +1,13 @@
-import { UserHandleSchema, UserID, UserIDSchema } from "../domain-models/User"
+import {
+  UpdateUserSettingsRequest,
+  UserHandleSchema,
+  UserID,
+  UserIDSchema,
+  UserSettingsSchema
+} from "../domain-models/User"
 import {
   EventAttendeesPageSchema,
   EventRegion,
-  EventWhenBlockedByHostSchema,
   TrackableEventArrivalRegionsSchema
 } from "../domain-models/Event"
 import { z } from "zod"
@@ -22,6 +27,7 @@ import {
 } from "./models/Event"
 import { LocationCoordinate2D } from "domain-models/LocationCoordinate2D"
 import { jwtMiddleware } from "./Middleware"
+import { StringDateSchema } from "lib/Date"
 
 export const TEST_API_URL = new URL("http://localhost:8080")
 
@@ -325,6 +331,34 @@ class _TiFAPIClass {
       },
       { status200: EventsInAreaResponseSchema },
       signal
+    )
+  }
+
+  /**
+   * Returns the remote settings for the current user.
+   */
+  async userSettings() {
+    return await this.apiFetch(
+      {
+        method: "GET",
+        endpoint: "/user/self/settings"
+      },
+      { status200: UserSettingsSchema }
+    )
+  }
+
+  /**
+   * Saves the specified user settings and returns the timestamp that they
+   * were last updated.
+   */
+  async saveUserSettings(request: UpdateUserSettingsRequest) {
+    return await this.apiFetch(
+      {
+        method: "PATCH",
+        endpoint: "/user/self/settings",
+        body: request
+      },
+      { status200: z.object({ updatedDateTime: StringDateSchema }) }
     )
   }
 }
