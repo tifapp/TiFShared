@@ -27,7 +27,7 @@ import {
 } from "./models/Event"
 import { LocationCoordinate2D } from "domain-models/LocationCoordinate2D"
 import { jwtMiddleware } from "./Middleware"
-import { StringDateSchema } from "lib/Date"
+import { StringDateSchema } from "../lib/Date"
 
 export const TEST_API_URL = new URL("http://localhost:8080")
 
