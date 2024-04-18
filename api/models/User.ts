@@ -1,4 +1,4 @@
-import { StringDateSchema } from "lib/Date"
+import { StringDateSchema } from "../../lib/Date"
 import {
   UserHandle,
   UserIDSchema,
