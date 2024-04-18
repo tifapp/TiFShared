@@ -91,10 +91,37 @@ export const EventUserAttendeeStatusSchema = z.union([
 ])
 
 /**
+ * Returns true if the status indicates that the user is hosting the event.
+ */
+export const isHostingEvent = (attendeeStatus: EventUserAttendeeStatus) => {
+  return attendeeStatus === "hosting"
+}
+
+/**
+ * Returns true if the status indicates that the user is either hosting or
+ * attending the event.
+ */
+export const isAttendingEvent = (attendeeStatus: EventUserAttendeeStatus) => {
+  return attendeeStatus !== "not-participating"
+}
+
+/**
  * A status for telling whether or not the user is attending, hosting, or not participating in an event.
  */
 export type EventUserAttendeeStatus = z.rInfer<
   typeof EventUserAttendeeStatusSchema
+>
+
+export const EventWhenBlockedByHostSchema = z.object({
+  id: EventIDSchema,
+  title: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  host: EventWhenBlockedByHostAttendeeSchema
+})
+
+export type EventWhenBlockedByHost = z.rInfer<
+  typeof EventWhenBlockedByHostSchema
 >
 
 export const EventPreviewAttendeeSchema = EventAttendeeSchema.pick({

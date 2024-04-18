@@ -2,6 +2,17 @@
 
 An extended standard library used at TiF.
 
+## Usage
+
+Make sure you import "TiFShared" in the root of any application you use this in. This ensures that all pollyfills and extensions are applied correctly.
+
+```ts
+import { thing } from "some-other-library"
+import "TiFShared"
+
+// Code to launch the app.
+```
+
 ## Overview
 
 This library contains 2 types of code:

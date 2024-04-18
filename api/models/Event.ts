@@ -7,7 +7,7 @@ import {
   EventPreviewAttendeeSchema,
   EventSettingsSchema,
   EventUserAttendeeStatusSchema,
-  EventWhenBlockedByHostAttendeeSchema,
+  EventWhenBlockedByHostSchema,
   TrackableEventArrivalRegionsSchema
 } from "../../domain-models/Event"
 import { z } from "zod"
@@ -30,7 +30,7 @@ export const EventTimeResponseSchema = z.object({
  *
  * If `secondsToStart` is negative, then the event is officially underway.
  */
-export type EventTimeResponse = z.infer<typeof EventTimeResponseSchema>
+export type EventTimeResponse = z.rInfer<typeof EventTimeResponseSchema>
 
 export const EventResponseSchema = z.object({
   id: EventIDSchema,
@@ -52,22 +52,7 @@ export const EventResponseSchema = z.object({
   endedAt: StringDateSchema.nullable()
 })
 
-export type EventResponse = z.infer<typeof EventResponseSchema>
-
-export const EventWhenBlockedByHostResponseSchema = EventResponseSchema.omit({
-  host: true
-})
-  .pick({
-    id: true,
-    title: true,
-    createdAt: true,
-    updatedAt: true
-  })
-  .extend({ host: EventWhenBlockedByHostAttendeeSchema })
-
-export type EventWhenBlockedByHostResponse = z.infer<
-  typeof EventWhenBlockedByHostResponseSchema
->
+export type EventResponse = z.rInfer<typeof EventResponseSchema>
 
 export const JoinEventResponseSchema =
   TrackableEventArrivalRegionsSchema.extend({
@@ -76,7 +61,7 @@ export const JoinEventResponseSchema =
     hasArrived: z.boolean()
   })
 
-export type JoinEventResponse = z.infer<typeof JoinEventResponseSchema>
+export type JoinEventResponse = z.rInfer<typeof JoinEventResponseSchema>
 
 export const EventNotFoundErrorSchema = tifAPIErrorSchema("event-not-found")
 
@@ -85,3 +70,9 @@ export const EventsInAreaResponseSchema = z.object({
 })
 
 export type EventsInAreaResponse = z.rInfer<typeof EventsInAreaResponseSchema>
+
+export const EventWhenBlockedByHostResponseSchema =
+  EventWhenBlockedByHostSchema.omit({
+    createdAt: true,
+    updatedAt: true
+  }).extend({ createdAt: StringDateSchema, updatedAt: StringDateSchema })

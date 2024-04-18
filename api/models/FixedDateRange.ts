@@ -20,7 +20,7 @@ export const FixedDateRangeSchema = z.optionalParseable(
       return dateRange(sDate.data, eDate.data)
     }
   },
-  (input) => {
+  () => {
     return `Response must have startDateTime before endDateTime.`
   }
 )
