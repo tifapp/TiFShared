@@ -1,4 +1,9 @@
-import { UserHandle, UserIDSchema } from "../../domain-models/User"
+import { StringDateSchema } from "lib/Date"
+import {
+  UserHandle,
+  UserIDSchema,
+  UserSettingsSchema
+} from "../../domain-models/User"
 import { tifAPIErrorSchema } from "./Error"
 import { z } from "zod"
 
@@ -16,3 +21,7 @@ export type UpdateCurrentUserProfileRequest = Partial<{
   bio: string
   handle: UserHandle
 }>
+
+export const UserSettingsResponseSchema = UserSettingsSchema.omit({
+  updatedDateTime: true
+}).extend({ updatedDateTime: StringDateSchema.nullable() })

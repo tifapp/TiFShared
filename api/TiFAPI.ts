@@ -2,8 +2,7 @@ import {
   UpdateUserSettingsRequest,
   UserHandleSchema,
   UserID,
-  UserIDSchema,
-  UserSettingsSchema
+  UserIDSchema
 } from "../domain-models/User"
 import {
   EventAttendeesPageSchema,
@@ -15,6 +14,7 @@ import { TiFAPIEndpoint, TiFAPITransport, tifAPITransport } from "./Transport"
 import {
   UpdateCurrentUserProfileRequest,
   UserNotFoundResponseSchema,
+  UserSettingsResponseSchema,
   userTiFAPIErrorSchema
 } from "./models/User"
 import { tifAPIErrorSchema } from "./models/Error"
@@ -343,7 +343,7 @@ class _TiFAPIClass {
         method: "GET",
         endpoint: "/user/self/settings"
       },
-      { status200: UserSettingsSchema }
+      { status200: UserSettingsResponseSchema }
     )
   }
 
