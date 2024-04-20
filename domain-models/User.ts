@@ -93,6 +93,13 @@ export type UnblockedBidirectionalUserRelations = z.rInfer<
 >
 
 /**
+ * A descriptor of a 2-way relationship between 2 users.
+ */
+export type BidirectionalUserRelations =
+  | UnblockedBidirectionalUserRelations
+  | BlockedBidirectionalUserRelations
+
+/**
  * An reason that a user handle's raw text was unable to be parsed.
  */
 export type UserHandleParsingError = "bad-format" | "empty" | "too-long"

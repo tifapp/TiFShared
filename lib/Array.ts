@@ -72,3 +72,20 @@ export const repeatElements = <T>(
     return element
   })
 }
+
+/**
+ * Pollyfills {@link Array.prototype.with}.
+ */
+export const pollyfillArray = () => {
+  Array.prototype.with =
+    Array.prototype.with ||
+    function (index: number, element: any) {
+      if (index >= this.length || index < 0) {
+        throw new RangeError(`Invalid index : ${index}`)
+      }
+      return this.map((value: any, i: number) => {
+        if (index === i) return element
+        return value
+      })
+    }
+}
