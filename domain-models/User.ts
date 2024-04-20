@@ -110,7 +110,7 @@ export const UserSettingsSchema = z.object({
   isChatNotificationsEnabled: z.boolean(),
   isFriendRequestNotificationsEnabled: z.boolean(),
   canShareArrivalStatus: z.boolean(),
-  updatedDateTime: z.date().nullable()
+  version: z.number().nonnegative()
 })
 
 /**
@@ -129,11 +129,11 @@ export const DEFAULT_USER_SETTINGS = {
   isChatNotificationsEnabled: true,
   isFriendRequestNotificationsEnabled: true,
   canShareArrivalStatus: true,
-  updatedDateTime: null
-} as const satisfies UserSettings
+  version: 0
+} as Readonly<UserSettings>
 
 export const UpdateUserSettingsRequestSchema = UserSettingsSchema.omit({
-  updatedDateTime: true
+  version: true
 }).partial()
 
 export type UpdateUserSettingsRequest = z.rInfer<

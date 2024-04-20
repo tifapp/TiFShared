@@ -358,7 +358,7 @@ class _TiFAPIClass {
         endpoint: "/user/self/settings",
         body: request
       },
-      { status200: z.object({ updatedDateTime: StringDateSchema }) }
+      { status200: z.object({ version: z.number().nonnegative() }) }
     )
   }
 }
