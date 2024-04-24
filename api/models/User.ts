@@ -1,4 +1,9 @@
-import { UserHandle, UserIDSchema } from "../../domain-models/User"
+import {
+  UserHandle,
+  UserIDSchema,
+  UserSettings,
+  UserSettingsSchema
+} from "../../domain-models/User"
 import { tifAPIErrorSchema } from "./Error"
 import { z } from "zod"
 
@@ -16,3 +21,15 @@ export type UpdateCurrentUserProfileRequest = Partial<{
   bio: string
   handle: UserHandle
 }>
+
+export const UpdateUserSettingsRequestSchema = UserSettingsSchema.omit({
+  version: true
+}).partial()
+
+export type UpdateUserSettingsRequest = z.rInfer<
+  typeof UpdateUserSettingsRequestSchema
+>
+
+export type UserSettingsResponse = UserSettings
+
+export const UserSettingsResponseSchema = UserSettingsSchema

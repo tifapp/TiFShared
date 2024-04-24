@@ -1,15 +1,21 @@
-import { UserHandleSchema, UserID, UserIDSchema } from "../domain-models/User"
+import {
+  UserHandleSchema,
+  UserID,
+  UserIDSchema,
+  UserSettingsVersionSchema
+} from "../domain-models/User"
 import {
   EventAttendeesPageSchema,
   EventRegion,
-  EventWhenBlockedByHostSchema,
   TrackableEventArrivalRegionsSchema
 } from "../domain-models/Event"
 import { z } from "zod"
 import { TiFAPIEndpoint, TiFAPITransport, tifAPITransport } from "./Transport"
 import {
   UpdateCurrentUserProfileRequest,
+  UpdateUserSettingsRequest,
   UserNotFoundResponseSchema,
+  UserSettingsResponseSchema,
   userTiFAPIErrorSchema
 } from "./models/User"
 import { tifAPIErrorSchema } from "./models/Error"
@@ -325,6 +331,34 @@ class _TiFAPIClass {
       },
       { status200: EventsInAreaResponseSchema },
       signal
+    )
+  }
+
+  /**
+   * Returns the remote settings for the current user.
+   */
+  async userSettings() {
+    return await this.apiFetch(
+      {
+        method: "GET",
+        endpoint: "/user/self/settings"
+      },
+      { status200: UserSettingsResponseSchema }
+    )
+  }
+
+  /**
+   * Saves the specified user settings and returns the timestamp that they
+   * were last updated.
+   */
+  async saveUserSettings(request: UpdateUserSettingsRequest) {
+    return await this.apiFetch(
+      {
+        method: "PATCH",
+        endpoint: "/user/self/settings",
+        body: request
+      },
+      { status200: z.object({ version: UserSettingsVersionSchema }) }
     )
   }
 }
