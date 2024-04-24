@@ -99,6 +99,10 @@ export type BidirectionalUserRelations =
   | UnblockedBidirectionalUserRelations
   | BlockedBidirectionalUserRelations
 
+export const UserSettingsVersionSchema = z.number().nonnegative()
+
+export type UserSettingsVersion = z.infer<typeof UserSettingsVersionSchema>
+
 /**
  * A zod schema for {@link UserSettingsSchema}.
  */
@@ -110,13 +114,13 @@ export const UserSettingsSchema = z.object({
   isChatNotificationsEnabled: z.boolean(),
   isFriendRequestNotificationsEnabled: z.boolean(),
   canShareArrivalStatus: z.boolean(),
-  version: z.number().nonnegative()
+  version: UserSettingsVersionSchema
 })
 
 /**
  * A type representing a user's settings.
  */
-export type UserSettings = z.infer<typeof UserSettingsSchema>
+export type UserSettings = z.rInfer<typeof UserSettingsSchema>
 
 /**
  * The default user settings, which enables all fields.
@@ -131,14 +135,6 @@ export const DEFAULT_USER_SETTINGS = {
   canShareArrivalStatus: true,
   version: 0
 } as Readonly<UserSettings>
-
-export const UpdateUserSettingsRequestSchema = UserSettingsSchema.omit({
-  version: true
-}).partial()
-
-export type UpdateUserSettingsRequest = z.rInfer<
-  typeof UpdateUserSettingsRequestSchema
->
 
 /**
  * An reason that a user handle's raw text was unable to be parsed.

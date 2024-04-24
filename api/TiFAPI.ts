@@ -1,8 +1,8 @@
 import {
-  UpdateUserSettingsRequest,
   UserHandleSchema,
   UserID,
-  UserIDSchema
+  UserIDSchema,
+  UserSettingsVersionSchema
 } from "../domain-models/User"
 import {
   EventAttendeesPageSchema,
@@ -13,6 +13,7 @@ import { z } from "zod"
 import { TiFAPIEndpoint, TiFAPITransport, tifAPITransport } from "./Transport"
 import {
   UpdateCurrentUserProfileRequest,
+  UpdateUserSettingsRequest,
   UserNotFoundResponseSchema,
   UserSettingsResponseSchema,
   userTiFAPIErrorSchema
@@ -27,7 +28,6 @@ import {
 } from "./models/Event"
 import { LocationCoordinate2D } from "domain-models/LocationCoordinate2D"
 import { jwtMiddleware } from "./Middleware"
-import { StringDateSchema } from "../lib/Date"
 
 export const TEST_API_URL = new URL("http://localhost:8080")
 
@@ -358,7 +358,7 @@ class _TiFAPIClass {
         endpoint: "/user/self/settings",
         body: request
       },
-      { status200: z.object({ version: z.number().nonnegative() }) }
+      { status200: z.object({ version: UserSettingsVersionSchema }) }
     )
   }
 }

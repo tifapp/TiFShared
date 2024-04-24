@@ -22,6 +22,14 @@ export type UpdateCurrentUserProfileRequest = Partial<{
   handle: UserHandle
 }>
 
+export const UpdateUserSettingsRequestSchema = UserSettingsSchema.omit({
+  version: true
+}).partial()
+
+export type UpdateUserSettingsRequest = z.rInfer<
+  typeof UpdateUserSettingsRequestSchema
+>
+
 export type UserSettingsResponse = UserSettings
 
 export const UserSettingsResponseSchema = UserSettingsSchema
