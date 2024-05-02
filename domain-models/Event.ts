@@ -182,6 +182,18 @@ export type TrackableEventArrivalRegions = z.rInfer<
   typeof TrackableEventArrivalRegionsSchema
 >
 
+export const EventCalendarWeekdaySchema = z.union([
+  z.literal("sunday"),
+  z.literal("monday"),
+  z.literal("tuesday"),
+  z.literal("wednesday"),
+  z.literal("thursday"),
+  z.literal("friday"),
+  z.literal("saturday")
+])
+
+export type EventCalendarWeekday = z.infer<typeof EventCalendarWeekdaySchema>
+
 /**
  * A handle that users can reference other events with.
  *
