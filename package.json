@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --collectCoverage",
-    "test:ci": "jest --ci --collectCoverage"
+    "test:ci": "jest --ci --collectCoverage",
+    "pr": "node --loader ts-node/esm npm-scripts/auto-pr.ts"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "@typescript-eslint/eslint-plugin": "^7.0.1",
     "@typescript-eslint/parser": "^7.0.1",
     "dayjs": "^1.11.10",
+    "dotenv": "^16.4.5",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-standard": "^17.1.0",
@@ -37,6 +39,7 @@
     "linkify-it": "^5.0.0",
     "msw": "^2.1.7",
     "node-fetch": "^3.3.2",
+    "open": "^10.1.0",
     "prettier": "^3.2.5",
     "prettier-eslint": "^16.3.0",
     "ts-node": "^10.9.2",
