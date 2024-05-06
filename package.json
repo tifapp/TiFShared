@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "name": "tifshared",
+  "name": "TiFShared",
   "version": "1.0.0",
   "description": "Shared utilities for the TiF app.",
   "main": "index.js",

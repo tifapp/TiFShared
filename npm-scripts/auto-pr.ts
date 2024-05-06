@@ -3,14 +3,13 @@ import dotenv from "dotenv"
 import fetch from "node-fetch"
 import open from "open"
 import { z } from "zod"
-import { getRawIdFromTicketId, getTicketId } from "./auto-pr-util.ts"
+import { addLogHandler, consoleLogHandler, logger } from "../logging/Logging.ts"
+import { getEnvPath, getRawIdFromTicketId, getTicketId } from "./auto-pr-util.ts"
 
-const getEnvPath = () => {
-  const envIndex = process.argv.indexOf('--env') + 1;
-  return envIndex > 0 ? process.argv[envIndex] : null;
-}
+const log = logger("auto-pr-script")
+addLogHandler(consoleLogHandler())
 
-const envFilePath = getEnvPath();
+const envFilePath = getEnvPath(process.argv);
 
 dotenv.config({ path: envFilePath || '.env' })
 
@@ -27,7 +26,7 @@ const envVars = z
 const getPRDetails = async (ticketId?: string) => {
   try {
     if (!ticketId) {
-      throw new Error("No ticket ID found.")
+      throw new Error("No ticket ID found, cannot link task.")
     }
     const ticketDetailsUrl = `https://api.trello.com/1/cards/${getRawIdFromTicketId(ticketId)}?key=${envVars.TRELLO_API_KEY}&token=${envVars.TRELLO_API_TOKEN}`
     const response = await fetch(ticketDetailsUrl)
@@ -35,12 +34,12 @@ const getPRDetails = async (ticketId?: string) => {
       throw new Error(response.statusText || "Failed to fetch task details.")
     }
     const data = await response.json() as {name: string, desc: string}
-    console.log("Found task details.")
+    log.info(`Using details of task "${data.name}" for pull request description.`)
     return { prTitle: encodeURIComponent(`${ticketId} ${data.name}`), prBody: encodeURIComponent(
       `${data.desc}\n\nTicket ID: ${ticketId}`
     )}
   } catch (error) {
-    console.error(error.message)
+    log.error(error.message)
     return { prTitle: undefined, prBody: undefined }
   }
 }
@@ -69,10 +68,10 @@ const getBaseBranch = () => {
   for (const branch of branchesToCheck) {
       try {
           execSync(`git rev-parse --verify ${branch}`, { stdio: 'ignore' });
-          console.log(`Using ${branch} as the base.`)
+          log.info(`Using ${branch} as the base.`)
           return branch;
       } catch (error) {
-          console.log(`${branch} branch not found.`)
+          log.info(`${branch} branch not found.`)
       }
   }
 
@@ -84,5 +83,5 @@ const ticketId = getTicketId(branchName, process.argv[process.argv.length - 1])
 const {prTitle = branchName, prBody = ""} = await getPRDetails(ticketId)
 const repoUrl = getGitRemoteUrl()
 
-console.log(`Opening PR form for ${repoUrl}...`)
+log.info(`Opening PR form for ${repoUrl}...`)
 open(`${repoUrl}/compare/${getBaseBranch()}...${branchName}?expand=1&title=${prTitle}&body=${prBody}`)
