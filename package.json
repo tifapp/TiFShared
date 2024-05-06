@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "tifshared",
   "version": "1.0.0",
   "description": "Shared utilities for the TiF app.",

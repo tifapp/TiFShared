@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 import fetch from "node-fetch"
 import open from "open"
 import { z } from "zod"
-import { getRawIdFromTicketId, getTicketId } from "./auto-pr-util"
+import { getRawIdFromTicketId, getTicketId } from "./auto-pr-util.ts"
 
 dotenv.config()
 
@@ -41,7 +41,7 @@ const getPRDetails = async (ticketId?: string) => {
 const getGitRemoteUrl = () => {
   try {
     const stdout = execSync("git config --get remote.origin.url", { encoding: 'utf8' })
-    return stdout.trim()
+    return stdout.trim().replace(/\.git$/, '');
   } catch (error) {
     throw new Error("Error getting Git remote URL:", error)
   }
@@ -56,9 +56,26 @@ const getCurrentBranchName = () => {
   }
 }
 
+const getBaseBranch = () => {
+  const branchesToCheck = ["development", "main", "master"];
+
+  for (const branch of branchesToCheck) {
+      try {
+          execSync(`git rev-parse --verify ${branch}`, { stdio: 'ignore' });
+          console.log(`Using ${branch} as the base.`)
+          return branch;
+      } catch (error) {
+          console.log(`${branch} branch not found.`)
+      }
+  }
+
+  throw new Error("No matching base branch found.");
+}
+
 let branchName = getCurrentBranchName()
 const ticketId = getTicketId(branchName, process.argv.slice(2)[0])
 const {prTitle = branchName, prBody = ""} = await getPRDetails(ticketId)
+const repoUrl = getGitRemoteUrl()
 
-console.log("Opening PR form...")
-open(`${getGitRemoteUrl()}/compare/development...${branchName}?expand=1&title=${prTitle}&body=${prBody}`)
+console.log(`Opening PR form for ${repoUrl}...`)
+open(`${repoUrl}/compare/${getBaseBranch()}...${branchName}?expand=1&title=${prTitle}&body=${prBody}`)
