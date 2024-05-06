@@ -6,13 +6,15 @@ export const getRawIdFromTicketId = (ticketId: string) => {
 export const getTicketId = (currentBranchName: string, ticketId?: string) => {
     let rawId;
 
-    if (!ticketId) {
+    if (ticketId) {
+        rawId = getRawIdFromTicketId(ticketId)
+    }
+    
+    if (!rawId) {
         rawId = getRawIdFromTicketId(currentBranchName)
         if (rawId) {
-        console.log("Card ID found in branch name")
+            console.log("Card ID found in branch name")
         }
-    } else {
-        rawId = getRawIdFromTicketId(ticketId)
     }
 
     if (!rawId) {

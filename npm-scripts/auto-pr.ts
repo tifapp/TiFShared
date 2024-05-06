@@ -5,7 +5,14 @@ import open from "open"
 import { z } from "zod"
 import { getRawIdFromTicketId, getTicketId } from "./auto-pr-util.ts"
 
-dotenv.config()
+const getEnvPath = () => {
+  const envIndex = process.argv.indexOf('--env') + 1;
+  return envIndex > 0 ? process.argv[envIndex] : null;
+}
+
+const envFilePath = getEnvPath();
+
+dotenv.config({ path: envFilePath || '.env' })
 
 const envVars = z
   .object({
@@ -73,7 +80,7 @@ const getBaseBranch = () => {
 }
 
 let branchName = getCurrentBranchName()
-const ticketId = getTicketId(branchName, process.argv.slice(2)[0])
+const ticketId = getTicketId(branchName, process.argv[process.argv.length - 1])
 const {prTitle = branchName, prBody = ""} = await getPRDetails(ticketId)
 const repoUrl = getGitRemoteUrl()
 
