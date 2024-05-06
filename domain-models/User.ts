@@ -4,6 +4,7 @@ import {
 } from "../lib/LinkifyIt"
 import { Match } from "linkify-it"
 import { z } from "zod"
+import { EventCalendarWeekdaySchema } from "./Event"
 
 export type UserID = string
 
@@ -114,6 +115,7 @@ export const UserSettingsSchema = z.object({
   isChatNotificationsEnabled: z.boolean(),
   isFriendRequestNotificationsEnabled: z.boolean(),
   canShareArrivalStatus: z.boolean(),
+  eventCalendarStartOfWeekDay: EventCalendarWeekdaySchema,
   version: UserSettingsVersionSchema
 })
 
