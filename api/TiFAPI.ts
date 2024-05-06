@@ -1,9 +1,4 @@
-import {
-  UserHandleSchema,
-  UserID,
-  UserIDSchema,
-  UserSettingsVersionSchema
-} from "../domain-models/User"
+import { UserHandleSchema, UserID, UserIDSchema } from "../domain-models/User"
 import {
   EventAttendeesPageSchema,
   EventRegion,
@@ -348,8 +343,7 @@ class _TiFAPIClass {
   }
 
   /**
-   * Saves the specified user settings and returns the timestamp that they
-   * were last updated.
+   * Saves the specified user settings and returns the updated user settings.
    */
   async saveUserSettings(request: UpdateUserSettingsRequest) {
     return await this.apiFetch(
@@ -358,7 +352,7 @@ class _TiFAPIClass {
         endpoint: "/user/self/settings",
         body: request
       },
-      { status200: z.object({ version: UserSettingsVersionSchema }) }
+      { status200: UserSettingsResponseSchema }
     )
   }
 }
