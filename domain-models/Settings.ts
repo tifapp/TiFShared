@@ -68,6 +68,26 @@ export type EventChangeNotificationTrigger = z.infer<
   typeof EventChangeNotificationTriggerSchema
 >
 
+export const EventTimeNotificationTriggerSchema = z.union([
+  z.literal("before-event"),
+  z.literal("event-started"),
+  z.literal("event-ended")
+])
+
+/**
+ * A string descriptor for a trigger when a push notification should be sent to
+ * the user due to the timing of the event.
+ *
+ * `"before-event"` -> Triggers x minutes (user-specified) before the event starts.
+ *
+ * `"event-started"` -> Triggers when the event starts.
+ *
+ * `"event-ended"` -> Triggers when the event ends.
+ */
+export type EventTimeNotificationTrigger = z.infer<
+  typeof EventTimeNotificationTriggerSchema
+>
+
 export const FriendNotificationTriggerSchema = z.union([
   z.literal("friend-request-received"),
   z.literal("friend-request-accepted")
@@ -125,6 +145,7 @@ export const UserSettingsSchema = z.object({
   eventChangeNotificationTriggers: z.array(
     EventChangeNotificationTriggerSchema
   ),
+  eventTimeNotificationTriggers: z.array(EventTimeNotificationTriggerSchema),
   friendNotificationTriggers: z.array(FriendNotificationTriggerSchema),
   canShareArrivalStatus: z.boolean(),
   fontFamily: CustomizeableFontFamilySchema,
@@ -168,6 +189,7 @@ export const DEFAULT_USER_SETTINGS = {
     "event-periodic-update",
     "user-entered-region"
   ],
+  eventTimeNotificationTriggers: ["before-event", "event-started"],
   friendNotificationTriggers: [
     "friend-request-received",
     "friend-request-accepted"
