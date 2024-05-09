@@ -270,7 +270,7 @@ Then link the utils package to your main project:
 ```bash
 npm link TiFShared
 ```
-* Important: Package-name is case-sensitive
+* Important: Package name is case-sensitive
 
 ### Step 3: Verify the Link
 
