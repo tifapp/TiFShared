@@ -4,7 +4,6 @@ import {
 } from "../lib/LinkifyIt"
 import { Match } from "linkify-it"
 import { z } from "zod"
-import { EventCalendarWeekdaySchema } from "./Event"
 
 export type UserID = string
 
@@ -99,53 +98,6 @@ export type UnblockedBidirectionalUserRelations = z.rInfer<
 export type BidirectionalUserRelations =
   | UnblockedBidirectionalUserRelations
   | BlockedBidirectionalUserRelations
-
-export const UserSettingsVersionSchema = z.number().nonnegative()
-
-export type UserSettingsVersion = z.infer<typeof UserSettingsVersionSchema>
-
-/**
- * A zod schema for {@link UserSettingsSchema}.
- */
-export const UserSettingsSchema = z.object({
-  isAnalyticsEnabled: z.boolean(),
-  isCrashReportingEnabled: z.boolean(),
-  isEventNotificationsEnabled: z.boolean(),
-  isMentionsNotificationsEnabled: z.boolean(),
-  isChatNotificationsEnabled: z.boolean(),
-  isFriendRequestNotificationsEnabled: z.boolean(),
-  canShareArrivalStatus: z.boolean(),
-  eventCalendarStartOfWeekDay: EventCalendarWeekdaySchema,
-  version: UserSettingsVersionSchema
-})
-
-/**
- * A type representing a user's settings.
- *
- * Each instance of settings has a version number which is used for client
- * and server side synchronization. When the client refreshes its settings,
- * it compares its local version number with the version number of the server.
- * If the server version number is higher than the client version number, then
- * the client switches to using the server version number. If the client
- * version number is higher than the server's, then the client sends its copy
- * of the settings to the server.
- */
-export type UserSettings = z.rInfer<typeof UserSettingsSchema>
-
-/**
- * The default user settings which enables all fields, and sets the version
- * number to zero.
- */
-export const DEFAULT_USER_SETTINGS = {
-  isAnalyticsEnabled: true,
-  isCrashReportingEnabled: true,
-  isEventNotificationsEnabled: true,
-  isMentionsNotificationsEnabled: true,
-  isChatNotificationsEnabled: true,
-  isFriendRequestNotificationsEnabled: true,
-  canShareArrivalStatus: true,
-  version: 0
-} as Readonly<UserSettings>
 
 /**
  * An reason that a user handle's raw text was unable to be parsed.
