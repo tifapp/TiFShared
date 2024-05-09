@@ -41,6 +41,74 @@ export type CustomizeableFontFamily = z.infer<
   typeof CustomizeableFontFamilySchema
 >
 
+export const EventChangeNotificationTriggerSchema = z.union([
+  z.literal("name-changed"),
+  z.literal("description-changed"),
+  z.literal("time-changed"),
+  z.literal("location-changed"),
+  z.literal("event-cancelled")
+])
+
+/**
+ * A string descriptor for a trigger when a push notification should be sent to
+ * the user due to information about an event changing or being cancelled.
+ *
+ * `"name-changed"` -> Triggers when the event name changes.
+ *
+ * `"description-changed"` -> Triggers when the event description changes.
+ *
+ * `"time-changed"` -> Triggers when either the start time or duration of the
+ * event changes.
+ *
+ * `"location-changed"` -> Triggers when the event location changes.
+ *
+ * `"event-cancelled"` -> Triggers when the event is cancelled.
+ */
+export type EventChangeNotificationTrigger = z.infer<
+  typeof EventChangeNotificationTriggerSchema
+>
+
+export const FriendNotificationTriggerSchema = z.union([
+  z.literal("friend-request-received"),
+  z.literal("friend-request-accepted")
+])
+
+/**
+ * A string descriptor for a trigger when a push notification should be sent to
+ * the user due to actions taken by sending friend requests.
+ *
+ * `"friend-request-received"` -> Triggers when the user received a friend
+ * request from another user.
+ *
+ * `"friend-request-accepted"` -> Triggers when another user accpets the user's
+ * friend request.
+ */
+export type FriendNotificationTrigger = z.infer<
+  typeof FriendNotificationTriggerSchema
+>
+
+export const EventArrivalNotificationTriggerSchema = z.union([
+  z.literal("user-entered-region"),
+  z.literal("event-started"),
+  z.literal("event-periodic-update")
+])
+
+/**
+ * A string descriptor for a trigger when a push notification should be sent to
+ * the user due to event participants arriving at their respective event.
+ *
+ * `"user-entered-region"` -> Triggers when the user enters the arrival radius
+ * for the event within the tracking period.
+ *
+ * `"event-started"` -> Triggers when an event starts.
+ *
+ * `"event-periodic-update"` -> Triggers at periodic intervals throughout the
+ * duration of an event.
+ */
+export type EventArrivalNotificationTrigger = z.infer<
+  typeof EventArrivalNotificationTriggerSchema
+>
+
 /**
  * A zod schema for {@link UserSettingsSchema}.
  */
@@ -50,7 +118,14 @@ export const UserSettingsSchema = z.object({
   isEventNotificationsEnabled: z.boolean(),
   isMentionsNotificationsEnabled: z.boolean(),
   isChatNotificationsEnabled: z.boolean(),
-  isFriendRequestNotificationsEnabled: z.boolean(),
+  isProfileNotificationsEnabled: z.boolean(),
+  eventArrivalNotificationTriggers: z.array(
+    EventArrivalNotificationTriggerSchema
+  ),
+  eventChangeNotificationTriggers: z.array(
+    EventChangeNotificationTriggerSchema
+  ),
+  friendNotificationTriggers: z.array(FriendNotificationTriggerSchema),
   canShareArrivalStatus: z.boolean(),
   fontFamily: CustomizeableFontFamilySchema,
   userInterfaceStyle: UserInterfaceStyleSchema,
@@ -82,7 +157,21 @@ export const DEFAULT_USER_SETTINGS = {
   isEventNotificationsEnabled: true,
   isMentionsNotificationsEnabled: true,
   isChatNotificationsEnabled: true,
-  isFriendRequestNotificationsEnabled: true,
+  isProfileNotificationsEnabled: true,
+  eventChangeNotificationTriggers: [
+    "time-changed",
+    "event-cancelled",
+    "location-changed"
+  ],
+  eventArrivalNotificationTriggers: [
+    "event-started",
+    "event-periodic-update",
+    "user-entered-region"
+  ],
+  friendNotificationTriggers: [
+    "friend-request-received",
+    "friend-request-accepted"
+  ],
   canShareArrivalStatus: true,
   fontFamily: "open-sans",
   userInterfaceStyle: "system",
