@@ -55,12 +55,8 @@ jobs:
         run: |
           BRANCH_NAME="${{ inputs.headRef }}"
           PR_BODY=$(echo "$ENCODED_BODY" | base64 --decode)
-          # Extracting ID from branch name or PR body
-          TICKET_ID=$(echo "$BRANCH_NAME" | grep -oP '(?i:task)_\K[A-Za-z0-9]+' || echo "$PR_BODY" | grep -oP '(?i:task)_\K[A-Za-z0-9]+')
-          # Extracting ID from URL in PR body
-          TICKET_ID_FROM_URL=$(echo "$PR_BODY" | grep -oP 'https://trello\.com/c/\K[A-Za-z0-9]+(?=/|\?|$)')
-          # Using the first non-empty result
-          TICKET_ID="${TICKET_ID:-$TICKET_ID_FROM_URL}"
+          # Attempt to extract ID from branch name using task_xxx pattern
+          TICKET_ID=$(echo "$BRANCH_NAME" | grep -oP '(?i:task)_\K[A-Za-z0-9]+' || echo "$PR_BODY" | grep -oP '(?i:task)_\K[A-Za-z0-9]+' || echo "$PR_BODY" | grep -oP 'https://trello\.com/c/\K[A-Za-z0-9]+(?=/|\?|$)' || echo "")
           if [[ -z "$TICKET_ID" ]]; then
             echo "No ticket ID found in branch name or PR body."
             exit 1
