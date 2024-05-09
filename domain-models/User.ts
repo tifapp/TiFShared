@@ -119,11 +119,20 @@ export const UserSettingsSchema = z.object({
 
 /**
  * A type representing a user's settings.
+ *
+ * Each instance of settings has a version number which is used for client
+ * and server side synchronization. When the client refreshes its settings,
+ * it compares its local version number with the version number of the server.
+ * If the server version number is higher than the client version number, then
+ * the client switches to using the server version number. If the client
+ * version number is higher than the server's, then the client sends its copy
+ * of the settings to the server.
  */
 export type UserSettings = z.rInfer<typeof UserSettingsSchema>
 
 /**
- * The default user settings, which enables all fields.
+ * The default user settings which enables all fields, and sets the version
+ * number to zero.
  */
 export const DEFAULT_USER_SETTINGS = {
   isAnalyticsEnabled: true,
