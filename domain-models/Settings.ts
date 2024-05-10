@@ -14,34 +14,17 @@ export const EventCalendarWeekdaySchema = z.union([
   z.literal("saturday")
 ])
 
-export type EventCalendarWeekday = z.infer<typeof EventCalendarWeekdaySchema>
+export type EventCalendarWeekdayID = z.infer<typeof EventCalendarWeekdaySchema>
 
-export const EventCalendarLayoutSchema = z.union([
+export const EventCalendarLayoutIDSchema = z.union([
   z.literal("single-day-layout"),
   z.literal("week-layout"),
   z.literal("month-layout")
 ])
 
-export type EventCalendarLayout = z.infer<typeof EventCalendarLayoutSchema>
+export type EventCalendarLayoutID = z.infer<typeof EventCalendarLayoutIDSchema>
 
-export const UserInterfaceStyleSchema = z.union([
-  z.literal("light"),
-  z.literal("dark"),
-  z.literal("system")
-])
-
-export type UserInterfaceStyle = z.infer<typeof UserInterfaceStyleSchema>
-
-export const CustomizeableFontFamilySchema = z.union([
-  z.literal("open-sans"),
-  z.literal("open-dyslexic")
-])
-
-export type CustomizeableFontFamily = z.infer<
-  typeof CustomizeableFontFamilySchema
->
-
-export const EventChangeNotificationTriggerSchema = z.union([
+export const EventChangeNotificationTriggerIDSchema = z.union([
   z.literal("name-changed"),
   z.literal("description-changed"),
   z.literal("time-changed"),
@@ -64,11 +47,11 @@ export const EventChangeNotificationTriggerSchema = z.union([
  *
  * `"event-cancelled"` -> Triggers when the event is cancelled.
  */
-export type EventChangeNotificationTrigger = z.infer<
-  typeof EventChangeNotificationTriggerSchema
+export type EventChangeNotificationTriggerID = z.infer<
+  typeof EventChangeNotificationTriggerIDSchema
 >
 
-export const EventTimeNotificationTriggerSchema = z.union([
+export const EventTimeNotificationTriggerIDSchema = z.union([
   z.literal("before-event"),
   z.literal("event-started"),
   z.literal("event-ended")
@@ -84,11 +67,11 @@ export const EventTimeNotificationTriggerSchema = z.union([
  *
  * `"event-ended"` -> Triggers when the event ends.
  */
-export type EventTimeNotificationTrigger = z.infer<
-  typeof EventTimeNotificationTriggerSchema
+export type EventTimeNotificationTriggerID = z.infer<
+  typeof EventTimeNotificationTriggerIDSchema
 >
 
-export const FriendNotificationTriggerSchema = z.union([
+export const FriendNotificationTriggerSchemaID = z.union([
   z.literal("friend-request-received"),
   z.literal("friend-request-accepted")
 ])
@@ -103,11 +86,11 @@ export const FriendNotificationTriggerSchema = z.union([
  * `"friend-request-accepted"` -> Triggers when another user accpets the user's
  * friend request.
  */
-export type FriendNotificationTrigger = z.infer<
-  typeof FriendNotificationTriggerSchema
+export type FriendNotificationTriggerID = z.infer<
+  typeof FriendNotificationTriggerSchemaID
 >
 
-export const EventArrivalNotificationTriggerSchema = z.union([
+export const EventArrivalNotificationTriggerIDSchema = z.union([
   z.literal("user-entered-region"),
   z.literal("event-started"),
   z.literal("event-periodic-update")
@@ -125,20 +108,20 @@ export const EventArrivalNotificationTriggerSchema = z.union([
  * `"event-periodic-update"` -> Triggers at periodic intervals throughout the
  * duration of an event.
  */
-export type EventArrivalNotificationTrigger = z.infer<
-  typeof EventArrivalNotificationTriggerSchema
+export type EventArrivalNotificationTriggerID = z.infer<
+  typeof EventArrivalNotificationTriggerIDSchema
 >
 
 /**
  * A utility to toggle on or off an element in a setttings trigger set.
  */
-export const toggleSettingsTrigger = <Trigger extends string>(
-  triggers: Trigger[],
-  trigger: Trigger,
+export const toggleSettingsTriggerId = <TriggerID extends string>(
+  ids: TriggerID[],
+  id: TriggerID,
   isEnabled: boolean
 ) => {
-  const filteredTriggers = triggers.filter((t) => t !== trigger)
-  return isEnabled ? filteredTriggers.concat(trigger) : filteredTriggers
+  const filteredTriggers = ids.filter((t) => t !== id)
+  return isEnabled ? filteredTriggers.concat(id) : filteredTriggers
 }
 
 /**
@@ -151,19 +134,19 @@ export const UserSettingsSchema = z.object({
   isMentionsNotificationsEnabled: z.boolean(),
   isChatNotificationsEnabled: z.boolean(),
   isProfileNotificationsEnabled: z.boolean(),
-  eventArrivalNotificationTriggers: z.array(
-    EventArrivalNotificationTriggerSchema
+  eventArrivalNotificationTriggerIds: z.array(
+    EventArrivalNotificationTriggerIDSchema
   ),
-  eventChangeNotificationTriggers: z.array(
-    EventChangeNotificationTriggerSchema
+  eventChangeNotificationTriggerIds: z.array(
+    EventChangeNotificationTriggerIDSchema
   ),
-  eventTimeNotificationTriggers: z.array(EventTimeNotificationTriggerSchema),
-  friendNotificationTriggers: z.array(FriendNotificationTriggerSchema),
+  eventTimeNotificationTriggerIds: z.array(
+    EventTimeNotificationTriggerIDSchema
+  ),
+  friendNotificationTriggerIds: z.array(FriendNotificationTriggerSchemaID),
   canShareArrivalStatus: z.boolean(),
-  fontFamily: CustomizeableFontFamilySchema,
-  userInterfaceStyle: UserInterfaceStyleSchema,
   eventCalendarStartOfWeekDay: EventCalendarWeekdaySchema,
-  eventCalendarDefaultLayout: EventCalendarLayoutSchema,
+  eventCalendarDefaultLayout: EventCalendarLayoutIDSchema,
   version: UserSettingsVersionSchema
 })
 
@@ -191,24 +174,22 @@ export const DEFAULT_USER_SETTINGS = {
   isMentionsNotificationsEnabled: true,
   isChatNotificationsEnabled: true,
   isProfileNotificationsEnabled: true,
-  eventChangeNotificationTriggers: [
+  eventChangeNotificationTriggerIds: [
     "time-changed",
     "event-cancelled",
     "location-changed"
   ],
-  eventArrivalNotificationTriggers: [
+  eventArrivalNotificationTriggerIds: [
     "event-started",
     "event-periodic-update",
     "user-entered-region"
   ],
-  eventTimeNotificationTriggers: ["before-event", "event-started"],
-  friendNotificationTriggers: [
+  eventTimeNotificationTriggerIds: ["before-event", "event-started"],
+  friendNotificationTriggerIds: [
     "friend-request-received",
     "friend-request-accepted"
   ],
   canShareArrivalStatus: true,
-  fontFamily: "open-sans",
-  userInterfaceStyle: "system",
   eventCalendarStartOfWeekDay: "monday",
   eventCalendarDefaultLayout: "week-layout",
   version: 0
