@@ -31,8 +31,8 @@ export const PushNotificationTriggerIDSchema = z.union([
   z.literal("friend-request-received"),
   z.literal("friend-request-accepted"),
   z.literal("user-entered-region"),
-  z.literal("event-started"),
-  z.literal("event-periodic-update"),
+  z.literal("event-attendance-headcount"),
+  z.literal("event-periodic-arrivals"),
   z.literal("event-starting-soon"),
   z.literal("event-started"),
   z.literal("event-ended"),
@@ -56,12 +56,12 @@ export const PushNotificationTriggerIDSchema = z.union([
  * `"user-entered-region"` -> Triggers when the user enters the arrival radius
  * for the event within the tracking period.
  *
- * `"event-started-arrivals"` -> Triggers when an event starts with an update
+ * `"event-attendance-headcount"` -> Triggers when an event starts with an update
  * on the headcount of attendees who are at the event.
  *
- * `"event-periodic-arrivals-update"` -> Triggers at periodic intervals
- * throughout the duration of an event with updates on the arrival statuses
- * of all participants.
+ * `"event-periodic-arrivals"` -> Triggers at periodic intervals throughout the
+ * duration of an event with updates on the arrival statuses of all
+ * participants.
  *
  * `"event-starting-soon"` -> Triggers x minutes (user-specified) before the event starts.
  *
@@ -133,8 +133,8 @@ export const DEFAULT_USER_SETTINGS = {
     "friend-request-received",
     "friend-request-accepted",
     "user-entered-region",
-    "event-started",
-    "event-periodic-update",
+    "event-attendance-headcount",
+    "event-periodic-arrivals",
     "event-starting-soon",
     "event-started",
     "event-ended",
