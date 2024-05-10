@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { PlacemarkSchema } from "./Placemark"
 
 export const UserSettingsVersionSchema = z.number().nonnegative()
 
@@ -41,6 +42,8 @@ export type CustomizeableFontFamily = z.infer<
   typeof CustomizeableFontFamilySchema
 >
 
+export type EventDurationSeconds = number
+
 /**
  * A zod schema for {@link UserSettingsSchema}.
  */
@@ -56,6 +59,9 @@ export const UserSettingsSchema = z.object({
   userInterfaceStyle: UserInterfaceStyleSchema,
   eventCalendarStartOfWeekDay: EventCalendarWeekdaySchema,
   eventCalendarDefaultLayout: EventCalendarLayoutSchema,
+  eventPresetShouldHideAfterStartDate: z.boolean(),
+  eventPresetPlacemark: PlacemarkSchema,
+  eventPresetDurations: z.array(z.number()),
   version: UserSettingsVersionSchema
 })
 
