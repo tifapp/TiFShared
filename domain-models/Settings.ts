@@ -24,92 +24,64 @@ export const EventCalendarLayoutIDSchema = z.union([
 
 export type EventCalendarLayoutID = z.infer<typeof EventCalendarLayoutIDSchema>
 
-export const EventChangeNotificationTriggerIDSchema = z.union([
-  z.literal("name-changed"),
-  z.literal("description-changed"),
-  z.literal("time-changed"),
-  z.literal("location-changed"),
+/**
+ * A zod schema for {@link PushNotificationTriggerID}.
+ */
+export const PushNotificationTriggerIDSchema = z.union([
+  z.literal("friend-request-received"),
+  z.literal("friend-request-accepted"),
+  z.literal("user-entered-region"),
+  z.literal("event-started"),
+  z.literal("event-periodic-update"),
+  z.literal("event-starting-soon"),
+  z.literal("event-started"),
+  z.literal("event-ended"),
+  z.literal("event-name-changed"),
+  z.literal("event-description-changed"),
+  z.literal("event-time-changed"),
+  z.literal("event-location-changed"),
   z.literal("event-cancelled")
 ])
 
 /**
- * A string descriptor for a trigger when a push notification should be sent to
- * the user due to information about an event changing or being cancelled.
- *
- * `"name-changed"` -> Triggers when the event name changes.
- *
- * `"description-changed"` -> Triggers when the event description changes.
- *
- * `"time-changed"` -> Triggers when either the start time or duration of the
- * event changes.
- *
- * `"location-changed"` -> Triggers when the event location changes.
- *
- * `"event-cancelled"` -> Triggers when the event is cancelled.
- */
-export type EventChangeNotificationTriggerID = z.infer<
-  typeof EventChangeNotificationTriggerIDSchema
->
-
-export const EventTimeNotificationTriggerIDSchema = z.union([
-  z.literal("before-event"),
-  z.literal("event-started"),
-  z.literal("event-ended")
-])
-
-/**
- * A string descriptor for a trigger when a push notification should be sent to
- * the user due to the timing of the event.
- *
- * `"before-event"` -> Triggers x minutes (user-specified) before the event starts.
- *
- * `"event-started"` -> Triggers when the event starts.
- *
- * `"event-ended"` -> Triggers when the event ends.
- */
-export type EventTimeNotificationTriggerID = z.infer<
-  typeof EventTimeNotificationTriggerIDSchema
->
-
-export const FriendNotificationTriggerIDSchema = z.union([
-  z.literal("friend-request-received"),
-  z.literal("friend-request-accepted")
-])
-
-/**
- * A string descriptor for a trigger when a push notification should be sent to
- * the user due to actions taken by sending friend requests.
+ * A string id for a trigger when a push notification should be sent to
+ * the user.
  *
  * `"friend-request-received"` -> Triggers when the user received a friend
  * request from another user.
  *
  * `"friend-request-accepted"` -> Triggers when another user accpets the user's
  * friend request.
- */
-export type FriendNotificationTriggerID = z.infer<
-  typeof FriendNotificationTriggerIDSchema
->
-
-export const EventArrivalNotificationTriggerIDSchema = z.union([
-  z.literal("user-entered-region"),
-  z.literal("event-started"),
-  z.literal("event-periodic-update")
-])
-
-/**
- * A string descriptor for a trigger when a push notification should be sent to
- * the user due to event participants arriving at their respective event.
  *
  * `"user-entered-region"` -> Triggers when the user enters the arrival radius
  * for the event within the tracking period.
  *
- * `"event-started"` -> Triggers when an event starts.
+ * `"event-started-arrivals"` -> Triggers when an event starts with an update
+ * on the headcount of attendees who are at the event.
  *
- * `"event-periodic-update"` -> Triggers at periodic intervals throughout the
- * duration of an event.
+ * `"event-periodic-arrivals-update"` -> Triggers at periodic intervals
+ * throughout the duration of an event with updates on the arrival statuses
+ * of all participants.
+ *
+ * `"event-starting-soon"` -> Triggers x minutes (user-specified) before the event starts.
+ *
+ * `"event-started"` -> Triggers when the event starts.
+ *
+ * `"event-ended"` -> Triggers when the event ends.
+ *
+ * `"event-name-changed"` -> Triggers when the event name changes.
+ *
+ * `"event-description-changed"` -> Triggers when the event description changes.
+ *
+ * `"event-time-changed"` -> Triggers when either the start time or duration of the
+ * event changes.
+ *
+ * `"event-location-changed"` -> Triggers when the event location changes.
+ *
+ * `"event-cancelled"` -> Triggers when the event is cancelled.
  */
-export type EventArrivalNotificationTriggerID = z.infer<
-  typeof EventArrivalNotificationTriggerIDSchema
+export type PushNotificationTriggerID = z.infer<
+  typeof PushNotificationTriggerIDSchema
 >
 
 /**
@@ -130,16 +102,7 @@ export const toggleSettingsTriggerId = <TriggerID extends string>(
 export const UserSettingsSchema = z.object({
   isAnalyticsEnabled: z.boolean(),
   isCrashReportingEnabled: z.boolean(),
-  eventArrivalNotificationTriggerIds: z.array(
-    EventArrivalNotificationTriggerIDSchema
-  ),
-  eventChangeNotificationTriggerIds: z.array(
-    EventChangeNotificationTriggerIDSchema
-  ),
-  eventTimeNotificationTriggerIds: z.array(
-    EventTimeNotificationTriggerIDSchema
-  ),
-  friendNotificationTriggerIds: z.array(FriendNotificationTriggerIDSchema),
+  pushNotificationTriggerIds: z.array(PushNotificationTriggerIDSchema),
   canShareArrivalStatus: z.boolean(),
   eventCalendarStartOfWeekDay: EventCalendarWeekdaySchema,
   eventCalendarDefaultLayout: EventCalendarLayoutIDSchema,
@@ -166,20 +129,20 @@ export type UserSettings = z.rInfer<typeof UserSettingsSchema>
 export const DEFAULT_USER_SETTINGS = {
   isAnalyticsEnabled: true,
   isCrashReportingEnabled: true,
-  eventChangeNotificationTriggerIds: [
-    "time-changed",
-    "event-cancelled",
-    "location-changed"
-  ],
-  eventArrivalNotificationTriggerIds: [
+  pushNotificationTriggerIds: [
+    "friend-request-received",
+    "friend-request-accepted",
+    "user-entered-region",
     "event-started",
     "event-periodic-update",
-    "user-entered-region"
-  ],
-  eventTimeNotificationTriggerIds: ["before-event", "event-started"],
-  friendNotificationTriggerIds: [
-    "friend-request-received",
-    "friend-request-accepted"
+    "event-starting-soon",
+    "event-started",
+    "event-ended",
+    "event-name-changed",
+    "event-description-changed",
+    "event-time-changed",
+    "event-location-changed",
+    "event-cancelled"
   ],
   canShareArrivalStatus: true,
   eventCalendarStartOfWeekDay: "monday",
