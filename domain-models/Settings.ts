@@ -130,10 +130,6 @@ export const toggleSettingsTriggerId = <TriggerID extends string>(
 export const UserSettingsSchema = z.object({
   isAnalyticsEnabled: z.boolean(),
   isCrashReportingEnabled: z.boolean(),
-  isEventNotificationsEnabled: z.boolean(),
-  isMentionsNotificationsEnabled: z.boolean(),
-  isChatNotificationsEnabled: z.boolean(),
-  isProfileNotificationsEnabled: z.boolean(),
   eventArrivalNotificationTriggerIds: z.array(
     EventArrivalNotificationTriggerIDSchema
   ),
@@ -170,10 +166,6 @@ export type UserSettings = z.rInfer<typeof UserSettingsSchema>
 export const DEFAULT_USER_SETTINGS = {
   isAnalyticsEnabled: true,
   isCrashReportingEnabled: true,
-  isEventNotificationsEnabled: true,
-  isMentionsNotificationsEnabled: true,
-  isChatNotificationsEnabled: true,
-  isProfileNotificationsEnabled: true,
   eventChangeNotificationTriggerIds: [
     "time-changed",
     "event-cancelled",
