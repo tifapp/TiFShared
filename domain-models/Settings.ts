@@ -130,6 +130,18 @@ export type EventArrivalNotificationTrigger = z.infer<
 >
 
 /**
+ * A utility to toggle on or off an element in a setttings trigger set.
+ */
+export const toggleSettingsTrigger = <Trigger extends string>(
+  triggers: Trigger[],
+  trigger: Trigger,
+  isEnabled: boolean
+) => {
+  const filteredTriggers = triggers.filter((t) => t !== trigger)
+  return isEnabled ? filteredTriggers.concat(trigger) : filteredTriggers
+}
+
+/**
  * A zod schema for {@link UserSettingsSchema}.
  */
 export const UserSettingsSchema = z.object({
