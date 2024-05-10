@@ -71,7 +71,7 @@ export type EventTimeNotificationTriggerID = z.infer<
   typeof EventTimeNotificationTriggerIDSchema
 >
 
-export const FriendNotificationTriggerSchemaID = z.union([
+export const FriendNotificationTriggerIDSchema = z.union([
   z.literal("friend-request-received"),
   z.literal("friend-request-accepted")
 ])
@@ -87,7 +87,7 @@ export const FriendNotificationTriggerSchemaID = z.union([
  * friend request.
  */
 export type FriendNotificationTriggerID = z.infer<
-  typeof FriendNotificationTriggerSchemaID
+  typeof FriendNotificationTriggerIDSchema
 >
 
 export const EventArrivalNotificationTriggerIDSchema = z.union([
@@ -139,7 +139,7 @@ export const UserSettingsSchema = z.object({
   eventTimeNotificationTriggerIds: z.array(
     EventTimeNotificationTriggerIDSchema
   ),
-  friendNotificationTriggerIds: z.array(FriendNotificationTriggerSchemaID),
+  friendNotificationTriggerIds: z.array(FriendNotificationTriggerIDSchema),
   canShareArrivalStatus: z.boolean(),
   eventCalendarStartOfWeekDay: EventCalendarWeekdaySchema,
   eventCalendarDefaultLayout: EventCalendarLayoutIDSchema,
