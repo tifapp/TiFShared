@@ -1,9 +1,5 @@
-import {
-  UserHandle,
-  UserIDSchema,
-  UserSettings,
-  UserSettingsSchema
-} from "../../domain-models/User"
+import { UserSettings, UserSettingsSchema } from "../../domain-models/Settings"
+import { UserHandle, UserIDSchema } from "../../domain-models/User"
 import { tifAPIErrorSchema } from "./Error"
 import { z } from "zod"
 
