@@ -1,10 +1,11 @@
+import { Match } from "linkify-it"
+import { z } from "zod"
 import {
   ensureWhitespaceBeforeSchemaValidator,
   linkify
 } from "../lib/LinkifyIt"
-import { Match } from "linkify-it"
-import { z } from "zod"
 import { EventCalendarWeekdaySchema } from "./Event"
+import { PlacemarkSchema } from "./Placemark"
 
 export type UserID = string
 
@@ -116,6 +117,9 @@ export const UserSettingsSchema = z.object({
   isFriendRequestNotificationsEnabled: z.boolean(),
   canShareArrivalStatus: z.boolean(),
   eventCalendarStartOfWeekDay: EventCalendarWeekdaySchema,
+  eventPresetShouldHideAfterStartDate: z.boolean(),
+  eventPresetPlacemark: PlacemarkSchema,
+  eventPresetDurations: z.array(z.number()),
   version: UserSettingsVersionSchema
 })
 
