@@ -242,6 +242,79 @@ const foo = async (api: TiFAPI) => {
 }
 ```
 
+## Local Development Setup
+
+For developers working on the TiFShared package and test changes locally without republishing, the `npm link` command can be used. This command creates a symlink that points to the local development version of the package. Follow these steps to set up your development environment:
+
+### Step 1: Link the Package Globally
+
+Ensure the TiFShared package is installed locally, then navigate to the root directory of TiFShared:
+```bash
+cd TiFShared
+```
+
+Run the following command to create a global symlink:
+```bash
+npm link
+```
+This command makes the TiFShared package globally available on your machine, akin to having it installed as a global package.
+
+### Step 2: Link the Package to Your Main Project
+
+With the utils package globally linked, navigate to the root directory of your main project, i.e.:
+```bash
+cd ../FitnessProject
+```
+
+Then link the utils package to your main project:
+```bash
+npm link TiFShared
+```
+* Important: Package-name is case-sensitive
+
+### Step 3: Verify the Link
+
+To ensure the symlink was successfully created, you can check in the node_modules directory of your main project:
+
+```bash
+ls -l node_modules/your-utils-package-name
+```
+
+This command should show a link pointing to your utils package directory.
+
+### Step 4: Using the Package
+
+You can now use the utils package in your main project as if it were installed through npm:
+
+```javascript
+import "TiFShared";
+```
+
+### Step 5: Unlink When Done
+When you no longer need the local development link, or if you wish to revert to the official version of the package:
+
+Navigate back to your main project directory:
+
+```bash
+cd ../FitnessProject
+```
+
+Unlink the utils package:
+
+```bash
+npm unlink --no-save TiFShared
+```
+
+Or, go to the utils package directory to remove the global link:
+
+```bash
+cd path/to/your-utils-package
+npm unlink
+```
+
+This will remove the global symlink and any project-specific links, effectively decoupling the local development setup.
+Afterwards, you can npm install the remote version of the package if needed.
+
 ## Support + Contributing
 
 Reach out on to Sean or Matthew on slack if you have any further questions, especially around whether or not to include code in this repo.
