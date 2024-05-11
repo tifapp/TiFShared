@@ -3,7 +3,7 @@ import { logger } from "../logging/Logging.ts";
 const log = logger("auto-pr-script")
 
 export const getRawIdFromTicketId = (ticketId: string) => {
-    const match = ticketId.match(/(?<=task_)\w+/i);
+    const match = ticketId.match(/(?<=task_)\w+|(?<=trello\.com\/c\/)(\w+)(?=\/|\?|$)/i);
     return match ? match[0] : null;
 };
 
