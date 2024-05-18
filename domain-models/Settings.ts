@@ -15,34 +15,87 @@ export const EventCalendarWeekdaySchema = z.union([
   z.literal("saturday")
 ])
 
-export type EventCalendarWeekday = z.infer<typeof EventCalendarWeekdaySchema>
+export type EventCalendarWeekdayID = z.infer<typeof EventCalendarWeekdaySchema>
 
-export const EventCalendarLayoutSchema = z.union([
+export const EventCalendarLayoutIDSchema = z.union([
   z.literal("single-day-layout"),
   z.literal("week-layout"),
   z.literal("month-layout")
 ])
 
-export type EventCalendarLayout = z.infer<typeof EventCalendarLayoutSchema>
+export type EventCalendarLayoutID = z.infer<typeof EventCalendarLayoutIDSchema>
 
-export const UserInterfaceStyleSchema = z.union([
-  z.literal("light"),
-  z.literal("dark"),
-  z.literal("system")
+/**
+ * A zod schema for {@link PushNotificationTriggerID}.
+ */
+export const PushNotificationTriggerIDSchema = z.union([
+  z.literal("friend-request-received"),
+  z.literal("friend-request-accepted"),
+  z.literal("user-entered-region"),
+  z.literal("event-attendance-headcount"),
+  z.literal("event-periodic-arrivals"),
+  z.literal("event-starting-soon"),
+  z.literal("event-started"),
+  z.literal("event-ended"),
+  z.literal("event-name-changed"),
+  z.literal("event-description-changed"),
+  z.literal("event-time-changed"),
+  z.literal("event-location-changed"),
+  z.literal("event-cancelled")
 ])
 
-export type UserInterfaceStyle = z.infer<typeof UserInterfaceStyleSchema>
-
-export const CustomizeableFontFamilySchema = z.union([
-  z.literal("open-sans"),
-  z.literal("open-dyslexic")
-])
-
-export type CustomizeableFontFamily = z.infer<
-  typeof CustomizeableFontFamilySchema
+/**
+ * A string id for a trigger when a push notification should be sent to
+ * the user.
+ *
+ * `"friend-request-received"` -> Triggers when the user received a friend
+ * request from another user.
+ *
+ * `"friend-request-accepted"` -> Triggers when another user accpets the user's
+ * friend request.
+ *
+ * `"user-entered-region"` -> Triggers when the user enters the arrival radius
+ * for the event within the tracking period.
+ *
+ * `"event-attendance-headcount"` -> Triggers when an event starts with an update
+ * on the headcount of attendees who are at the event.
+ *
+ * `"event-periodic-arrivals"` -> Triggers at periodic intervals throughout the
+ * duration of an event with updates on the arrival statuses of all
+ * participants.
+ *
+ * `"event-starting-soon"` -> Triggers x minutes (user-specified) before the event starts.
+ *
+ * `"event-started"` -> Triggers when the event starts.
+ *
+ * `"event-ended"` -> Triggers when the event ends.
+ *
+ * `"event-name-changed"` -> Triggers when the event name changes.
+ *
+ * `"event-description-changed"` -> Triggers when the event description changes.
+ *
+ * `"event-time-changed"` -> Triggers when either the start time or duration of the
+ * event changes.
+ *
+ * `"event-location-changed"` -> Triggers when the event location changes.
+ *
+ * `"event-cancelled"` -> Triggers when the event is cancelled.
+ */
+export type PushNotificationTriggerID = z.infer<
+  typeof PushNotificationTriggerIDSchema
 >
 
-export type EventDurationSeconds = number
+/**
+ * A utility to toggle on or off an element in a setttings trigger set.
+ */
+export const toggleSettingsTriggerId = <TriggerID extends string>(
+  ids: TriggerID[],
+  id: TriggerID,
+  isEnabled: boolean
+) => {
+  const filteredTriggers = ids.filter((t) => t !== id)
+  return isEnabled ? filteredTriggers.concat(id) : filteredTriggers
+}
 
 /**
  * A zod schema for {@link UserSettingsSchema}.
@@ -50,15 +103,10 @@ export type EventDurationSeconds = number
 export const UserSettingsSchema = z.object({
   isAnalyticsEnabled: z.boolean(),
   isCrashReportingEnabled: z.boolean(),
-  isEventNotificationsEnabled: z.boolean(),
-  isMentionsNotificationsEnabled: z.boolean(),
-  isChatNotificationsEnabled: z.boolean(),
-  isFriendRequestNotificationsEnabled: z.boolean(),
+  pushNotificationTriggerIds: z.array(PushNotificationTriggerIDSchema),
   canShareArrivalStatus: z.boolean(),
-  fontFamily: CustomizeableFontFamilySchema,
-  userInterfaceStyle: UserInterfaceStyleSchema,
   eventCalendarStartOfWeekDay: EventCalendarWeekdaySchema,
-  eventCalendarDefaultLayout: EventCalendarLayoutSchema,
+  eventCalendarDefaultLayout: EventCalendarLayoutIDSchema,
   eventPresetShouldHideAfterStartDate: z.boolean(),
   eventPresetPlacemark: PlacemarkSchema,
   eventPresetDurations: z.array(z.number()),
@@ -85,13 +133,22 @@ export type UserSettings = z.rInfer<typeof UserSettingsSchema>
 export const DEFAULT_USER_SETTINGS = {
   isAnalyticsEnabled: true,
   isCrashReportingEnabled: true,
-  isEventNotificationsEnabled: true,
-  isMentionsNotificationsEnabled: true,
-  isChatNotificationsEnabled: true,
-  isFriendRequestNotificationsEnabled: true,
+  pushNotificationTriggerIds: [
+    "friend-request-received",
+    "friend-request-accepted",
+    "user-entered-region",
+    "event-attendance-headcount",
+    "event-periodic-arrivals",
+    "event-starting-soon",
+    "event-started",
+    "event-ended",
+    "event-name-changed",
+    "event-description-changed",
+    "event-time-changed",
+    "event-location-changed",
+    "event-cancelled"
+  ],
   canShareArrivalStatus: true,
-  fontFamily: "open-sans",
-  userInterfaceStyle: "system",
   eventCalendarStartOfWeekDay: "monday",
   eventCalendarDefaultLayout: "week-layout",
   version: 0

@@ -1,0 +1,109 @@
+name: Attach PR to Trello Ticket
+
+on:
+  workflow_call:
+    inputs:
+      pullRequestCommentsUrl:
+        required: true
+        type: string
+      pullRequestBody:
+        required: true
+        type: string
+      pullRequestHtmlUrl:
+        required: true
+        type: string
+      pullRequestNumber:
+        required: true
+        type: string
+      headRef:
+        required: true
+        type: string
+      repository:
+        required: true
+        type: string
+
+jobs:
+  capture-ticket-id:
+    runs-on: ubuntu-latest
+    outputs:
+      ticket_id: ${{ steps.extract-ticket-id.outputs.ticket_id }}
+      skip: ${{ steps.check-comment.outputs.skip }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check for existing Trello link comment
+        id: check-comment
+        run: |
+          COMMENTS_URL=${{ inputs.pullRequestCommentsUrl }}
+          COMMENT_FOUND=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" $COMMENTS_URL | jq -r '.[] | select(.body | test("^Linked Ticket:")) | select(.user.login == "tifapp") | .body')
+          if [[ -n "$COMMENT_FOUND" ]]; then
+            echo "Found Linked Ticket Comment. Skipping job."
+            echo "::set-output name=skip::true"
+            exit 0
+          else
+            echo "::set-output name=skip::false"
+          fi          
+
+      - name: Safe Handling of PR Body
+        run: |
+          ENCODED_BODY=$(echo "${{ inputs.pullRequestBody }}" | base64 -w 0)
+          echo "ENCODED_BODY=$ENCODED_BODY" >> $GITHUB_ENV
+
+      - name: Extract Ticket ID from Branch Name or PR Body
+        id: extract-ticket-id
+        run: |
+          BRANCH_NAME="${{ inputs.headRef }}"
+          PR_BODY=$(echo "$ENCODED_BODY" | base64 --decode)
+          # Using regex to extract card ID that starts with 'task_' followed by alphanumeric characters
+          TRELLO_TICKET_ID=$(echo "$BRANCH_NAME" | grep -oP '(?i:task)_\K[A-Za-z0-9]+' || echo "$PR_BODY" | grep -oP '(?i:task)_\K[A-Za-z0-9]+' || echo "")
+          if [[ -z "$TRELLO_TICKET_ID" ]]; then
+            echo "No ticket ID found in branch name or PR body."
+            exit 1
+          else
+            echo "Found Ticket ID: $TRELLO_TICKET_ID"
+            echo "::set-output name=skip::false"
+            echo "::set-output name=ticket_id::$TRELLO_TICKET_ID"
+          fi
+
+  link-ticket:
+    needs: capture-ticket-id
+    if: ${{ needs.capture-ticket-id.outputs.skip == 'false' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Link PR and Trello Ticket
+        run: |
+          TRELLO_TICKET_ID="${{ needs.capture-ticket-id.outputs.ticket_id }}"
+          TRELLO_CARD_URL="https://trello.com/c/$TRELLO_TICKET_ID"
+          PR_URL="${{ inputs.pullRequestHtmlUrl }}"
+
+          TRELLO_RESPONSE=$(curl -s -o response.json -w "%{http_code}" -X POST "https://api.trello.com/1/cards/$TRELLO_TICKET_ID/attachments" \
+          -d "key=${{ secrets.TRELLO_API_KEY }}" \
+          -d "token=${{ secrets.TRELLO_API_TOKEN }}" \
+          -d "url=$PR_URL")
+          echo "Trello API Response Code: $TRELLO_RESPONSE"
+          cat response.json
+
+          if [[ "$TRELLO_RESPONSE" -ne 200 ]]; then
+            echo "Failed to attach PR to card. Response code: $TRELLO_RESPONSE"
+            cat response.json
+            exit 1
+          else
+            echo "PR successfully attached to Trello card."
+          fi
+            
+          COMMENT_BODY="Linked Ticket: $TRELLO_CARD_URL"
+          RESPONSE=$(curl -s -o response-body.json -w "%{http_code}" -H "Authorization: token ${{ secrets.USER_GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d "{\"body\": \"$COMMENT_BODY\"}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ inputs.pullRequestNumber }}/comments")
+          echo "GitHub API Response Code: $RESPONSE"
+          cat response-body.json
+
+          if [[ "$RESPONSE" -ne 201 ]]; then
+            echo "Failed to post comment. Response code: $RESPONSE"
+            cat response-body.json
+            exit 1
+          else
+            echo "Comment successfully attached to PR."
+          fi
