@@ -57,6 +57,19 @@ export type Reassign<Obj, Key extends keyof Obj, Type> = {
   [K in keyof Obj]: K extends Key ? Type : Obj[K]
 }
 
+/**
+ * A helper type for creating strongly typed ids.
+ *
+ * Ex.
+ * ```ts
+ * type FooID = Tagged<number, "foo">
+ * type BarID = Tagged<number, "bar">
+ * const id1: FooID = 1 // ✅ Valid.
+ * const id2: BarID = id2 // 🔴 Type Error.
+ * ```
+ */
+export type Tagged<T, Tag extends string> = T & { _tag?: Tag }
+
 declare global {
   class DOMException extends Error {
     new(message: string): DOMException
