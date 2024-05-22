@@ -65,7 +65,7 @@ export type Reassign<Obj, Key extends keyof Obj, Type> = {
  * type FooID = Tagged<number, "foo">
  * type BarID = Tagged<number, "bar">
  * const id1: FooID = 1 // ✅ Valid.
- * const id2: BarID = id2 // 🔴 Type Error.
+ * const id2: BarID = id1 // 🔴 Type Error.
  * ```
  */
 export type Tagged<T, Tag extends string> = T & { _tag?: Tag }
