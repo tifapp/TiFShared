@@ -8,7 +8,7 @@ on:
 
 jobs:
   link-ticket:
-    uses: tifapp/TiFShared/.github/workflows/link-ticket.yml@auto-ticket-link-and-pr
+    uses: tifapp/TiFShared/.github/workflows/link-ticket.yml@main
     secrets: inherit
     with:
       pullRequestCommentsUrl: ${{ github.event.pull_request.comments_url }}
