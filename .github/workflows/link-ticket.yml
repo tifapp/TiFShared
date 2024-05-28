@@ -71,7 +71,17 @@ jobs:
     if: ${{ needs.capture-ticket-id.outputs.skip == 'false' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Check Untracked Task
+        run: |
+          if [[ "${{ needs.capture-ticket-id.outputs.ticket_id }}" == "UNTRACKED" ]]; then
+            echo "This is an untracked task, skipping job."
+            echo "UNTRACKED_TASK=true" >> $GITHUB_ENV
+          else
+            echo "UNTRACKED_TASK=false" >> $GITHUB_ENV
+          fi
+
       - name: Link PR and Trello Ticket
+        if: ${{ env.UNTRACKED_TASK != 'true' }}
         run: |
           TRELLO_TICKET_ID="${{ needs.capture-ticket-id.outputs.ticket_id }}"
           TRELLO_CARD_URL="https://trello.com/c/$TRELLO_TICKET_ID"
