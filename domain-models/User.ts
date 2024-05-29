@@ -1,3 +1,4 @@
+import { Tagged } from "../lib/HelperTypes"
 import {
   ensureWhitespaceBeforeSchemaValidator,
   linkify
@@ -5,9 +6,12 @@ import {
 import { Match } from "linkify-it"
 import { z } from "zod"
 
-export type UserID = string
+export type UserID = Tagged<string, "userId">
 
-export const UserIDSchema = z.string().uuid()
+export const UserIDSchema = z
+  .string()
+  .uuid()
+  .transform((id) => id as UserID)
 
 export const NotFriendsStatusSchema = z.literal("not-friends")
 export const FriendRequestPendingStatusSchema = z.literal(
