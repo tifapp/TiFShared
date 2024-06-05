@@ -16,10 +16,11 @@ import {
   UserIDSchema,
   UserHandleSchema
 } from "./User"
+import { Tagged } from "../lib/HelperTypes"
 
-export type EventID = number
+export type EventID = Tagged<number, "eventId">
 
-export const EventIDSchema = z.number()
+export const EventIDSchema = z.number().transform((id) => id as EventID)
 
 /**
  * A zod schema for {@link EventRegion}.

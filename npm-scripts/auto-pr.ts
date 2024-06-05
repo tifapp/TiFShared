@@ -35,7 +35,7 @@ const getPRDetails = async (ticketId?: string) => {
     }
     const data = await response.json() as {name: string, desc: string}
     log.info(`Using details of task "${data.name}" for pull request description.`)
-    return { prTitle: encodeURIComponent(`${ticketId} ${data.name}`), prBody: encodeURIComponent(
+    return { prTitle: encodeURIComponent(`${data.name}`), prBody: encodeURIComponent(
       `${data.desc}\n\nTicket ID: ${ticketId}`
     )}
   } catch (error) {

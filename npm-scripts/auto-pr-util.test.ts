@@ -38,6 +38,16 @@ describe("Auto PR Script Tests", () => {
   })
 
   describe('getRawIdFromTicketId', () => {
+    it('extracts the ticket ID when it is in short url format', () => {
+      const ticketId = 'https://trello.com/c/123';
+      expect(getRawIdFromTicketId(ticketId)).toBe('123');
+    });
+    
+    it('extracts the ticket ID when it is in long url format', () => {
+      const ticketId = 'https://trello.com/c/123/098-task-name';
+      expect(getRawIdFromTicketId(ticketId)).toBe('123');
+    });
+    
     it('extracts the ticket ID when it is at the beginning of the string', () => {
       const ticketId = 'TASK_123-bug-fix';
       expect(getRawIdFromTicketId(ticketId)).toBe('123');

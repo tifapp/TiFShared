@@ -55,15 +55,15 @@ jobs:
         run: |
           BRANCH_NAME="${{ inputs.headRef }}"
           PR_BODY=$(echo "$ENCODED_BODY" | base64 --decode)
-          # Using regex to extract card ID that starts with 'task_' followed by alphanumeric characters
-          TRELLO_TICKET_ID=$(echo "$BRANCH_NAME" | grep -oP '(?i:task)_\K[A-Za-z0-9]+' || echo "$PR_BODY" | grep -oP '(?i:task)_\K[A-Za-z0-9]+' || echo "")
-          if [[ -z "$TRELLO_TICKET_ID" ]]; then
+          # Attempt to extract ID from branch name using task_xxx pattern
+          TICKET_ID=$(echo "$BRANCH_NAME" | grep -oP '(?i:task)_\K[A-Za-z0-9]+' || echo "$PR_BODY" | grep -oP '(?i:task)_\K[A-Za-z0-9]+' || echo "$PR_BODY" | grep -oP 'https://trello\.com/c/\K[A-Za-z0-9]+(?=/|\?|$)' || echo "")
+          if [[ -z "$TICKET_ID" ]]; then
             echo "No ticket ID found in branch name or PR body."
             exit 1
           else
-            echo "Found Ticket ID: $TRELLO_TICKET_ID"
+            echo "Found Ticket ID: $TICKET_ID"
             echo "::set-output name=skip::false"
-            echo "::set-output name=ticket_id::$TRELLO_TICKET_ID"
+            echo "::set-output name=ticket_id::$TICKET_ID"
           fi
 
   link-ticket:
@@ -71,7 +71,17 @@ jobs:
     if: ${{ needs.capture-ticket-id.outputs.skip == 'false' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Check Untracked Task
+        run: |
+          if [[ "${{ needs.capture-ticket-id.outputs.ticket_id }}" == "UNTRACKED" ]]; then
+            echo "This is an untracked task, skipping job."
+            echo "UNTRACKED_TASK=true" >> $GITHUB_ENV
+          else
+            echo "UNTRACKED_TASK=false" >> $GITHUB_ENV
+          fi
+
       - name: Link PR and Trello Ticket
+        if: ${{ env.UNTRACKED_TASK != 'true' }}
         run: |
           TRELLO_TICKET_ID="${{ needs.capture-ticket-id.outputs.ticket_id }}"
           TRELLO_CARD_URL="https://trello.com/c/$TRELLO_TICKET_ID"
