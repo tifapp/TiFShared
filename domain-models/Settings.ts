@@ -97,6 +97,19 @@ export const toggleSettingsTriggerId = <TriggerID extends string>(
   return isEnabled ? filteredTriggers.concat(id) : filteredTriggers
 }
 
+export const formatEventDurationPreset = (durationInSeconds: number) => {
+  const minutes = Math.floor(durationInSeconds / 60) % 60
+  const hours = Math.floor(durationInSeconds / 3600)
+
+  if (minutes > 0 && hours > 0) {
+    return `${hours}h ${minutes}m`
+  } else if (minutes === 0 && hours > 0) {
+    return `${hours}h`
+  } else {
+    return `${minutes}m`
+  }
+}
+
 /**
  * A zod schema for {@link UserSettingsSchema}.
  */
