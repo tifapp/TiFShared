@@ -2,7 +2,7 @@ import { ZodError, ZodSchema, ZodType, z } from "zod"
 import { ToStringable } from "../lib/String"
 import { JSONSerializableValue, Reassign } from "../lib/Types/HelperTypes"
 import { logger } from "../logging"
-import { TiFAPIMiddleware } from "./Middleware"
+import { TiFAPITransportMiddleware } from "./TransportMiddleware"
 
 export type TiFHTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
@@ -115,7 +115,7 @@ const log = logger("tif.api.client")
  * @param loadAuthBearerToken a function that returns the loaded JWT.
  * @returns a function to make an API call.
  */
-export const tifAPITransport = (baseURL: URL, middleware: TiFAPIMiddleware) => {
+export const tifAPITransport = (baseURL: URL, middleware: TiFAPITransportMiddleware) => {
   return async <
     Method extends TiFHTTPMethod,
     Schemas extends TiFAPIResponseSchemas
@@ -152,7 +152,7 @@ export type TiFAPITransport = ReturnType<typeof tifAPITransport>
 
 const performRequest = async (
   request: TiFAPIRequest<TiFHTTPMethod>,
-  middleware: TiFAPIMiddleware,
+  middleware: TiFAPITransportMiddleware,
   baseURL: URL,
   signal?: AbortSignal
 ) => {
