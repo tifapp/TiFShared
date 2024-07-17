@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { PlacemarkSchema } from "./Placemark"
 
 export const UserSettingsVersionSchema = z.number().nonnegative()
 
@@ -96,6 +97,19 @@ export const toggleSettingsTriggerId = <TriggerID extends string>(
   return isEnabled ? filteredTriggers.concat(id) : filteredTriggers
 }
 
+export const formatEventDurationPreset = (durationInSeconds: number) => {
+  const minutes = Math.floor(durationInSeconds / 60) % 60
+  const hours = Math.floor(durationInSeconds / 3600)
+
+  if (minutes > 0 && hours > 0) {
+    return `${hours}h ${minutes}m`
+  } else if (minutes === 0 && hours > 0) {
+    return `${hours}h`
+  } else {
+    return `${minutes}m`
+  }
+}
+
 /**
  * A zod schema for {@link UserSettingsSchema}.
  */
@@ -106,6 +120,9 @@ export const UserSettingsSchema = z.object({
   canShareArrivalStatus: z.boolean(),
   eventCalendarStartOfWeekDay: EventCalendarWeekdaySchema,
   eventCalendarDefaultLayout: EventCalendarLayoutIDSchema,
+  eventPresetShouldHideAfterStartDate: z.boolean(),
+  eventPresetPlacemark: PlacemarkSchema.nullable(),
+  eventPresetDurations: z.array(z.number()),
   version: UserSettingsVersionSchema
 })
 
@@ -147,5 +164,8 @@ export const DEFAULT_USER_SETTINGS = {
   canShareArrivalStatus: true,
   eventCalendarStartOfWeekDay: "monday",
   eventCalendarDefaultLayout: "week-layout",
+  eventPresetDurations: [900, 1800, 2700, 3600, 5400],
+  eventPresetPlacemark: null,
+  eventPresetShouldHideAfterStartDate: false,
   version: 0
 } satisfies Readonly<UserSettings>
