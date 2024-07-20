@@ -174,63 +174,68 @@ addLogHandler(customLogHandler)
 
 The available log levels are `info`, `warn`, `trace`, `debug`, and `error`. Each of these levels are functions on the object returned from `logger`.
 
-### API Client
+### API
 
-This library houses our API client which is a class named `TiFAPI`. However, `TiFAPI` is merely a high-level wrapper class around the rest of the network stack. The lower level of the stack contains 2 primary components:
+Our API Schema is codified in `api\TiFAPISchema.ts` and details the shape of inputs and outputs for all endpoints.
 
-1. `TiFAPITransport`
+Endpoints can be described like this:
 
-- Responsible for sending data across the network via `fetch`, and validating responses against zod schemas.
-
-2. `TiFAPIMiddleware`
-
-- Responsible for transforming a network request (eg. adding a JWT to the Authorization header), and handling the low level response.
-
-An example `TiFAPI` instance can be constructed as follows:
-
-```ts
-// jwtMiddleware comes with this library, you can also write your own middleware functions.
-const middleware = jwtMiddleware(async () => "My JWT token")
-const transport = tifAPITransport(
-  new URL("https://api.production.com"),
-  middleware
-)
-const api = new TiFAPI(transport)
+```
+{
+  [endpointName as string]: {
+    input: {
+      body?: ZodSchema,
+      query?: ZodSchema,
+      params?: ZodSchema
+    },
+    outputs (needs at least one): {
+      status200?: ZodSchema,
+      status201?: ZodSchema,
+      status204?: "no-content",
+      ...etc
+    },
+    constraints: (input, output) => boolean, //throws an error if the function returns false (eg. checking if a value from the input matches a value from the output)
+    httpRequest: {
+      method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE",
+      endpoint: "/{string}"
+    }
+  },
+}
 ```
 
-### Adding Support for a new Endpoint
+#### Adding Support for a new Endpoint
 
-Whenever adding support for a new endpoint, it can be added to `TiFAPI` like so:
+Support for new endpoints can be added to `TiFAPISchema` like so:
 
 ```ts
-class TiFAPI {
+const TiFAPISchema = {
   // Other endpoints...
 
-  async myNewEndpoint(id: number, signal?: AbortSignal) {
-    return await this.apiFetch(
-      {
-        method: "POST", // Also can be "POST", "PATCH", etc.
-        endpoint: `/my/new/endpoint/${id}`,
-        query: { query: "parameter" }, // All query paramaters are converted via their `toString` method.
-        body: { body: "parameter" } // "GET" requests don't support a request body.
-      },
-      {
-        // Each status code has a corresponding zod schema for the response body.
-        status200: z.object({ value: z.string() }),
-        status400: z.object({ other: z.number() })
-      },
-      signal // Optional, an AbortSignal to cancel the request.
-    )
-  }
+  myNewEndpoint: assertEndpointSchemaType({
+    input: {
+      params: {
+        id: z.number()
+      }
+    },
+    outputs: {
+      // Each status code has a corresponding zod schema for the response body.
+      status200: z.object({ value: z.string() }),
+      status400: z.object({ other: z.number() })
+    },
+    httpRequest: {
+      method: "POST",
+      endpoint: "/my/new/endpoint/:id"
+    }
+  })
 
   // Other endpoints...
 }
 ```
 
-You can then use the new endpoint like:
+The new endpoint gets added to the `TiFAPIClient` type, allowing it to be used like:
 
 ```ts
-const foo = async (api: TiFAPI) => {
+const foo = async (api: TiFAPIClient) => {
   const resp = await api.myNewEndpoint(1)
   if (resp.status === 200) {
     // Type inferred to be the converted type of the schema for status200
@@ -240,6 +245,38 @@ const foo = async (api: TiFAPI) => {
     console.log(resp.data.other)
   }
 }
+```
+
+#### API Clients
+
+API clients can be created using the `implementTiFAPI()` method and `TiFAPITransport`.
+
+1. `implementTiFAPI()`
+
+- Creates a typesafe TiFAPI client from `TiFAPISchema`, where the inputs and outputs of each function are derived from the schema.
+
+1a. `TiFAPIMiddleware`
+
+- Can be passed to `implementTiFAPI()` to consume or transform the high-level requests or responses of the `TiFAPIClient`. By default, validation middleware is used in `implementTiFAPI()`.
+
+2. `TiFAPITransport`
+
+- An instance of `TiFAPIMiddleware` responsible for sending and retrieving data across the network via `fetch`.
+
+2a. `TiFAPITransportMiddleware`
+
+- Can be passed to `TiFAPITransport` to transform a network request (eg. adding a JWT to the Authorization header), and handle the low level response.
+
+An example API client can be constructed as follows:
+
+```ts
+// jwtMiddleware comes with this library, you can also write your own middleware functions.
+const middleware = jwtMiddleware(async () => "My JWT token")
+const transport = tifAPITransport(
+  new URL("https://api.production.com"),
+  middleware
+)
+const apiClient = implementTiFAPI(transport)
 ```
 
 ## Local Development Setup
