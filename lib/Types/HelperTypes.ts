@@ -1,4 +1,14 @@
 /**
+ * Similar to Array, but it requires at least one element to exist
+ */
+export type NonEmptyArray<T> = [T, ...T[]];
+
+/**
+ * Similar to Partial, but it requires at least one property to exist
+ */
+export type NonEmptyPartial<T, U = {[K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U];
+
+/**
  * An interface represented by any given class.
  */
 export interface AnyClass {

@@ -1,10 +1,10 @@
 import { Match } from "linkify-it"
 import { z } from "zod"
-import { Tagged } from "../lib/HelperTypes"
 import {
   ensureWhitespaceBeforeSchemaValidator,
   linkify
 } from "../lib/LinkifyIt"
+import { Tagged } from "../lib/Types/HelperTypes"
 
 export type UserID = Tagged<string, "userId">
 

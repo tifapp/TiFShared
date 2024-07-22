@@ -1,7 +1,7 @@
-import { JSONSerializableValue, Reassign } from "../lib/HelperTypes"
-import { logger } from "../logging"
-import { ToStringable } from "../lib/String"
 import { ZodError, ZodSchema, ZodType, z } from "zod"
+import { ToStringable } from "../lib/String"
+import { JSONSerializableValue, Reassign } from "../lib/Types/HelperTypes"
+import { logger } from "../logging"
 import { TiFAPIMiddleware } from "./Middleware"
 
 export type TiFHTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"

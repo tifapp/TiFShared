@@ -1,9 +1,9 @@
-import { AnyClass, OmitFirstArgument } from "./HelperTypes"
 import {
   InsecureObjectPropertyName,
   InsecureObjectPropertyNameErrorMessage,
   throwIfContainsInsecurePropertyName
 } from "./InsecureProperties"
+import { AnyClass, OmitFirstArgument } from "./Types/HelperTypes"
 
 export type AnyExtensionFunction = (instance: any, ...args: any) => any
 

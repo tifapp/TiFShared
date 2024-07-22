@@ -1,10 +1,11 @@
-import { ColorString } from "./ColorString"
-import {
-  linkify,
-  ensureWhitespaceBeforeSchemaValidator
-} from "../lib/LinkifyIt"
 import { Match } from "linkify-it"
 import { z } from "zod"
+import {
+  ensureWhitespaceBeforeSchemaValidator,
+  linkify
+} from "../lib/LinkifyIt"
+import { Tagged } from "../lib/Types/HelperTypes"
+import { ColorString } from "./ColorString"
 import {
   LocationCoordinate2DSchema,
   areCoordinatesEqual
@@ -13,10 +14,9 @@ import { PlacemarkSchema } from "./Placemark"
 import {
   BlockedBidirectionalUserRelationsSchema,
   UnblockedBidirectionalUserRelationsSchema,
-  UserIDSchema,
-  UserHandleSchema
+  UserHandleSchema,
+  UserIDSchema
 } from "./User"
-import { Tagged } from "../lib/HelperTypes"
 
 export type EventID = Tagged<number, "eventId">
 
