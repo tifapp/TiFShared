@@ -141,8 +141,8 @@ describe("Result tests", () => {
   })
 
   it("should construct a valid promise result", async () => {
-    expect(await promiseResult(success("passed" as const))).toMatchObject(successResult)
-    expect(await promiseResult(failure("failed" as const))).toMatchObject(failureResult)
+    expect(await promiseResult((async () => success("passed" as const))())).toMatchObject(successResult)
+    expect(await promiseResult((async () => failure("failed" as const))())).toMatchObject(failureResult)
   })
 
   it("should allow nested promise results", async () => {
