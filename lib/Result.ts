@@ -419,6 +419,25 @@ export const promiseResult = <Success, Failure>(
 }
 
 /**
+ * Extracts the success value of a given result. Ex.
+ * 
+ * ```ts
+ * const getUser = (user: {name: string, id: number}) =>
+ *  success(user)
+ *    .mapSuccess(({ name, id }) => ({ name, id, newField: `${name}${id}` }))
+ * 
+ * type transformedUserType = ExtractSuccess<ReturnType<typeof getUser>>
+ * //transformedUserType is derived as {name: string, id: number, newField: string}
+ * ```
+ */
+export type ExtractSuccess<T> = T extends SuccessResult<infer U, infer V> ? Awaited<SuccessResult<U, V>>["value"] : never;
+
+/**
+ * Extracts the failure value of a given result. See {@link ExtractSuccess}
+ */
+export type ExtractFailure<T> = T extends FailureResult<infer U, infer V> ? Awaited<FailureResult<U, V>>["value"] : never;
+
+/**
  * Creates a {@link SuccessResult} with the given value.
  */
 export function success(): SuccessResult<undefined, never>
