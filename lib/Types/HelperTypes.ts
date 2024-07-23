@@ -9,6 +9,13 @@ export type NonEmptyArray<T> = [T, ...T[]];
 export type NonEmptyPartial<T, U = {[K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U];
 
 /**
+ * Makes all properties of a type optional (null OR undefined).
+ */
+export type NullablePartial<T> = {
+  [P in keyof T]?: T[P] | null;
+};
+
+/**
  * An interface represented by any given class.
  */
 export interface AnyClass {
