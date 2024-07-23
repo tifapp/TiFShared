@@ -430,12 +430,12 @@ export const promiseResult = <Success, Failure>(
  * //transformedUserType is derived as {name: string, id: number, newField: string}
  * ```
  */
-export type ExtractSuccess<T> = T extends AwaitableResult<infer U, infer V> ? SuccessResult<U, V>["value"] : never;
+export type ExtractSuccess<T> = T extends AwaitableResult<infer U, any> ? U : never;
 
 /**
  * Extracts the failure value of a given result. See {@link ExtractSuccess}
  */
-export type ExtractFailure<T> = T extends AwaitableResult<infer U, infer V> ? FailureResult<U, V>["value"] : never;
+export type ExtractFailure<T> = T extends AwaitableResult<infer U, any> ? U : never;
 
 /**
  * Creates a {@link SuccessResult} with the given value.
