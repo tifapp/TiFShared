@@ -434,9 +434,6 @@ export const promiseResult = <Success, Failure>(
   });
 };
 
-export type ExtractSuccess<T> = T extends SuccessResult<infer U, infer V> ? Awaited<SuccessResult<U, V>>["value"] : never;
-export type ExtractFailure<T> = T extends FailureResult<infer U, infer V> ? Awaited<FailureResult<U, V>>["value"] : never;
-
 /**
  * Extracts the success value of a given result. Ex.
  * 
@@ -455,25 +452,6 @@ export type ExtractSuccess<T> = T extends AwaitableResult<infer U, any> ? U : ne
  * Extracts the failure value of a given result. See {@link ExtractSuccess}
  */
 export type ExtractFailure<T> = T extends AwaitableResult<any, infer U> ? U : never;
-
-/**
- * Extracts the success value of a given result. Ex.
- * 
- * ```ts
- * const getUser = (user: {name: string, id: number}) =>
- *  success(user)
- *    .mapSuccess(({ name, id }) => ({ name, id, newField: `${name}${id}` }))
- * 
- * type transformedUserType = ExtractSuccess<ReturnType<typeof getUser>>
- * //transformedUserType is derived as {name: string, id: number, newField: string}
- * ```
- */
-export type ExtractSuccess<T> = T extends AwaitableResult<infer U, any> ? U : never;
-
-/**
- * Extracts the failure value of a given result. See {@link ExtractSuccess}
- */
-export type ExtractFailure<T> = T extends AwaitableResult<infer U, any> ? U : never;
 
 /**
  * Extracts the success value of a given result. Ex.
