@@ -418,6 +418,9 @@ export const promiseResult = <Success, Failure>(
   })
 }
 
+export type ExtractSuccess<T> = T extends SuccessResult<infer U, infer V> ? Awaited<SuccessResult<U, V>>["value"] : never;
+export type ExtractFailure<T> = T extends FailureResult<infer U, infer V> ? Awaited<FailureResult<U, V>>["value"] : never;
+
 /**
  * Extracts the success value of a given result. Ex.
  * 
