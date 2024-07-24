@@ -18,6 +18,7 @@ export type Result<Success, Failure> =
 export type AwaitableResult<Success, Failure> =
   | Result<Success, Failure>
   | Promise<Result<Success, Failure>>
+  | PromiseResult<Success, Failure>
 
 /**
  * A result representing the success of an operation.
