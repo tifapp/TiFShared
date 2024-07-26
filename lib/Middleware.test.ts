@@ -1,4 +1,4 @@
-import { Middleware, chainMiddleware, runMiddleware } from "./Middleware"
+import { Middleware, chainMiddleware, middlewareRunner } from "./Middleware"
 import { NonEmptyArray } from "./Types/HelperTypes"
 
 describe("MiddlewareTests", () => {
@@ -24,13 +24,13 @@ describe("MiddlewareTests", () => {
   })
   
   test("handle middlewares", async () => {
-    const middleware = runMiddleware(testMiddleware(1), testMiddleware(2), async (_) => _)
+    const middleware = middlewareRunner(testMiddleware(1), testMiddleware(2), async (_) => _)
     const response = await middleware("input ")
     expect(response).toEqual("input test1 test2 ")
   })
 
   test("handle incomplete middlewares", async () => {
-    const middleware = runMiddleware(testMiddleware(1), testMiddleware(2))
+    const middleware = middlewareRunner(testMiddleware(1), testMiddleware(2))
     expect(async () => middleware("input ")).rejects.toThrow("Middleware chain does not handle the request fully.")
   })
 })

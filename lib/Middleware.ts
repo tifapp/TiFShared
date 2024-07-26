@@ -40,7 +40,7 @@ export const chainMiddleware = <TInput, TOutput>(
  *
  * Usage example:
  * ```ts
- *  const credentialsHandler = runMiddleware(
+ *  const credentialsHandler = middlewareRunner(
  *   logMiddleware,
  *   authMiddleware,
  *   signInHandler
@@ -50,7 +50,7 @@ export const chainMiddleware = <TInput, TOutput>(
  * @param middlewares Middleware functions to be chained together. They must have the same signature and must fully handle the request.
  * @returns A single Handler function that passes an input through the entire middleware chain.
  */
-export const runMiddleware = <TInput, TOutput>(
+export const middlewareRunner = <TInput, TOutput>(
   ...middlewares: NonEmptyArray<Middleware<TInput, TOutput>>
 ): Handler<TInput, TOutput> => {
   middlewares.push(async () => {
