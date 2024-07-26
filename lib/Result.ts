@@ -436,7 +436,7 @@ export type ExtractSuccess<T> = T extends AwaitableResult<infer U, any> ? U : ne
 /**
  * Extracts the failure value of a given result. See {@link ExtractSuccess}
  */
-export type ExtractFailure<T> = T extends AwaitableResult<infer U, any> ? U : never;
+export type ExtractFailure<T> = T extends AwaitableResult<any, infer U> ? U : never;
 
 /**
  * Creates a {@link SuccessResult} with the given value.
