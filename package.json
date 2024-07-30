@@ -7,7 +7,7 @@
   "scripts": {
     "test": "jest --collectCoverage",
     "test:ci": "jest --ci --collectCoverage",
-    "prepare": "tsc -p api/tsconfig.api.json",
+    "prepare": "node --loader ts-node/esm npm-scripts/postinstall.ts",
     "pr": "node --loader ts-node/esm npm-scripts/auto-pr.ts"
   },
   "repository": {
