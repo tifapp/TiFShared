@@ -392,6 +392,13 @@ export class PromiseResult<Success, Failure> extends Promise<
   withSuccess<NewSuccess>(value: NewSuccess) {
     return promiseResult(this.then((result) => result.withSuccess(value)))
   }
+  
+  /**
+   * Returns the result value.
+   */
+  unwrap() {
+    return this.then((res) => res.value)
+  }
 }
 
 /**

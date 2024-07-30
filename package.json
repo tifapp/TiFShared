@@ -21,7 +21,8 @@
   "homepage": "https://github.com/tifapp/TiFShared#readme",
   "peerDependencies": {
     "zod": "^3.22.4",
-    "linkify-it": "^3.0.2"
+    "linkify-it": "^3.0.2",
+    "typescript": "^5.4.2"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
@@ -47,7 +48,6 @@
     "open": "^10.1.0",
     "prettier": "^3.2.5",
     "prettier-eslint": "^16.3.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.4.2"
+    "ts-node": "^10.9.2"
   }
 }

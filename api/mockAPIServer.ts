@@ -47,6 +47,6 @@ export const mockAPIServer = <T extends APISchema>(
   implementAPI(
     endpointSchema,
     undefined,
-    undefined,
-    (endpointName, { httpRequest: { method, endpoint }}) => mswBuilder(testUrl, method, endpoint, endpointMocks[endpointName as keyof EndpointSchemasToFunctions<T>] as any)
+    (endpointName, { httpRequest: { method, endpoint }}) => 
+      mswBuilder(testUrl, method, endpoint, endpointMocks[endpointName as keyof EndpointSchemasToFunctions<T>] as any)
   )

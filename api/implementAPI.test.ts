@@ -15,14 +15,13 @@ const mockAPI = <T extends APISchema>({endpointSchema, endpointMocks}: {
 }) => 
   mockAPIServer(new URL(TEST_BASE_URL), endpointSchema, endpointMocks)
 
-const apiClient = <T extends APISchema>(endpointSchema: T, implementations?: EndpointSchemasToFunctions<T>) => 
+const apiClient = <T extends APISchema>(endpointSchema: T) => 
   implementAPI(
     endpointSchema,
     tifAPITransport(
       new URL(TEST_BASE_URL),
       async (request, next) => next(request)
     ),
-    implementations
   )
 
 describe("implementAPI tests", () => {
@@ -326,50 +325,52 @@ describe("implementAPI tests", () => {
       data: undefined
     })
   })
-  
-  it("should allow custom implementations per endpoint", async () => {
-    const endpointSchema = {
-      checkUser: {
-        input: {},
-        outputs: {
-          status200: z.object({
-            name: z.string()
-          })
-        }
-      },
-      updateUser: {
-        input: {
-          body: z.object({
-            id: z.number()
-          })
-        },
-        outputs: {
-          status204: "no-content"
-        }
-      }
-    } as any as APISchema
-
-    const client = implementAPI(
-      endpointSchema,
-      undefined,
-      {
-        checkUser: async () => ({status: 200, data: {name: "Drake"}}) as any,
-        updateUser: async () => ({status: 204, data: undefined}) as any
-      }
-    )
-
-    await expect(
-      client.checkUser()
-    ).resolves.toStrictEqual({
-      status: 200,
-      data: {name: "Drake"}
-    })
-    
-    await expect(
-      client.updateUser({body: {id: 123}} as any)
-    ).resolves.toStrictEqual({
-      status: 204,
-      data: undefined
-    })
-  })
 })
+
+// describe("implementAPIMiddleware tests", () => {  
+//   it("should allow custom implementations per endpoint", async () => {
+//     const endpointSchema = {
+//       checkUser: {
+//         input: {},
+//         outputs: {
+//           status200: z.object({
+//             name: z.string()
+//           })
+//         }
+//       },
+//       updateUser: {
+//         input: {
+//           body: z.object({
+//             id: z.number()
+//           })
+//         },
+//         outputs: {
+//           status204: "no-content"
+//         }
+//       }
+//     } as any as APISchema
+
+//     const client = implementAPI(
+//       endpointSchema,
+//       undefined,
+//       {
+//         checkUser: async () => ({status: 200, data: {name: "Drake"}}) as never,
+//         updateUser: async () => ({status: 204, data: undefined}) as never
+//       }
+//     )
+
+//     await expect(
+//       client.checkUser()
+//     ).resolves.toStrictEqual({
+//       status: 200,
+//       data: {name: "Drake"}
+//     })
+    
+//     await expect(
+//       client.updateUser({body: {id: 123}} as any)
+//     ).resolves.toStrictEqual({
+//       status: 204,
+//       data: undefined
+//     })
+//   })
+// })
