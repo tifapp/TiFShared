@@ -2,7 +2,7 @@
 import { urlString } from "../lib/URL"
 import { logger } from "../logging"
 import { TiFAPITransportMiddleware } from "./TransportMiddleware"
-import { APIRequestBody, EndpointSchemaToMiddleware, HTTPMethod, StatusCodeMap } from "./TransportTypes"
+import { APIMiddleware, APIRequestBody, HTTPMethod, StatusCodeMap } from "./TransportTypes"
 
 const NoContentStatusCode = 204
 
@@ -15,10 +15,12 @@ const log = logger("tif.api.client")
  * @param middleware a function to modify the fetch call.
  * @returns TiFAPIMiddleware to construct an instance of a TiFAPIClient.
  */
-export const tifAPITransport = (baseURL: URL, middleware: TiFAPITransportMiddleware): EndpointSchemaToMiddleware =>
-  (endpointName, { httpRequest: { endpoint, method } }) => 
-    async ({ body, query, params, signal } = {}) => {
+export const tifAPITransport = (baseURL: URL, middleware: TiFAPITransportMiddleware): APIMiddleware<{signal: AbortSignal}> =>
+  async ({endpointName, endpointSchema: { httpRequest: { endpoint, method } }, input}) => 
+    {
       try {
+        const { body, query, params, signal } = input ?? {}
+
         const resp = await performRequest(
           method, 
           middleware, 
@@ -45,7 +47,7 @@ export const tifAPITransport = (baseURL: URL, middleware: TiFAPITransportMiddlew
           log.error("Failed to make tif API request.", {
             error,
             errorMessage: error.message,
-            input: {body, query, params},
+            input,
             endpointName
           })
         }

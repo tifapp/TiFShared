@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "outDir": ".",
+    "composite": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
     "jsx": "react-native",
     "baseUrl": ".",
     "module": "commonjs",

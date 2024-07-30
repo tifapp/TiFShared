@@ -56,14 +56,23 @@ const fn = assertFnType<ExampleFnType>()((param, param2) => { // Params are corr
 });
 
 /**
+ * Asserts that a function matches an expected function definition.
+ * 
+ * @typeParam ExpectedFn - An expected function signature.
+ * @returns The function that should conform to ExpectedFn.
+ */
+export type MatchFn<ExpectedFn extends (...args: any[]) => any, TFn extends ExpectedFn>
+  = Match<ReturnType<ExpectedFn>, ReturnType<TFn>, TFn> & TFn
+
+/**
  * Asserts that a collection of functions matches an expected set of function definitions.
  * 
  * @typeParam ExpectedFns - A record type mapping function names to their expected signatures.
- * @returns The collection of functions if each conforms to its corresponding type in ExpectedFns.
+ * @returns The collection of functions that should conform to ExpectedFns.
  */
 export type MatchFnCollection<ExpectedFns extends Record<string, (...args: any[]) => any>, TFns extends ExpectedFns>
   = {
-    [K in keyof ExpectedFns & keyof TFns]: Match<ReturnType<ExpectedFns[K]>, ReturnType<TFns[K]>, TFns[K]> & TFns[K]
+    [K in keyof ExpectedFns & keyof TFns]: MatchFn<ExpectedFns[K], TFns[K]>
   }
 
 // Example usage:

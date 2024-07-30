@@ -1,37 +1,28 @@
-import { NonEmptyArray } from "lib/Types/HelperTypes";
-import { MatchFnCollection } from "lib/Types/MatchType";
-import { runMiddleware } from "../lib/Middleware";
+import { chainMiddleware, runMiddleware } from "../lib/Middleware";
 import { tryParseAPICall } from "./APIValidation";
-import { APIHandler, APIMiddleware, APISchema, EndpointSchemaToMiddleware, EndpointSchemasToFunctions, GenericEndpointSchema } from "./TransportTypes";
+import { APIHandler, APIMiddleware, APISchema, EndpointSchemasToFunctions, GenericEndpointSchema, InputSchema } from "./TransportTypes";
 
-export type EndpointSchemaFunction = (_: {endpointName: string, endpointSchema: GenericEndpointSchema}) => void
+export type APIHandlerCollector = (endpointName: string, endpointSchema: GenericEndpointSchema, __: APIMiddleware) => void
 
-export type APIImplementationCollector = (endpointName: string, endpointSchema: GenericEndpointSchema, __: APIHandler) => void
-
-export const implementAPI = <T extends APISchema, Fns extends EndpointSchemasToFunctions<T>>(
+export const implementAPI = <T extends APISchema, InputExtension extends InputSchema>(
   endpointSchemas: T,
-  endpointSchemaToMiddleware?: EndpointSchemaToMiddleware, 
-  implementations?: MatchFnCollection<EndpointSchemasToFunctions<T>, Fns>,
-  implementationCollector?: APIImplementationCollector
+  apiMiddleware?: APIMiddleware,
+  handlerCollector?: APIHandlerCollector
 ) =>
   Object.keys(endpointSchemas).reduce((api, key) => {
     const schema = endpointSchemas[key] as GenericEndpointSchema
 
-    let TiFAPIMiddleware: NonEmptyArray<APIMiddleware> = [tryParseAPICall(key, schema)];
+    let middleware: APIMiddleware = tryParseAPICall;
 
-    if (endpointSchemaToMiddleware) {
-      TiFAPIMiddleware.push(endpointSchemaToMiddleware(key, schema));
-    }
-
-    if (implementations && implementations[key as keyof T]) {
-      TiFAPIMiddleware.push(implementations[key as keyof T] as APIHandler);
+    if (apiMiddleware) {
+      middleware = chainMiddleware(middleware, apiMiddleware);
     }
     
-    const apiImplementation = runMiddleware(...TiFAPIMiddleware)
+    const apiHandler = runMiddleware(middleware)
     
-    implementationCollector?.(key, schema, apiImplementation)
+    handlerCollector?.(key, schema, apiHandler)
 
-    api[key as keyof T] = apiImplementation;
+    api[key as keyof T] = (input) => apiHandler({endpointName: key, endpointSchema: schema, input});
 
     return api;
-  }, {} as Record<keyof T, any>) as EndpointSchemasToFunctions<any>;  
+  }, {} as Record<keyof T, APIHandler>) as EndpointSchemasToFunctions<T, InputExtension>;  

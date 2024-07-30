@@ -1,6 +1,6 @@
 import { ZodError, ZodObject, ZodTypeAny, z } from "zod";
 import { logger } from "../logging";
-import { EndpointSchemaToMiddleware } from "./TransportTypes";
+import { APIMiddleware } from "./TransportTypes";
 
 const log = logger("tif.api.validation")
 
@@ -17,29 +17,30 @@ const zodValidation = async (data: any, schema: ZodObject<any>, errorMessage: st
     }
 }
 
-export const tryParseAPICall: EndpointSchemaToMiddleware = 
-  (endpointName, {input: inputSchema, outputs, constraints}) => 
-    async (input, next) => {
-      await zodValidation(input ?? {}, z.object(inputSchema), `Making an invalid request to TiF API endpoint ${endpointName}`)
+export const tryParseAPICall: APIMiddleware = 
+  async (endpointInput, next) => {
+    const {endpointName, endpointSchema: {input: inputSchema, outputs, constraints}, input} = endpointInput
 
-      const response = await next(input)
+    await zodValidation(input ?? {}, z.object(inputSchema), `Making an invalid request to TiF API endpoint ${endpointName}`)
 
-      const responseSchema = outputs[`status${response.status}` as keyof typeof outputs] as ZodTypeAny | "no-content"
+    const response = await next(endpointInput)
 
-      if (!responseSchema) {
-        throw new Error(
-          `TiF API responded with an unexpected status code ${response.status} and body ${JSON.stringify(response.data)}`
+    const responseSchema = outputs[`status${response.status}` as keyof typeof outputs] as ZodTypeAny | "no-content"
+
+    if (!responseSchema) {
+      throw new Error(
+        `TiF API responded with an unexpected status code ${response.status} and body ${JSON.stringify(response.data)}`
+      )
+    } else {
+      if (responseSchema !== "no-content") {
+        await zodValidation(
+          response.data, 
+          // GenericEndpointSchema does not have proper typing on constraints signature
+          //@ts-expect-error
+          responseSchema.refine(() => constraints ? constraints(input, response) : true), 
+          `TiF API endpoint ${endpointName} responded with an invalid JSON body`
         )
-      } else {
-        if (responseSchema !== "no-content") {
-          await zodValidation(
-            response.data, 
-            // GenericEndpointSchema does not have proper typing on constraints signature
-            //@ts-expect-error
-            responseSchema.refine(() => constraints ? constraints(input, response) : true), 
-            `TiF API endpoint ${endpointName} responded with an invalid JSON body`
-          )
-        }
-        return response
       }
+      return response
     }
+  }

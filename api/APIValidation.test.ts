@@ -3,7 +3,7 @@ import { runMiddleware } from "../lib/Middleware"
 import { tryParseAPICall } from "./APIValidation"
 import { GenericEndpointSchema } from "./TransportTypes"
 
-const mockEndpointName = "MOCK_ENDPOINT"
+const endpointName = "MOCK_ENDPOINT"
 
 const apiValidator = ({endpointSchema, mockRequest, mockResponse}: {
   endpointSchema: Omit<GenericEndpointSchema, "httpRequest">, 
@@ -11,12 +11,13 @@ const apiValidator = ({endpointSchema, mockRequest, mockResponse}: {
   mockResponse: any
 }) => 
   runMiddleware(
-    tryParseAPICall(
-      mockEndpointName, 
-      endpointSchema as GenericEndpointSchema
-    ),
+    tryParseAPICall,
     async () => mockResponse
-  )(mockRequest)
+  )({
+    endpointName, 
+    endpointSchema: endpointSchema as GenericEndpointSchema,
+    input: mockRequest
+  })
 
 describe("tryParseAPICall", () => {  
   it("should throw an error if the request is invalid", async () => {
@@ -38,7 +39,7 @@ describe("tryParseAPICall", () => {
     })
 
     await expect(apiCall).rejects.toThrow(
-      `Making an invalid request to TiF API endpoint ${mockEndpointName}`
+      `Making an invalid request to TiF API endpoint ${endpointName}`
     );
   });
 
@@ -84,7 +85,7 @@ describe("tryParseAPICall", () => {
     })
 
     await expect(apiCall).rejects.toThrow(
-      `TiF API endpoint ${mockEndpointName} responded with an invalid JSON body: {"name":123}`
+      `TiF API endpoint ${endpointName} responded with an invalid JSON body: {"name":123}`
     );
   });
   
@@ -108,7 +109,7 @@ describe("tryParseAPICall", () => {
     })
 
     await expect(apiCall).rejects.toThrow(
-      `TiF API endpoint ${mockEndpointName} responded with an invalid JSON body: {"name":"Johnny"}`
+      `TiF API endpoint ${endpointName} responded with an invalid JSON body: {"name":"Johnny"}`
     );
   });
   
