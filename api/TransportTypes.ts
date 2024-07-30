@@ -54,6 +54,12 @@ type TiFAPIInput = {
   params?: URLParameters;
 } | void;
 
+type TiFAPIInputContext<T> = {
+  endpointName: string;
+  endpointSchema: GenericEndpointSchema;
+  input?: T & TiFAPIInput;
+}
+
 export type GenericEndpointSchema = {
   input: InputSchema;
   outputs: APIResponseSchemas;
@@ -64,17 +70,12 @@ export type GenericEndpointSchema = {
 /**
  * Generic API endpoint middleware
  */
-export type APIMiddleware = Middleware<TiFAPIInput, TiFAPIResponse<any>>;
+export type APIMiddleware<T = {}> = Middleware<TiFAPIInputContext<T>, TiFAPIResponse<any>>;
 
 /**
  * Generic API endpoint function
  */
-export type APIHandler = Handler<TiFAPIInput, TiFAPIResponse<any>>;
-
-/**
- * Transforms endpoint schemas into middleware for API implementations.
- */
-export type EndpointSchemaToMiddleware = (endpointName: string, endpointSchema: GenericEndpointSchema) => APIMiddleware;
+export type APIHandler<T = {}> = Handler<T & TiFAPIInput, TiFAPIResponse<any>>;
 
 /**
  * Type asserts an endpoint schema.
@@ -96,10 +97,10 @@ export type APISchema = Record<string, GenericEndpointSchema>
 /**
  * Transforms a map of endpoint schemas to a map of functions where the inputs and outputs are inferred from the endpoint schemas.
  */
-export type EndpointSchemasToFunctions<TSchema extends APISchema> = 
-  { [K in keyof TSchema]: (_: OptionalInput<ZodInferredInput<TSchema[K]['input']>>) => Promise<TiFAPIResponse<TSchema[K]['outputs']>> }
+export type EndpointSchemasToFunctions<TSchema extends APISchema, InputExtension = {}> = 
+  { [K in keyof TSchema]: (_: OptionalInput<InputExtension & ZodInferredInput<TSchema[K]['input']>>) => Promise<TiFAPIResponse<TSchema[K]['outputs']>> }
 
-type InputSchema = {
+export type InputSchema = {
   body?: ZodType;
   query?: ZodType;
   params?: ZodType;

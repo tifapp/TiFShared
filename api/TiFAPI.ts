@@ -38,7 +38,6 @@ export class TiFAPI {
   ) =>
     implementTiFAPI(
       undefined,
-      undefined,
       (endpointName, { httpRequest: { method, endpoint }}) => mswBuilder(TEST_API_URL, method, endpoint, endpointMocks[endpointName as keyof TiFAPIClient] as any)
     );
 }

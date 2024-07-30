@@ -2,9 +2,8 @@ import { z } from "zod";
 import { EventAttendeesPageSchema, EventIDSchema, EventRegionSchema, TrackableEventArrivalRegionsSchema } from "../domain-models/Event";
 import { LocationCoordinate2DSchema } from "../domain-models/LocationCoordinate2D";
 import { UserHandleSchema, UserIDSchema } from "../domain-models/User";
-import { MatchFnCollection } from "../lib/Types/MatchType";
-import { EndpointSchemaToMiddleware, EndpointSchemasToFunctions, assertEndpointSchemaType } from "./TransportTypes";
-import { APIImplementationCollector, implementAPI } from "./implementAPI";
+import { APIMiddleware, APISchema, EndpointSchemasToFunctions, InputSchema, assertEndpointSchemaType } from "./TransportTypes";
+import { APIHandlerCollector, implementAPI } from "./implementAPI";
 import { tifAPIErrorSchema } from "./models/Error";
 import { EventNotFoundErrorSchema, EventResponseSchema, EventWhenBlockedByHostResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
 import { UpdateCurrentUserProfileRequestSchema, UpdateUserSettingsRequestSchema, UserNotFoundResponseSchema, UserSettingsResponseSchema, userTiFAPIErrorSchema } from "./models/User";
@@ -370,9 +369,9 @@ const TiFAPISchema = {
       endpoint: "/user/self/settings",
     },
   }),
-}
+} satisfies APISchema
 
-export type TiFAPIClient = EndpointSchemasToFunctions<typeof TiFAPISchema>
+export type TiFAPIClient<InputExtension = {}> = EndpointSchemasToFunctions<typeof TiFAPISchema, InputExtension>
 
 /**
  * Implement the functions described in the endpoint schema, given TiFAPIMiddleware or direct implementation functions. 
@@ -403,14 +402,15 @@ export type TiFAPIClient = EndpointSchemasToFunctions<typeof TiFAPISchema>
  * //response is inferred to be {status: 201, data: {id: string}}
  * ```
  */
-export const implementTiFAPI = <Fns extends TiFAPIClient>(
-  endpointSchemaToMiddleware?: EndpointSchemaToMiddleware, 
-  implementations?: MatchFnCollection<TiFAPIClient, Fns>,
-  implementationCollector?: APIImplementationCollector
-): TiFAPIClient => 
-  implementAPI(
+export const implementTiFAPI = <InputExtension extends InputSchema>(
+  apiMiddleware?: APIMiddleware,
+  handlerCollector?: APIHandlerCollector
+): TiFAPIClient<InputExtension> =>
+  implementAPI<typeof TiFAPISchema, InputExtension>(
     TiFAPISchema,
-    endpointSchemaToMiddleware, 
-    implementations, 
-    implementationCollector
+    apiMiddleware,
+    handlerCollector
   )
+
+
+//everything is in the form of middleware already, so I can wrap each individual implementation in implementTiFAPIMiddleware, then probably combine them all together in the backend repo as another middleware

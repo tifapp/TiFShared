@@ -5,21 +5,22 @@ import { addLogHandler, consoleLogHandler, resetLogHandlers } from "../logging"
 import { mswServer, noContentResponse } from "../test-helpers/MSW"
 import { tifAPITransport } from "./Transport"
 import { TiFAPITransportMiddleware, jwtMiddleware } from "./TransportMiddleware"
-import { APIHandler, GenericEndpointSchema, HTTPMethod } from "./TransportTypes"
+import { GenericEndpointSchema, HTTPMethod } from "./TransportTypes"
 
 const TEST_BASE_URL = "http://localhost:8080"
 const TEST_ENDPOINT = "/test"
 
 const TEST_JWT = "this is a totally a JWT"
 
-const apiFetch = (method: HTTPMethod, endpoint?: URLEndpoint, middleware?: TiFAPITransportMiddleware) => 
-  tifAPITransport(
+const apiFetch = ({method, input, endpoint, middleware}: {method: HTTPMethod, input?: any, endpoint?: URLEndpoint, middleware?: TiFAPITransportMiddleware}) => 
+  (tifAPITransport(
     new URL(TEST_BASE_URL),
     middleware ?? jwtMiddleware(async () => TEST_JWT)
-  )(
-    "_", 
-    ({httpRequest: {method, endpoint: endpoint ?? TEST_ENDPOINT}} as GenericEndpointSchema)
-  ) as APIHandler
+  ) as any)({
+    endpointName: "_",
+    endpointSchema: ({httpRequest: {method, endpoint: endpoint ?? TEST_ENDPOINT}} as GenericEndpointSchema),
+    input
+  })
 
 const successResponse = () => HttpResponse.json({ a: 1 })
 
@@ -45,10 +46,14 @@ describe("TiFAPITransport tests", () => {
       })
     )
 
-    const resp = await apiFetch("POST", `${TEST_ENDPOINT}/:id`)({
-      params: { id: "abc" },
-      query: { hello: "world", a: 1 },
-      body: { a: 1, b: "hello" }
+    const resp = await apiFetch({
+      method: "POST", 
+      endpoint: `${TEST_ENDPOINT}/:id`, 
+      input: {
+        params: { id: "abc" },
+        query: { hello: "world", a: 1 },
+        body: { a: 1, b: "hello" }
+      }
     })
 
     expect(resp).toMatchObject({
@@ -67,11 +72,10 @@ describe("TiFAPITransport tests", () => {
       })
     )
 
-    const resp = await apiFetch("GET")(
-      {
-        query: { hello: undefined }
-      }
-    )
+    const resp = await apiFetch({
+      method: "GET",
+      input: { query: { hello: undefined } }
+    })
 
     expect(resp).toMatchObject({
       status: 200,
@@ -88,7 +92,7 @@ describe("TiFAPITransport tests", () => {
       })
     )
 
-    const resp = await apiFetch("GET")()
+    const resp = await apiFetch({method: "GET"})
 
     expect(resp).toMatchObject({
       status: 200,
@@ -103,7 +107,7 @@ describe("TiFAPITransport tests", () => {
       })
     )
 
-    await expect(apiFetch("GET")()).rejects.toEqual(
+    await expect(apiFetch({method: "GET"})).rejects.toEqual(
       new Error("TiF API responded with non-JSON body and status 200.")
     )
   })
@@ -115,7 +119,7 @@ describe("TiFAPITransport tests", () => {
       })
     )
 
-    const resp = await apiFetch("GET")()
+    const resp = await apiFetch({method: "GET"})
 
     expect(resp.data).toEqual(undefined)
   })
@@ -128,7 +132,7 @@ describe("TiFAPITransport tests", () => {
     )
 
     await expect(
-      apiFetch("GET")()
+      apiFetch({method: "GET"})
     ).rejects.toEqual(
       new Error(
         'TiFAPI responded with a 204 status code and body {"hello":"world"}. A 204 status code should not produce a body.'
@@ -139,7 +143,10 @@ describe("TiFAPITransport tests", () => {
   test("logs error", async () => {
     const logHandler = jest.fn()
     addLogHandler(logHandler)
-    const respPromise = apiFetch("GET", undefined, () => { throw new Error("Fetch error") })()
+    const respPromise = apiFetch({
+      method: "GET",
+      middleware: () => { throw new Error("Fetch error") }
+    })
 
     await expect(respPromise).rejects.toThrow("Fetch error")
     expect(logHandler).toHaveBeenCalledWith("tif.api.client", 
@@ -149,7 +156,7 @@ describe("TiFAPITransport tests", () => {
         "endpointName": "_", 
         "error": new Error("Fetch error"), 
         "errorMessage": "Fetch error", 
-        "input": {"body": undefined, "params": undefined, "query": undefined}
+        "input": undefined
       }
     )
     resetLogHandlers()
@@ -165,7 +172,10 @@ describe("TiFAPITransport tests", () => {
     const logHandler = jest.fn()
     addLogHandler(logHandler)
     const controller = new AbortController()
-    const respPromise = apiFetch("GET")({signal: controller.signal})
+    const respPromise = apiFetch({
+      method: "GET",
+      input: { signal: controller.signal }
+    })
 
     process.nextTick(() => controller.abort())
     await expect(respPromise).rejects.toThrow("This operation was aborted")
