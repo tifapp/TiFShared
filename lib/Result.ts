@@ -15,13 +15,10 @@ export type Result<Success, Failure> =
   | SuccessResult<Success, Failure>
   | FailureResult<Success, Failure>
 
-export type AnyResult<Success, Failure> =
-  | Result<Success, Failure>
-  | PromiseResult<Success, Failure>
-
 export type AwaitableResult<Success, Failure> =
-  | AnyResult<Success, Failure>
-  | Promise<AnyResult<Success, Failure>>
+  | Result<Success, Failure>
+  | Promise<Result<Success, Failure>>
+  | PromiseResult<Success, Failure>
 
 /**
  * A result representing the success of an operation.
@@ -65,13 +62,35 @@ export class SuccessResult<Success, Failure> {
   }
 
   /**
+   * Runs the handler with the current success value and passes the current success value through
+   * if the handler is successful.
+   *
+   * @param handler a function to process the current success value and either passthrough the value or return a failure.
+   */
+  passthroughSuccess<NewSuccess, NewFailure>(
+    handler: (value: Success) => AwaitableResult<NewSuccess, NewFailure>
+  ): SuccessResult<Success, NewFailure | Failure> {
+    return handler(this.value).withSuccess(this.value)
+  }
+  
+  /**
+   * Runs the handler with the current failure value and passes the current failure value through
+   * if the handler is successful.
+   *
+   * @param handler a function to process the current failure value and either passthrough the value or return a failure.
+   */
+  passthroughFailure<NewSuccess, NewFailure>(_: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>) {
+    return this as unknown as SuccessResult<Success, NewFailure | Failure>
+  }
+
+  /**
    * Transforms the success result into an entirely new result.
    *
    * @param mapper a function to transform the current result into a new result.
    */
   flatMapSuccess<NewSuccess, NewFailure>(
     mapper: (value: Success) => AwaitableResult<NewSuccess, NewFailure>
-  ): AnyResult<NewSuccess, Failure | NewFailure> {
+  ): AwaitableResult<NewSuccess, Failure | NewFailure> {
     const result = mapper(this.value)
     return result
   }
@@ -165,6 +184,28 @@ export class FailureResult<Success, Failure> {
     this.observe(handler)
     return this
   }
+  
+  /**
+   * Runs the handler with the current success value and passes the current success value through
+   * if the handler is successful.
+   *
+   * @param handler a function to process the current success value and either passthrough the value or return a failure.
+   */
+  passthroughSuccess<NewSuccess, NewFailure>(_: (value: Success) => AwaitableResult<NewSuccess, NewFailure>) {
+    return this as unknown as FailureResult<Success, NewFailure | Failure>
+  }
+  
+  /**
+   * Runs the handler with the current failure value and passes the current failure value through
+   * if the handler is successful.
+   *
+   * @param handler a function to process the current failure value and either passthrough the value or return a failure.
+   */
+  passthroughFailure<NewSuccess, NewFailure>(
+    handler: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
+  ): FailureResult<Success, NewFailure | Failure> {
+    return handler(this.value).flatMapSuccess(() => failure(this.value))
+  }
 
   /**
    * Returns this result typecasted as the failure type unioned with the success
@@ -184,7 +225,7 @@ export class FailureResult<Success, Failure> {
    */
   flatMapFailure<NewSuccess, NewFailure>(
     mapper: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
-  ): AnyResult<Success | NewSuccess, NewFailure> {
+  ): AwaitableResult<Success | NewSuccess, NewFailure> {
     return mapper(this.value)
   }
 
@@ -270,6 +311,26 @@ export class PromiseResult<Success, Failure> extends Promise<
     this.then((result) => result.observeFailure(handler))
     return this
   }
+  
+  /**
+   * Transforms the success value into a new one lazily.
+   */
+  passthroughSuccess<NewSuccess, NewFailure>(
+    handler: (value: Success) => AwaitableResult<NewSuccess, NewFailure>
+  ): PromiseResult<NewSuccess, Failure | NewFailure> {
+    const result = this.then((result) => result.passthroughSuccess(handler))
+    return promiseResult(result)
+  }
+
+  /**
+   * Transforms the failure value into a new one lazily.
+   */
+  passthroughFailure<NewSuccess, NewFailure>(
+    handler: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
+  ): PromiseResult<NewSuccess, Failure | NewFailure> {
+    const result = this.then((result) => result.passthroughFailure(handler))
+    return promiseResult(result)
+  }
 
   /**
    * Transforms the success result into a {@link PromiseResult} where the underlying result is returned from the map function.
@@ -331,6 +392,13 @@ export class PromiseResult<Success, Failure> extends Promise<
   withSuccess<NewSuccess>(value: NewSuccess) {
     return promiseResult(this.then((result) => result.withSuccess(value)))
   }
+  
+  /**
+   * Returns the result value.
+   */
+  unwrap() {
+    return this.then((res) => res.value)
+  }
 }
 
 /**
@@ -340,7 +408,7 @@ export const promiseResult = <Success, Failure>(
   promise: AwaitableResult<Success, Failure>
 ) => {
   return new PromiseResult<Success, Failure>((resolve, reject) => {
-    const handleResult = (res: AnyResult<Success, Failure>) => {
+    const handleResult = (res: AwaitableResult<Success, Failure>) => {
       if (res instanceof PromiseResult) {
         res.then(resolve).catch(reject)
       } else {
@@ -357,6 +425,25 @@ export const promiseResult = <Success, Failure>(
     }
   })
 }
+
+/**
+ * Extracts the success value of a given result. Ex.
+ * 
+ * ```ts
+ * const getUser = (user: {name: string, id: number}) =>
+ *  success(user)
+ *    .mapSuccess(({ name, id }) => ({ name, id, newField: `${name}${id}` }))
+ * 
+ * type transformedUserType = ExtractSuccess<ReturnType<typeof getUser>>
+ * //transformedUserType is derived as {name: string, id: number, newField: string}
+ * ```
+ */
+export type ExtractSuccess<T> = T extends AwaitableResult<infer U, any> ? U : never;
+
+/**
+ * Extracts the failure value of a given result. See {@link ExtractSuccess}
+ */
+export type ExtractFailure<T> = T extends AwaitableResult<infer U, any> ? U : never;
 
 /**
  * Creates a {@link SuccessResult} with the given value.

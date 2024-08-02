@@ -7,6 +7,7 @@
   "scripts": {
     "test": "jest --collectCoverage",
     "test:ci": "jest --ci --collectCoverage",
+    "prepare": "tsc -p api/tsconfig.api.json",
     "pr": "node --loader ts-node/esm npm-scripts/auto-pr.ts"
   },
   "repository": {
@@ -19,6 +20,11 @@
     "url": "https://github.com/tifapp/TiFShared/issues"
   },
   "homepage": "https://github.com/tifapp/TiFShared#readme",
+  "peerDependencies": {
+    "zod": "^3.22.4",
+    "linkify-it": "^3.0.2",
+    "typescript": "^5.4.2"
+  },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
     "@swc/jest": "^0.2.36",
@@ -43,8 +49,6 @@
     "open": "^10.1.0",
     "prettier": "^3.2.5",
     "prettier-eslint": "^16.3.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.4.2",
-    "zod": "^3.22.4"
+    "ts-node": "^10.9.2"
   }
 }
