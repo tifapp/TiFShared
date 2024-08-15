@@ -22,5 +22,11 @@
   "include": [
     "**/*.ts",
   ],
-  "exclude": ["node_modules", "npm-scripts", "jest", "coverage"]
+  "exclude": [
+    "node_modules",
+    "npm-scripts",
+    "jest",
+    "coverage",
+    "**/*.test.ts"
+  ]
 }
