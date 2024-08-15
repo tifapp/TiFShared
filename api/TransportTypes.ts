@@ -20,6 +20,8 @@ export type StatusCodeMap = {
   status500: 500
 }
 
+export type StatusCodes = StatusCodeMap[keyof StatusCodeMap]
+
 type APINoContentSchema = "no-content"
 
 type APIResponseSchemas = NonEmptyPartial<{
@@ -39,9 +41,16 @@ type SchemaFor<
     : undefined
   : Schemas[Key]
 
+type ForbiddenProperty<T, ForbiddenKeys extends keyof any> = {
+  [P in keyof T]: P extends ForbiddenKeys ? never : T[P]
+};
+
 type TiFAPIResponse<Schemas extends APIResponseSchemas> = {
-  [key in keyof StatusCodeMap]: SchemaFor<key, Schemas> extends ZodType
+  [key in keyof StatusCodeMap]: key extends "status204"
     ? {
+      status: 204,
+    }
+    : SchemaFor<key, Schemas> extends ZodType ? {
         status: StatusCodeMap[key]
         data: z.infer<SchemaFor<key, Schemas>>
       }

@@ -1,7 +1,7 @@
 import { ColorString } from "../../domain-models/ColorString"
-import { EventResponse, EventResponseSchema } from "./Event"
 import { dateRange } from "../../domain-models/FixedDateRange"
 import { UserHandle } from "../../domain-models/User"
+import { EventResponse, EventResponseSchema } from "./Event"
 
 describe("EventAPIModels tests", () => {
   test("event response schema", () => {
@@ -40,7 +40,7 @@ describe("EventAPIModels tests", () => {
         isInArrivalTrackingPeriod: true
       },
       host: {
-        relations: { themToYou: "not-friends", youToThem: "not-friends" },
+        relations: { fromThemToYou: "not-friends", fromYouToThem: "not-friends" },
         id: "2fd22e4a-147c-4189-889e-15469b80eaf7",
         username: "Caroline Parisian",
         handle: "carolinepar0103",
@@ -93,7 +93,7 @@ describe("EventAPIModels tests", () => {
         isInArrivalTrackingPeriod: true
       },
       host: {
-        relations: { themToYou: "not-friends", youToThem: "not-friends" },
+        relations: { fromThemToYou: "not-friends", fromYouToThem: "not-friends" },
         id: "2fd22e4a-147c-4189-889e-15469b80eaf7",
         username: "Caroline Parisian",
         handle: UserHandle.optionalParse("carolinepar0103")!,

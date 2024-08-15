@@ -5,8 +5,8 @@ import { UserHandleSchema, UserIDSchema } from "../domain-models/User";
 import { APIMiddleware, APISchema, EndpointSchemasToFunctions, InputSchema, assertEndpointSchemaType } from "./TransportTypes";
 import { APIHandlerCollector, implementAPI } from "./implementAPI";
 import { tifAPIErrorSchema } from "./models/Error";
-import { EventNotFoundErrorSchema, EventResponseSchema, EventWhenBlockedByHostResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
-import { UpdateCurrentUserProfileRequestSchema, UpdateUserSettingsRequestSchema, UserNotFoundResponseSchema, UserSettingsResponseSchema, userTiFAPIErrorSchema } from "./models/User";
+import { CreateEventSchema, EventNotFoundErrorSchema, EventResponseSchema, EventWhenBlockedByHostResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
+import { RegisterPushTokenRequestSchema, SelfProfileSchema, UpdateCurrentUserProfileRequestSchema, UpdateUserSettingsRequestSchema, UserFriendRequestResponseSchema, UserNotFoundResponseSchema, UserProfileSchema, UserSettingsResponseSchema, userTiFAPIErrorSchema } from "./models/User";
 
 const TiFAPISchema = {
   /**
@@ -55,8 +55,11 @@ const TiFAPISchema = {
   autocompleteUsers: assertEndpointSchemaType({
     input: {
       query: z.object({
-        handle: z.string(), 
-        limit: z.number()
+        handle: UserHandleSchema,
+        limit: z
+          .string()
+          .transform((arg) => parseInt(arg))
+          .refine((arg) => arg >= 1 && arg <= 50)
       })
     },
     outputs: {
@@ -179,12 +182,57 @@ const TiFAPISchema = {
     outputs: {
       status200: EventAttendeesPageSchema,
       status204: "no-content",
-      status404: EventNotFoundErrorSchema,
+      status404: EventNotFoundErrorSchema.or(tifAPIErrorSchema("no-attendees")),
       status403: tifAPIErrorSchema("blocked-by-host")
     },
     httpRequest: {
       method: "GET",
       endpoint: `/event/attendees/:eventId`,
+    },
+  }),
+  
+  /**
+   * Joins the event with the given id.
+   *
+   * @param eventId The id of the event to join.
+   * @param arrivalRegion A region to pass for marking an initial arrival if the user has arrived in the area of the event.
+   * @returns The upcoming event arrivals based on the user joining this event, and a token request for the event group chat.
+   */
+  endEvent: assertEndpointSchemaType({
+    input: {
+      params: z.object({
+        eventId: EventIDSchema
+      }),
+    },
+    outputs: {
+      status404: tifAPIErrorSchema(
+        "event-not-found"
+      ),
+      status403: tifAPIErrorSchema(
+        "event-has-ended",
+        "user-not-host"
+      ),
+      status204: "no-content"
+    },
+    httpRequest: {
+      method: "POST",
+      endpoint: `/event/end/:eventId`,
+    },
+  }),
+  
+  /**
+   * Creates an event.
+   */
+  createEvent: assertEndpointSchemaType({
+    input: {
+      body: CreateEventSchema
+    },
+    outputs: {
+      status201: z.object({id: EventIDSchema}),
+    },
+    httpRequest: {
+      method: "POST",
+      endpoint: `/event`,
     },
   }),
   
@@ -205,9 +253,11 @@ const TiFAPISchema = {
       }).optional(),
     },
     outputs: {
+      status404: tifAPIErrorSchema(
+        "event-not-found"
+      ),
       status403: tifAPIErrorSchema(
         "event-has-ended",
-        "event-was-cancelled",
         "user-is-blocked"
       ),
       status201: JoinEventResponseSchema,
@@ -242,6 +292,9 @@ const TiFAPISchema = {
         "event-has-been-cancelled",
         "event-has-ended"
       ),
+      status404: tifAPIErrorSchema(
+        "event-not-found"
+      ),
       status400: tifAPIErrorSchema("co-host-not-found", "already-left-event"),
       status204: "no-content"
     },
@@ -257,10 +310,7 @@ const TiFAPISchema = {
    */
   registerForPushNotifications: assertEndpointSchemaType({
     input: {
-      body: z.object({
-        pushToken: z.string(),
-        platformName: z.literal("apple").or(z.literal("android"))
-      })
+      body: RegisterPushTokenRequestSchema
     },
     outputs: {
       status201: z.object({ status: z.literal("inserted") }),
@@ -269,6 +319,54 @@ const TiFAPISchema = {
     httpRequest: {
       method: "POST",
       endpoint: "/user/notifications/push/register",
+    }
+  }),
+  
+  /**
+   * Gets the user's details.
+   */
+  getSelf: assertEndpointSchemaType({
+    input: {},
+    outputs: {
+      status200: SelfProfileSchema,
+    },
+    httpRequest: {
+      method: "GET",
+      endpoint: `/user/self`
+    }
+  }),
+  
+  /**
+   * Deletes the user's account.
+   */
+  removeAccount: assertEndpointSchemaType({
+    input: {},
+    outputs: {
+      status204: "no-content",
+    },
+    httpRequest: {
+      method: "DELETE",
+      endpoint: `/user`
+    }
+  }),
+  
+  /**
+   * Gets details of another user.
+   */
+  getUser: assertEndpointSchemaType({
+    input: {
+      params: z.object({
+        userId: UserIDSchema
+      })
+    },
+    outputs: {
+      status200: UserProfileSchema,
+      status403: userTiFAPIErrorSchema("blocked"),
+      status404: UserNotFoundResponseSchema,
+    },
+    httpRequest: {
+      method: "GET",
+      endpoint: `/user/:userId`
     }
   }),
   
@@ -282,7 +380,7 @@ const TiFAPISchema = {
   blockUser: assertEndpointSchemaType({
     input: {
       params: z.object({
-        id: UserIDSchema
+        userId: UserIDSchema
       })
     },
     outputs: {
@@ -291,7 +389,7 @@ const TiFAPISchema = {
     },
     httpRequest: {
       method: "PATCH",
-      endpoint: `/user/block/:id`
+      endpoint: `/user/block/:userId`
     }
   }),
   
@@ -306,7 +404,7 @@ const TiFAPISchema = {
   unblockUser: assertEndpointSchemaType({
     input: {
       params: z.object({
-        id: UserIDSchema
+        userId: UserIDSchema
       })
     },
     outputs: {
@@ -316,7 +414,54 @@ const TiFAPISchema = {
     },
     httpRequest: {
       method: "DELETE",
-      endpoint: `/user/block/:id`
+      endpoint: `/user/block/:userId`
+    },
+  }),
+  
+  /**
+   * Sends a friend request to the user represented by `receiverId`. If the 2 users have no
+   * prior relationship, then a `friend-request-pending` status will be returned, otherwise
+   * a `friends` status will be returned if the receiver has sent a friend request to the sender.
+   */
+  sendFriendRequest: assertEndpointSchemaType({
+    input: {
+      params: z.object({
+        userId: UserIDSchema
+      })
+    },
+    outputs: {
+      status200: UserFriendRequestResponseSchema,
+      status201: UserFriendRequestResponseSchema,
+      status403: userTiFAPIErrorSchema("blocked"),
+      status404: UserNotFoundResponseSchema,
+    },
+    httpRequest: {
+      method: "POST",
+      endpoint: `/friend/:userId`
+    },
+  }),
+  
+  /**
+   * Returns the details for a single event.
+   */
+  getEvent: assertEndpointSchemaType({
+    input: {
+      params: z.object({
+        eventId: EventIDSchema
+      })
+    },
+    outputs: {
+      status403: tifAPIErrorSchema(
+        "user-is-blocked"
+      ),
+      status404: tifAPIErrorSchema(
+        "event-not-found"
+      ),
+      status200: EventResponseSchema 
+    },
+    httpRequest: {
+      method: "POST",
+      endpoint: "/event/details/:eventId",
     },
   }),
 

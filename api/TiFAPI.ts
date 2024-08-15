@@ -4,7 +4,6 @@ import { jwtMiddleware } from "./TransportMiddleware";
 import { MockAPIImplementation, mswBuilder } from "./mockAPIServer";
 
 export const TEST_API_URL = new URL("http://localhost:8080")
-
 export class TiFAPI {
   /**
    * An instance of {@link TiFAPIClient} for unit testing.

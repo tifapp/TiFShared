@@ -1,4 +1,4 @@
-type Primitive = string | number | boolean | null | undefined;
+import { Primitive } from "zod";
 
 type InferLiteral<T> = T extends Primitive ? T : never;
 
@@ -17,12 +17,15 @@ type InferLiteral<T> = T extends Primitive ? T : never;
  */
 export type Literal<T> = T extends Primitive ? InferLiteral<T> :
   T extends Array<infer U> ? Array<Literal<U>> :
+  T extends Function ? T :
   {
-    [P in keyof T]-?: Literal<T[P]>;
+    [P in keyof T]: Literal<T[P]>;
   };
 
 // Example Usage:
 declare function literal<T>(options: Literal<T>): T;
 
+const typed: {t?: string} = {t: "test"}
+
 // typeof complexObject is inferred with literal values
-const complexObject = literal({x: {y: 3, z: [1, 2, 3]}, w: new Date(2000)})
+const complexObject = literal({typed, x: {y: 3, z: [1, 2, 3]}, w: new Date(2000), t: () => ({ name: "test" })})

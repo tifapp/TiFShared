@@ -1,8 +1,8 @@
 import { Match } from "linkify-it"
 import { z } from "zod"
 import {
-  ensureWhitespaceBeforeSchemaValidator,
-  linkify
+    ensureWhitespaceBeforeSchemaValidator,
+    linkify
 } from "../lib/LinkifyIt"
 import { Tagged } from "../lib/Types/HelperTypes"
 
@@ -45,12 +45,12 @@ export type UserToProfileRelationStatus = z.rInfer<
 
 export const BlockedBidirectionalUserRelationsSchema = z.union([
   z.object({
-    themToYou: BlockedStatusSchema,
-    youToThem: BlockedStatusSchema
+    fromThemToYou: BlockedStatusSchema,
+    fromYouToThem: BlockedStatusSchema
   }),
   z.object({
-    themToYou: BlockedStatusSchema,
-    youToThem: NotFriendsStatusSchema
+    fromThemToYou: BlockedStatusSchema,
+    fromYouToThem: NotFriendsStatusSchema
   })
 ])
 
@@ -64,28 +64,28 @@ export type BlockedBidirectionalUserRelations = z.rInfer<
 
 export const UnblockedBidirectionalUserRelationsSchema = z.union([
   z.object({
-    themToYou: NotFriendsStatusSchema,
-    youToThem: NotFriendsStatusSchema
+    fromThemToYou: NotFriendsStatusSchema,
+    fromYouToThem: NotFriendsStatusSchema
   }),
   z.object({
-    themToYou: FriendRequestPendingStatusSchema,
-    youToThem: NotFriendsStatusSchema
+    fromThemToYou: FriendRequestPendingStatusSchema,
+    fromYouToThem: NotFriendsStatusSchema
   }),
   z.object({
-    themToYou: NotFriendsStatusSchema,
-    youToThem: BlockedStatusSchema
+    fromThemToYou: NotFriendsStatusSchema,
+    fromYouToThem: BlockedStatusSchema
   }),
   z.object({
-    themToYou: NotFriendsStatusSchema,
-    youToThem: FriendRequestPendingStatusSchema
+    fromThemToYou: NotFriendsStatusSchema,
+    fromYouToThem: FriendRequestPendingStatusSchema
   }),
   z.object({
-    themToYou: FriendsStatusSchema,
-    youToThem: FriendsStatusSchema
+    fromThemToYou: FriendsStatusSchema,
+    fromYouToThem: FriendsStatusSchema
   }),
   z.object({
-    themToYou: CurrentUserStatusSchema,
-    youToThem: CurrentUserStatusSchema
+    fromThemToYou: CurrentUserStatusSchema,
+    fromYouToThem: CurrentUserStatusSchema
   })
 ])
 

@@ -1,3 +1,4 @@
+import { StringDateSchema } from "lib/Date"
 import { Match } from "linkify-it"
 import { z } from "zod"
 import {
@@ -47,10 +48,12 @@ export const areEventRegionsEqual = (r1: EventRegion, r2: EventRegion) => {
 
 export const EventAttendeeSchema = z.object({
   id: UserIDSchema,
-  username: z.string(),
+  name: z.string(),
   handle: UserHandleSchema,
-  profileImageURL: z.string().url().nullable(),
-  relations: UnblockedBidirectionalUserRelationsSchema
+  profileImageURL: z.string().url().optional(),
+  relations: UnblockedBidirectionalUserRelationsSchema,
+  joinedDateTime: StringDateSchema,
+  arrivedDateTime: StringDateSchema,
 })
 
 /**
@@ -74,6 +77,8 @@ export const EventAttendeesPageSchema = z.object({
   totalAttendeeCount: z.number(),
   nextPageCursor: z.string().nullable()
 })
+
+export type EventAttendeesPage = z.rInfer<typeof EventAttendeesPageSchema>
 
 export const EventSettingsSchema = z.object({
   shouldHideAfterStartDate: z.boolean(),
@@ -138,7 +143,7 @@ export type EventPreviewAttendee = Pick<EventAttendee, "id" | "profileImageURL">
 export const EventLocationSchema = EventRegionSchema.extend({
   isInArrivalTrackingPeriod: z.boolean(),
   timezoneIdentifier: z.string(),
-  placemark: PlacemarkSchema.nullable()
+  placemark: PlacemarkSchema.optional()
 })
 
 /**

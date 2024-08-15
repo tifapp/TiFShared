@@ -1,4 +1,5 @@
-import { TodayOrTomorrowSchema } from "../../domain-models/TodayOrTomorrow"
+import { LocationCoordinate2DSchema } from "domain-models/LocationCoordinate2D"
+import { z } from "zod"
 import { ColorStringSchema } from "../../domain-models/ColorString"
 import {
   EventAttendeeSchema,
@@ -10,15 +11,15 @@ import {
   EventWhenBlockedByHostSchema,
   TrackableEventArrivalRegionsSchema
 } from "../../domain-models/Event"
-import { z } from "zod"
+import { TodayOrTomorrowSchema } from "../../domain-models/TodayOrTomorrow"
 import { StringDateSchema } from "../../lib/Date"
-import { tifAPIErrorSchema } from "./Error"
 import { ChatTokenRequestSchema } from "./Chat"
+import { tifAPIErrorSchema } from "./Error"
 import { FixedDateRangeSchema } from "./FixedDateRange"
 
 export const EventTimeResponseSchema = z.object({
   secondsToStart: z.number(),
-  todayOrTomorrow: TodayOrTomorrowSchema.nullable(),
+  todayOrTomorrow: TodayOrTomorrowSchema.optional(),
   dateRange: FixedDateRangeSchema
 })
 
@@ -32,15 +33,31 @@ export const EventTimeResponseSchema = z.object({
  */
 export type EventTimeResponse = z.rInfer<typeof EventTimeResponseSchema>
 
+const EventTitleSchema = z.string().max(50)
+const EventDescriptionSchema = z.string().max(500)
+
+export const CreateEventSchema = z
+  .object({
+    description: EventDescriptionSchema,
+    dateRange: FixedDateRangeSchema,
+    color: ColorStringSchema,
+    title: EventTitleSchema,
+    shouldHideAfterStartDate: z.boolean(),
+    isChatEnabled: z.boolean(),
+    coordinates: LocationCoordinate2DSchema
+  })
+
+export type CreateEvent = z.rInfer<typeof CreateEventSchema>
+
 export const EventResponseSchema = z.object({
   id: EventIDSchema,
   title: z.string(), // TODO: - Decide max length.
-  description: z.string(),
+  description: z.string().max(500),
   color: ColorStringSchema,
   attendeeCount: z.number().nonnegative(),
-  joinDate: StringDateSchema.nullable(),
-  createdAt: StringDateSchema,
-  updatedAt: StringDateSchema,
+  joinedDateTime: StringDateSchema.optional(),
+  createdDateTime: StringDateSchema,
+  updatedDateTime: StringDateSchema,
   hasArrived: z.boolean(),
   isChatExpired: z.boolean(),
   userAttendeeStatus: EventUserAttendeeStatusSchema,
@@ -49,7 +66,7 @@ export const EventResponseSchema = z.object({
   location: EventLocationSchema,
   previewAttendees: z.array(EventPreviewAttendeeSchema),
   host: EventAttendeeSchema,
-  endedAt: StringDateSchema.nullable()
+  endedDateTime: StringDateSchema.optional()
 })
 
 export type EventResponse = z.rInfer<typeof EventResponseSchema>

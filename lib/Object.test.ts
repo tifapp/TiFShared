@@ -1,10 +1,19 @@
-import { mergeWithPartial, removeUndefined } from "./Object"
+import { mergeWithPartial, removeUndefined, undefinedToNull } from "./Object"
 
 describe("ObjectUtils tests", () => {
   test("remove undefined", () => {
     const obj = { a: 1, b: undefined, c: { deep: undefined } }
     expect(removeUndefined(obj)).toStrictEqual({
       a: 1,
+      c: { deep: undefined }
+    })
+  })
+  
+  test("replace undefined with null", () => {
+    const obj = { a: 1, b: undefined, c: { deep: undefined } }
+    expect(undefinedToNull(obj)).toStrictEqual({
+      a: 1,
+      b: null,
       c: { deep: undefined }
     })
   })

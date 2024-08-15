@@ -1,8 +1,18 @@
 
+import { Literal } from "lib/Types/LiteralType"
 import { urlString } from "../lib/URL"
 import { logger } from "../logging"
 import { TiFAPITransportMiddleware } from "./TransportMiddleware"
-import { APIMiddleware, APIRequestBody, HTTPMethod, StatusCodeMap } from "./TransportTypes"
+import { APIMiddleware, APIRequestBody, HTTPMethod, StatusCodes } from "./TransportTypes"
+
+export function resp<StatusCode extends StatusCodes, T>(status: StatusCode, data: Literal<T>): { status: StatusCode, data: T };
+export function resp<StatusCode extends StatusCodes>(status: StatusCode): { status: StatusCode, data?: undefined };
+export function resp<StatusCode extends StatusCodes, T>(status: StatusCode, data?: Literal<T>) {
+  return ({
+    status,
+    data
+  })
+}
 
 const NoContentStatusCode = 204
 
@@ -39,7 +49,7 @@ export const tifAPITransport = (baseURL: URL, middleware: TiFAPITransportMiddlew
 
         return {
           // NB: typescript doesn't properly expect the union of status codes
-          status: resp.status as StatusCodeMap[keyof StatusCodeMap] as any,
+          status: resp.status as StatusCodes as any,
           data,
         }
       } catch (error) {

@@ -2,7 +2,7 @@ import { z } from "zod"
 
 export const ChatTokenRequestSchema = z.object({
   capability: z.string(),
-  clientId: z.string().uuid(),
+  clientId: z.string().uuid().optional(),
   keyName: z.string(),
   mac: z.string(),
   timestamp: z.number(),
