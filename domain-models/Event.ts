@@ -1,6 +1,6 @@
-import { StringDateSchema } from "lib/Date"
 import { Match } from "linkify-it"
 import { z } from "zod"
+import { StringDateSchema } from "../lib/Date"
 import {
   ensureWhitespaceBeforeSchemaValidator,
   linkify
