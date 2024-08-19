@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
     "composite": true,
     "jsx": "react-native",
     "baseUrl": ".",
