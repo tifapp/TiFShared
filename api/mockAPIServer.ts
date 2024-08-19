@@ -26,6 +26,7 @@ export const mswBuilder = (testUrl: URL, method: HTTPMethod, endpoint: string, {
 
       handler?.(input)
 
+      //@ts-expect-error Only for mocks
       return HttpResponse.json(mockResponse.data, { status: mockResponse.status })
     })
   );

@@ -28,11 +28,13 @@ export const tryParseAPICall: APIMiddleware =
     const responseSchema = outputs[`status${response.status}` as keyof typeof outputs] as ZodTypeAny | "no-content"
 
     if (!responseSchema) {
-      throw new Error(
-        `TiF API responded with an unexpected status code ${response.status} and body ${JSON.stringify(response.data)}`
-      )
+      let message = `TiF API responded with an unexpected status code ${response.status}`
+      if (response.status !== 204) {
+        message += `and body ${JSON.stringify(response.data)}`
+      }
+      throw new Error(message)
     } else {
-      if (responseSchema !== "no-content") {
+      if (response.status !== 204) {
         await zodValidation(
           response.data, 
           // GenericEndpointSchema does not have proper typing on constraints signature

@@ -1,4 +1,4 @@
-import { removeInsecureProperties } from "./InsecureProperties.ts"
+import { removeInsecureProperties } from "./InsecureProperties"
 
 /**
  * Removes all keys that have a value of undefined from the given object.
