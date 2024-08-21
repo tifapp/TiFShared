@@ -1,4 +1,4 @@
-import { chainMiddleware, runMiddleware } from "../lib/Middleware";
+import { chainMiddleware, middlewareRunner } from "../lib/Middleware";
 import { tryParseAPICall } from "./APIValidation";
 import { APIHandler, APIMiddleware, APISchema, EndpointSchemasToFunctions, GenericEndpointSchema, InputSchema } from "./TransportTypes";
 
@@ -18,7 +18,7 @@ export const implementAPI = <T extends APISchema, InputExtension extends InputSc
       middleware = chainMiddleware(middleware, apiMiddleware);
     }
     
-    const apiHandler = runMiddleware(middleware)
+    const apiHandler = middlewareRunner(middleware)
     
     handlerCollector?.(key, schema, apiHandler)
 

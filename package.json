@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest --collectCoverage",
     "test:ci": "jest --ci --collectCoverage",
-    "prepare": "node --loader ts-node/esm npm-scripts/prepare.ts",
+    "prepare": "npx tsc",
     "pr": "node --loader ts-node/esm npm-scripts/auto-pr.ts",
     "build": "npx tsc"
   },
