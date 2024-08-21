@@ -204,7 +204,7 @@ export class FailureResult<Success, Failure> {
   passthroughFailure<NewSuccess, NewFailure>(
     handler: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
   ): AwaitableResult<Success, NewFailure | Failure> {
-    return handler(this.value).withFailure(this.value)
+    return handler(this.value).flatMapSuccess(() => failure(this.value))
   }
 
   /**
