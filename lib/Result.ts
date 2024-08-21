@@ -15,13 +15,9 @@ export type Result<Success, Failure> =
   | SuccessResult<Success, Failure>
   | FailureResult<Success, Failure>
 
-export type AnyResult<Success, Failure> =
+export type AwaitableResult<Success, Failure> =
   | Result<Success, Failure>
   | PromiseResult<Success, Failure>
-
-export type AwaitableResult<Success, Failure> =
-  | AnyResult<Success, Failure>
-  | Promise<AnyResult<Success, Failure>>
 
 /**
  * A result representing the success of an operation.
@@ -71,7 +67,7 @@ export class SuccessResult<Success, Failure> {
    */
   flatMapSuccess<NewSuccess, NewFailure>(
     mapper: (value: Success) => AwaitableResult<NewSuccess, NewFailure>
-  ): AnyResult<NewSuccess, Failure | NewFailure> {
+  ): AwaitableResult<NewSuccess, Failure | NewFailure> {
     const result = mapper(this.value)
     return result
   }
@@ -184,7 +180,7 @@ export class FailureResult<Success, Failure> {
    */
   flatMapFailure<NewSuccess, NewFailure>(
     mapper: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
-  ): AnyResult<Success | NewSuccess, NewFailure> {
+  ): AwaitableResult<Success | NewSuccess, NewFailure> {
     return mapper(this.value)
   }
 
@@ -340,7 +336,7 @@ export const promiseResult = <Success, Failure>(
   promise: AwaitableResult<Success, Failure>
 ) => {
   return new PromiseResult<Success, Failure>((resolve, reject) => {
-    const handleResult = (res: AnyResult<Success, Failure>) => {
+    const handleResult = (res: AwaitableResult<Success, Failure>) => {
       if (res instanceof PromiseResult) {
         res.then(resolve).catch(reject)
       } else {
