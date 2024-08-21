@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { HttpResponse, http } from "msw"
 import { z } from "zod"
-import { noContentResponse, mswServer } from "../test-helpers/MSW"
-import { tifAPITransport } from "./Transport"
-import { jwtMiddleware } from "./Middleware"
 import { addLogHandler, consoleLogHandler, resetLogHandlers } from "../logging"
+import { mswServer, noContentResponse } from "../test-helpers/MSW"
+import { tifAPITransport } from "./Transport"
+import { jwtMiddleware } from "./TransportMiddleware"
 
 const TEST_BASE_URL = new URL("http://localhost:8080")
 
