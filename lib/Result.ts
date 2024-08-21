@@ -142,6 +142,13 @@ export class SuccessResult<Success, Failure> {
   inverted() {
     return failure(this.value) as FailureResult<Failure, Success>
   }
+  
+  /**
+   * Returns the result value.
+   */
+  unwrap() {
+    return this.value
+  }
 }
 
 /**
@@ -264,6 +271,13 @@ export class FailureResult<Success, Failure> {
    */
   inverted() {
     return success(this.value) as SuccessResult<Failure, Success>
+  }
+  
+  /**
+   * Returns the result value.
+   */
+  unwrap() {
+    return this.value
   }
 }
 
@@ -397,6 +411,13 @@ export class PromiseResult<Success, Failure> extends Promise<
    */
   withSuccess<NewSuccess>(value: NewSuccess) {
     return promiseResult(this.then((result) => result.withSuccess(value)))
+  }
+  
+  /**
+   * Returns the result value.
+   */
+  unwrap() {
+    return this.then((res) => res.value)
   }
 }
 
