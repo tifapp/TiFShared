@@ -13,6 +13,7 @@ import {
   UserSettingsResponseSchema,
   userTiFAPIErrorSchema
 } from "./models/User"
+import { jwtMiddleware } from "./TransportMiddleware"
 import { tifAPIErrorSchema } from "./models/Error"
 import {
   EventNotFoundErrorSchema,
@@ -22,7 +23,6 @@ import {
   JoinEventResponseSchema
 } from "./models/Event"
 import { LocationCoordinate2D } from "domain-models/LocationCoordinate2D"
-import { jwtMiddleware } from "./Middleware"
 
 export const TEST_API_URL = new URL("http://localhost:8080")
 
