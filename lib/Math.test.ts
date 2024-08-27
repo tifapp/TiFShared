@@ -26,4 +26,12 @@ describe("ExtendedMath tests", () => {
     expect(Math.roundToDenominator(3.75, 3)).toBeCloseTo(3.666666666666)
     expect(Math.roundToDenominator(3.95, 3)).toEqual(4)
   })
+
+  test.each([
+    [0, 0.5, 1, 0.5],
+    [10, 9, 20, 10],
+    [0, 50, 40, 40]
+  ])("clamp %d %d %d %d", (min, value, max, expected) => {
+    expect(Math.clamp(min, max, value)).toEqual(expected)
+  })
 })
