@@ -22,7 +22,7 @@ import {
   JoinEventResponseSchema
 } from "./models/Event"
 import { LocationCoordinate2D } from "domain-models/LocationCoordinate2D"
-import { jwtMiddleware } from "./Middleware"
+import { jwtMiddleware } from "./TransportMiddleware"
 
 export const TEST_API_URL = new URL("http://localhost:8080")
 
