@@ -210,7 +210,7 @@ export class FailureResult<Success, Failure> {
    */
   passthroughFailure<NewSuccess, NewFailure>(
     handler: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
-  ): FailureResult<Success, NewFailure | Failure> {
+  ): AwaitableResult<Success, NewFailure | Failure> {
     return handler(this.value).flatMapSuccess(() => failure(this.value))
   }
 
@@ -445,6 +445,25 @@ export const promiseResult = <Success, Failure>(
     }
   })
 }
+
+/**
+ * Extracts the success value of a given result. Ex.
+ * 
+ * ```ts
+ * const getUser = (user: {name: string, id: number}) =>
+ *  success(user)
+ *    .mapSuccess(({ name, id }) => ({ name, id, newField: `${name}${id}` }))
+ * 
+ * type transformedUserType = ExtractSuccess<ReturnType<typeof getUser>>
+ * //transformedUserType is derived as {name: string, id: number, newField: string}
+ * ```
+ */
+export type ExtractSuccess<T> = T extends AwaitableResult<infer U, any> ? U : never;
+
+/**
+ * Extracts the failure value of a given result. See {@link ExtractSuccess}
+ */
+export type ExtractFailure<T> = T extends AwaitableResult<any, infer U> ? U : never;
 
 /**
  * Creates a {@link SuccessResult} with the given value.
