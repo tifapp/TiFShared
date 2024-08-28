@@ -1,3 +1,4 @@
 export * from "./TiFAPI"
-export * from "./TransportMiddleware"
 export * from "./Transport"
+export * from "./TransportMiddleware"
+

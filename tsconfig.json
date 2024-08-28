@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
+    "outDir": ".",
     "jsx": "react-native",
     "baseUrl": ".",
-    "module": "esnext",
+    "module": "commonjs",
     "target": "esnext",
     "lib": ["esnext"],
     "checkJs": true,
@@ -17,5 +18,14 @@
     "strictNullChecks": true,
     "allowImportingTsExtensions": true
   },
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "**/*.ts",
+  ],
+  "exclude": [
+    "node_modules",
+    "npm-scripts",
+    "jest",
+    "coverage",
+    "**/*.test.ts"
+  ]
 }
