@@ -1,5 +1,4 @@
 {
-  "type": "module",
   "name": "TiFShared",
   "version": "1.0.0",
   "description": "Shared utilities for the TiF app.",
@@ -7,7 +6,9 @@
   "scripts": {
     "test": "jest --collectCoverage",
     "test:ci": "jest --ci --collectCoverage",
-    "pr": "node --loader ts-node/esm npm-scripts/auto-pr.ts"
+    "prepare": "node -e \"if (process.env.TIFSHARED_TS !== 'true') { require('child_process').execSync('npx tsc', { stdio: 'inherit', env: process.env }); console.log('Built js package. If you would like to see the typescript version of the package, reinstall with the TIFSHARED_TS env variable set to true.') }\"",
+    "pr": "node --loader ts-node/esm npm-scripts/auto-pr.ts",
+    "build": "npx tsc"
   },
   "repository": {
     "type": "git",
