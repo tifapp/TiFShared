@@ -2,11 +2,11 @@
   "name": "TiFShared",
   "version": "1.0.0",
   "description": "Shared utilities for the TiF app.",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "test": "jest --collectCoverage",
     "test:ci": "jest --ci --collectCoverage",
-    "prepare": "node -e \"if (process.env.TIFSHARED_TS !== 'true') { require('child_process').execSync('npx tsc', { stdio: 'inherit', env: process.env }) }\"",
+    "prepare": "node prepare.js",
     "pr": "node --loader ts-node/esm npm-scripts/auto-pr.ts",
     "build": "npx tsc"
   },
