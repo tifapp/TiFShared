@@ -5,6 +5,7 @@ import {
   linkify
 } from "../lib/LinkifyIt"
 import { Tagged } from "../lib/Types/HelperTypes"
+import { Serializable } from "./Serializable"
 
 export type UserID = Tagged<string, "userId">
 
@@ -121,12 +122,13 @@ export type UserHandleError = "already-taken" | UserHandleParsingError
 /**
  * A class representing a valid user handle string.
  */
-export class UserHandle {
+export class UserHandle extends Serializable {
   static readonly LINKIFY_SCHEMA = "@"
 
   readonly rawValue: string
 
   private constructor(rawValue: string) {
+    super()
     this.rawValue = rawValue
   }
 

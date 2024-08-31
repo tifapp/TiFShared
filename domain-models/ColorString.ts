@@ -1,13 +1,15 @@
 import { z } from "zod"
+import { Serializable } from "./Serializable"
 
 /**
  * An easy way to manipulate characteristics of color strings (Alpha, RGB, etc.).
  */
-export class ColorString {
+export class ColorString extends Serializable {
   private readonly rgbHexString: string
   readonly opacity: number
 
   private constructor(rgbaHexString: string, opacity: number) {
+    super()
     this.rgbHexString = rgbaHexString
     this.opacity = opacity
   }
