@@ -29,6 +29,9 @@ export class ColorString {
       this.opacity === 1 ? "" : Math.ceil(255 * this.opacity).toString(16)
     return this.rgbHexString + opacityHexString
   }
+  toJSON() {
+    return this.toString()
+  }
 
   private static RGB_HEX_STRING_LENGTH = 7
   private static REGEX = /^#([a-f0-9]{2}){3,4}$/i
