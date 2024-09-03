@@ -2,7 +2,7 @@
   "name": "TiFShared",
   "version": "1.0.0",
   "description": "Shared utilities for the TiF app.",
-  "main": "index.ts",
+  "main": "index.js",
   "scripts": {
     "test": "jest --collectCoverage",
     "test:ci": "jest --ci --collectCoverage",
