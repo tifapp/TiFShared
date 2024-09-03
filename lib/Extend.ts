@@ -1,6 +1,6 @@
 import {
   InsecureObjectPropertyName,
-  InsecureObjectPropertyNameErrorMessage,
+  InsecureObjectPropertyNameMessage,
   throwIfContainsInsecurePropertyName
 } from "./InsecureProperties"
 import { AnyClass, OmitFirstArgument } from "./Types/HelperTypes"
@@ -11,7 +11,7 @@ export type ExtensionsRecord<
   Extensions extends Record<string, AnyExtensionFunction>
 > = {
   [propertyName in keyof Extensions]: propertyName extends InsecureObjectPropertyName
-    ? InsecureObjectPropertyNameErrorMessage<propertyName>
+    ? InsecureObjectPropertyNameMessage<propertyName>
     : Extensions[propertyName]
 }
 
