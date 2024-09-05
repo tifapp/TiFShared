@@ -30,7 +30,7 @@ export const tryParseAPICall: APIMiddleware =
     if (!responseSchema) {
       let message = `TiF API responded with an unexpected status code ${response.status}`
       if (response.status !== 204) {
-        message += `and body ${JSON.stringify(response.data)}`
+        message += ` and body ${JSON.stringify(response.data)}`
       }
       throw new Error(message)
     } else {

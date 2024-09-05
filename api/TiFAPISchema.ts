@@ -145,7 +145,6 @@ const TiFAPISchema = {
     },
     outputs: {
       status200: EventResponseSchema,
-      status204: "no-content",
       status404: EventNotFoundErrorSchema,
       status403: EventWhenBlockedByHostResponseSchema
     },
@@ -440,30 +439,6 @@ const TiFAPISchema = {
       endpoint: `/friend/:userId`
     },
   }),
-  
-  /**
-   * Returns the details for a single event.
-   */
-  getEvent: assertEndpointSchemaType({
-    input: {
-      params: z.object({
-        eventId: EventIDSchema
-      })
-    },
-    outputs: {
-      status403: tifAPIErrorSchema(
-        "user-is-blocked"
-      ),
-      status404: tifAPIErrorSchema(
-        "event-not-found"
-      ),
-      status200: EventResponseSchema 
-    },
-    httpRequest: {
-      method: "POST",
-      endpoint: "/event/details/:eventId",
-    },
-  }),
 
   /**
    * Returns the events in the area of the center with the given radius in
@@ -556,6 +531,5 @@ export const implementTiFAPI = <InputExtension extends InputSchema>(
     apiMiddleware,
     handlerCollector
   )
-
 
 //everything is in the form of middleware already, so I can wrap each individual implementation in implementTiFAPIMiddleware, then probably combine them all together in the backend repo as another middleware

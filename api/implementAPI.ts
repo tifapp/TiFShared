@@ -4,6 +4,13 @@ import { APIHandler, APIMiddleware, APISchema, EndpointSchemasToFunctions, Gener
 
 export type APIHandlerCollector = (endpointName: string, endpointSchema: GenericEndpointSchema, __: APIMiddleware) => void
 
+/**
+ * 
+ * @param endpointSchemas API Schemas
+ * @param apiMiddleware Function handler for api routes
+ * @param handlerCollector Executes function for each route in the api 
+ * @returns 
+ */
 export const implementAPI = <T extends APISchema, InputExtension extends InputSchema>(
   endpointSchemas: T,
   apiMiddleware?: APIMiddleware,

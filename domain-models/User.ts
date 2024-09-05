@@ -1,8 +1,8 @@
 import { Match } from "linkify-it"
 import { z } from "zod"
 import {
-    ensureWhitespaceBeforeSchemaValidator,
-    linkify
+  ensureWhitespaceBeforeSchemaValidator,
+  linkify
 } from "../lib/LinkifyIt"
 import { Tagged } from "../lib/Types/HelperTypes"
 

@@ -1,13 +1,11 @@
-
-import { Literal } from "lib/Types/LiteralType"
 import { urlString } from "../lib/URL"
 import { logger } from "../logging"
 import { TiFAPITransportMiddleware } from "./TransportMiddleware"
 import { APIMiddleware, APIRequestBody, HTTPMethod, StatusCodes } from "./TransportTypes"
 
-export function resp<StatusCode extends StatusCodes, T>(status: StatusCode, data: Literal<T>): { status: StatusCode, data: T };
+export function resp<StatusCode extends StatusCodes, const T>(status: StatusCode, data: T): { status: StatusCode, data: T };
 export function resp<StatusCode extends StatusCodes>(status: StatusCode): { status: StatusCode, data?: undefined };
-export function resp<StatusCode extends StatusCodes, T>(status: StatusCode, data?: Literal<T>) {
+export function resp<StatusCode extends StatusCodes, const T>(status: StatusCode, data?: T) {
   return ({
     status,
     data

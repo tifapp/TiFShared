@@ -28,6 +28,12 @@ describe('URL Utils', () => {
   });
   
   describe('urlString', () => {
+    it('should construct a URL with a simple endpoint and no baseURL', () => {
+      const endpoint: URLEndpoint = '/endpoint';
+      const result = urlString({endpoint});
+      expect(result).toBe('/endpoint');
+    });
+
     it('should construct a URL with a simple endpoint and no query or params', () => {
       const baseURL = new URL('https://api.example.com');
       const endpoint: URLEndpoint = '/endpoint';
@@ -65,6 +71,14 @@ describe('URL Utils', () => {
       const query: URLParameters = { foo: 'bar', baz: 'qux' };
       const result = urlString({baseURL, endpoint, params, query});
       expect(result).toBe('https://api.example.com/endpoint/123/edit?foo=bar&baz=qux');
+    });
+    
+    it('should construct a URL with both query and path parameters and no baseURL', () => {
+      const endpoint: URLEndpoint = '/endpoint/:id/:action';
+      const params: URLParameters = { id: '123', action: 'edit' };
+      const query: URLParameters = { foo: 'bar', baz: 'qux' };
+      const result = urlString({endpoint, params, query});
+      expect(result).toBe('/endpoint/123/edit?foo=bar&baz=qux');
     });
   });
 });

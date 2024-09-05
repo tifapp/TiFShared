@@ -1,4 +1,3 @@
-import { LocationCoordinate2DSchema } from "domain-models/LocationCoordinate2D"
 import { z } from "zod"
 import { ColorStringSchema } from "../../domain-models/ColorString"
 import {
@@ -11,6 +10,7 @@ import {
   EventWhenBlockedByHostSchema,
   TrackableEventArrivalRegionsSchema
 } from "../../domain-models/Event"
+import { LocationCoordinate2DSchema } from "../../domain-models/LocationCoordinate2D"
 import { TodayOrTomorrowSchema } from "../../domain-models/TodayOrTomorrow"
 import { StringDateSchema } from "../../lib/Date"
 import { ChatTokenRequestSchema } from "./Chat"
