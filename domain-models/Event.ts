@@ -5,7 +5,7 @@ import {
   linkify
 } from "../lib/LinkifyIt"
 import { Tagged } from "../lib/Types/HelperTypes"
-import { ColorString } from "./ColorString"
+import { ColorString, ColorStringSchema } from "./ColorString"
 import {
   LocationCoordinate2DSchema,
   areCoordinatesEqual
@@ -182,6 +182,38 @@ export const TrackableEventArrivalRegionsSchema = z.object({
 export type TrackableEventArrivalRegions = z.rInfer<
   typeof TrackableEventArrivalRegionsSchema
 >
+
+export const EventEditLocationSchema = z.union([
+  PlacemarkSchema,
+  LocationCoordinate2DSchema
+])
+
+/**
+ * The location of an event when editing it.
+ *
+ * The location may either be represented by a {@link Placemark} or a
+ * {@link LocationCoordinate2D}. The format is chosen at the convenience of the the client, and it
+ * is the job of the server to compute either the coordinate if a placemark is given, or a
+ * placemark if a coordinate is given. This prevents the client from spoofing a location for
+ * criminal purposes, such as spoofing a volcano as a Chuck E. Cheese, and luring innocent kids
+ * into the volcano causing them to burn to death.
+ */
+export type EventEditLocation = z.rInfer<typeof EventEditLocationSchema>
+
+export const EventEditSchema = z.object({
+  title: z.string().min(1).max(75),
+  description: z.string(),
+  color: ColorStringSchema,
+  startDate: z.date(),
+  duration: z.number(),
+  shouldHideAfterStartDate: z.boolean(),
+  location: EventEditLocationSchema
+})
+
+/**
+ * A request to create a new/or edit an existing event.
+ */
+export type EventEdit = z.rInfer<typeof EventEditSchema>
 
 /**
  * A handle that users can reference other events with.
