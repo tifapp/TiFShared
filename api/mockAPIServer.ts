@@ -1,6 +1,8 @@
 import { HttpResponse, http } from "msw";
 import { queryFromSearchParams } from "../lib/URL";
 import { mswServer } from "../test-helpers/MSW";
+import { TEST_API_URL } from "./TiFAPI";
+import { TiFAPIClient, implementTiFAPI } from "./TiFAPISchema";
 import { APIHandler, APISchema, EndpointSchemasToFunctions, HTTPMethod } from "./TransportTypes";
 import { implementAPI } from "./implementAPI";
 
@@ -47,7 +49,17 @@ export const mockAPIServer = <T extends APISchema>(
 ) => 
   implementAPI(
     endpointSchema,
-    undefined,
-    (endpointName, { httpRequest: { method, endpoint }}) => 
+    ({endpointName, httpRequest: { method, endpoint }}) => 
       mswBuilder(testUrl, method, endpoint, endpointMocks[endpointName as keyof EndpointSchemasToFunctions<T>] as any)
   )
+
+
+export const mockTiFServer = (
+  endpointMocks: Partial<{
+    [EndpointName in keyof TiFAPIClient]: MockAPIImplementation<TiFAPIClient[EndpointName]>
+  }>
+) =>
+  implementTiFAPI(
+    ({endpointName, httpRequest: { method, endpoint }}) => 
+      mswBuilder(TEST_API_URL, method, endpoint, endpointMocks[endpointName as keyof TiFAPIClient] as any)
+  );

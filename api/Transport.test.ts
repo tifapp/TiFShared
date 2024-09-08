@@ -17,8 +17,7 @@ const apiFetch = ({method, input, endpoint, middleware}: {method: HTTPMethod, in
     new URL(TEST_BASE_URL),
     middleware ?? jwtMiddleware(async () => TEST_JWT)
   ) as any)({
-    endpointName: "_",
-    endpointSchema: ({httpRequest: {method, endpoint: endpoint ?? TEST_ENDPOINT}} as GenericEndpointSchema),
+    endpointSchema: ({endpointName: "_", httpRequest: {method, endpoint: endpoint ?? TEST_ENDPOINT}} as GenericEndpointSchema),
     input
   })
 

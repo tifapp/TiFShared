@@ -1,15 +1,16 @@
 import { ZodError, ZodObject, ZodTypeAny, z } from "zod";
-import { logger } from "../logging";
-import { APIMiddleware } from "./TransportTypes";
+import { addLogHandler, consoleLogHandler, logger } from "../logging";
+import { APIMiddleware, GenericEndpointSchema } from "./TransportTypes";
 
 const log = logger("tif.api.validation")
+addLogHandler(consoleLogHandler())
 
 const zodValidation = async (data: any, schema: ZodObject<any>, errorMessage: string) => {
     try {
         return await schema.parseAsync(data) as any
     } catch (e) {
         if (e instanceof ZodError) {
-            log.trace("Zod Schema Error Message", {
+            log.error("Zod Schema Error Message", {
                 zodError: JSON.parse(e.message)
             })
         }
@@ -23,9 +24,9 @@ export const tryParseAPICall: APIMiddleware =
 
     await zodValidation(input ?? {}, z.object(inputSchema), `Making an invalid request to TiF API endpoint ${endpointName}`)
 
-    const response = await next(endpointInput)
+    const response = await next(input)
 
-    const responseSchema = outputs[`status${response.status}` as keyof typeof outputs] as ZodTypeAny | "no-content"
+    const responseSchema = outputSchemas[`status${response.status}` as keyof typeof outputSchemas] as ZodTypeAny | "no-content"
 
     if (!responseSchema) {
       let message = `TiF API responded with an unexpected status code ${response.status}`
@@ -40,7 +41,7 @@ export const tryParseAPICall: APIMiddleware =
           // GenericEndpointSchema does not have proper typing on constraints signature
           //@ts-expect-error
           responseSchema.refine(() => constraints ? constraints(input, response) : true), 
-          `TiF API endpoint ${endpointName} responded with an invalid JSON body`
+          `The response from TiF API endpoint ${endpointName} does not match the schema for status ${response.status}`
         )
       }
       return response

@@ -47,9 +47,9 @@ export const SelfProfileSchema = z.object({
   name: z.string().optional(),
   bio: z.string().optional(),
   handle: UserHandleSchema,
-  createdDateTime: z.date(),
+  createdDateTime: z.coerce.date(),
   profileImageURL: z.string().url().optional(),
-  updatedDateTime: z.date(),
+  updatedDateTime: z.coerce.date(),
 })
 
 export const UserProfileSchema = z.object({
@@ -57,9 +57,9 @@ export const UserProfileSchema = z.object({
   name: z.string().optional(),
   bio: z.string().optional(),
   handle: UserHandleSchema,
-  createdDateTime: z.date(),
+  createdDateTime: z.coerce.date(),
   profileImageURL: z.string().url().optional(),
-  updatedDateTime: z.date(),
+  updatedDateTime: z.coerce.date(),
   relations: z.object({
     fromThemToYou: UserToProfileRelationStatusSchema,
     fromYouToThem: UserToProfileRelationStatusSchema

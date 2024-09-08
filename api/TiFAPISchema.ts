@@ -2,8 +2,8 @@ import { z } from "zod";
 import { EventAttendeesPageSchema, EventIDSchema, EventRegionSchema, TrackableEventArrivalRegionsSchema } from "../domain-models/Event";
 import { LocationCoordinate2DSchema } from "../domain-models/LocationCoordinate2D";
 import { UserHandleSchema, UserIDSchema } from "../domain-models/User";
-import { APIMiddleware, APISchema, EndpointSchemasToFunctions, InputSchema, assertEndpointSchemaType } from "./TransportTypes";
-import { APIHandlerCollector, implementAPI } from "./implementAPI";
+import { APISchema, EndpointSchemasToFunctions, InputSchema, assertEndpointSchemaType } from "./TransportTypes";
+import { APIHandlerCreator, implementAPI } from "./implementAPI";
 import { tifAPIErrorSchema } from "./models/Error";
 import { CreateEventSchema, EventNotFoundErrorSchema, EventResponseSchema, EventWhenBlockedByHostResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
 import { RegisterPushTokenRequestSchema, SelfProfileSchema, UpdateCurrentUserProfileRequestSchema, UpdateUserSettingsRequestSchema, UserFriendRequestResponseSchema, UserNotFoundResponseSchema, UserProfileSchema, UserSettingsResponseSchema, userTiFAPIErrorSchema } from "./models/User";
@@ -522,13 +522,11 @@ export type TiFAPIClient<InputExtension = {}> = EndpointSchemasToFunctions<typeo
  * //response is inferred to be {status: 201, data: {id: string}}
  * ```
  */
-export const implementTiFAPI = <InputExtension extends InputSchema>(
-  apiMiddleware?: APIMiddleware,
-  handlerCollector?: APIHandlerCollector
-): TiFAPIClient<InputExtension> =>
-  implementAPI<typeof TiFAPISchema, InputExtension>(
+export const implementTiFAPI = <InputExtension>(
+  handlerCollector: APIHandlerCreator
+): TiFAPIClient<InputExtension & InputSchema> =>
+  implementAPI<typeof TiFAPISchema, InputExtension & InputSchema>(
     TiFAPISchema,
-    apiMiddleware,
     handlerCollector
   )
 

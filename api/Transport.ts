@@ -24,7 +24,7 @@ const log = logger("tif.api.client")
  * @returns TiFAPIMiddleware to construct an instance of a TiFAPIClient.
  */
 export const tifAPITransport = (baseURL: URL, middleware: TiFAPITransportMiddleware): APIMiddleware<{signal: AbortSignal}> =>
-  async ({endpointName, endpointSchema: { httpRequest: { endpoint, method } }, input}) => 
+  async ({endpointSchema: {endpointName, httpRequest: { endpoint, method } }, input}) => 
     {
       try {
         const { body, query, params, signal } = input ?? {}

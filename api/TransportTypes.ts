@@ -41,12 +41,8 @@ type SchemaFor<
     : undefined
   : Schemas[Key]
 
-type ForbiddenProperty<T, ForbiddenKeys extends keyof any> = {
-  [P in keyof T]: P extends ForbiddenKeys ? never : T[P]
-};
-
 type TiFAPIResponse<Schemas extends APIResponseSchemas> = {
-  [key in keyof StatusCodeMap]: key extends "status204"
+  [key in keyof StatusCodeMap]: Schemas[key] extends APINoContentSchema
     ? {
       status: 204,
     }
@@ -64,12 +60,12 @@ type TiFAPIInput = {
 } | void;
 
 type TiFAPIInputContext<T> = {
-  endpointName: string;
   endpointSchema: GenericEndpointSchema;
   input?: T & TiFAPIInput;
 }
 
 export type GenericEndpointSchema = {
+  endpointName: string;
   input: InputSchema;
   outputs: APIResponseSchemas;
   constraints?: (input: any, output: any) => boolean;
@@ -80,6 +76,8 @@ export type GenericEndpointSchema = {
  * Generic API endpoint middleware
  */
 export type APIMiddleware<T = {}> = Middleware<TiFAPIInputContext<T>, TiFAPIResponse<any>>;
+
+export type APIMiddlewareHandler<T = {}> = Handler<TiFAPIInputContext<T>, TiFAPIResponse<any>>
 
 /**
  * Generic API endpoint function
@@ -101,7 +99,7 @@ export const assertEndpointSchemaType = <
 /**
  * Map of endpoint schemas.
  */
-export type APISchema = Record<string, GenericEndpointSchema>
+export type APISchema = Record<string, Omit<GenericEndpointSchema, "endpointName">>
 
 /**
  * Transforms a map of endpoint schemas to a map of functions where the inputs and outputs are inferred from the endpoint schemas.
@@ -118,7 +116,7 @@ export type InputSchema = {
 type OptionalInput<T> = {} extends T ? void : T
 
 type ZodInferredInput<T extends InputSchema> = {
-  [K in keyof T]: T[K] extends ZodType ? z.infer<T[K]> : T[K];
+  [K in keyof T]: T[K] extends ZodType ? z.rInfer<T[K]> : T[K];
 };
 
 type HttpRequest<T extends HTTPMethod> = { method: T; endpoint: URLEndpoint; }

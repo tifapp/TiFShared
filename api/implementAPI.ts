@@ -1,35 +1,29 @@
-import { chainMiddleware, middlewareRunner } from "../lib/Middleware";
-import { tryParseAPICall } from "./APIValidation";
-import { APIHandler, APIMiddleware, APISchema, EndpointSchemasToFunctions, GenericEndpointSchema, InputSchema } from "./TransportTypes";
+import { APIHandler, APIMiddlewareHandler, APISchema, EndpointSchemasToFunctions, GenericEndpointSchema, InputSchema } from "./TransportTypes";
 
-export type APIHandlerCollector = (endpointName: string, endpointSchema: GenericEndpointSchema, __: APIMiddleware) => void
+export type APIHandlerCreator = (_: GenericEndpointSchema) => APIMiddlewareHandler | void
 
 /**
  * 
  * @param endpointSchemas API Schemas
- * @param apiMiddleware Function handler for api routes
- * @param handlerCollector Executes function for each route in the api 
+ * @param handlerCreator Executes function for each route in the api 
  * @returns 
  */
 export const implementAPI = <T extends APISchema, InputExtension extends InputSchema>(
-  endpointSchemas: T,
-  apiMiddleware?: APIMiddleware,
-  handlerCollector?: APIHandlerCollector
+  apiSchemas: T,
+  handlerCreator: APIHandlerCreator
 ) =>
-  Object.keys(endpointSchemas).reduce((api, key) => {
-    const schema = endpointSchemas[key] as GenericEndpointSchema
+  Object.keys(apiSchemas).reduce((api, endpointName) => {
+    const endpointSchema = {endpointName, ...apiSchemas[endpointName]}
 
-    let middleware: APIMiddleware = tryParseAPICall;
+    const apiHandler = handlerCreator(endpointSchema as GenericEndpointSchema)
+    
+    api[endpointName as keyof T] = async (input) => {
+      if (!apiHandler) {
+        throw new Error("Unimplemented Handler")
+      }
 
-    if (apiMiddleware) {
-      middleware = chainMiddleware(middleware, apiMiddleware);
+      return apiHandler({endpointSchema, input})
     }
-    
-    const apiHandler = middlewareRunner(middleware)
-    
-    handlerCollector?.(key, schema, apiHandler)
-
-    api[key as keyof T] = (input) => apiHandler({endpointName: key, endpointSchema: schema, input});
 
     return api;
-  }, {} as Record<keyof T, APIHandler>) as EndpointSchemasToFunctions<T, InputExtension>;  
+  }, {} as Record<keyof T, APIHandler>) as EndpointSchemasToFunctions<T, InputExtension>;
