@@ -16,6 +16,8 @@ const NoContentStatusCode = 204
 
 const log = logger("tif.api.client")
 
+export type Abortable = {signal: AbortSignal}
+
 /**
  * TiFAPIMiddleware that fetches data from a given url for clients of TiFAPI.
  *
@@ -23,12 +25,10 @@ const log = logger("tif.api.client")
  * @param middleware a function to modify the fetch call.
  * @returns TiFAPIMiddleware to construct an instance of a TiFAPIClient.
  */
-export const tifAPITransport = (baseURL: URL, middleware: TiFAPITransportMiddleware): APIMiddleware<{signal: AbortSignal}> =>
-  async ({endpointSchema: {endpointName, httpRequest: { endpoint, method } }, input}) => 
+export const tifAPITransport = (baseURL: URL, middleware: TiFAPITransportMiddleware): APIMiddleware<Abortable> =>
+  async ({endpointName, endpointSchema: {httpRequest: { endpoint, method } }, body, query, params, signal}) => 
     {
       try {
-        const { body, query, params, signal } = input ?? {}
-
         const resp = await performRequest(
           method, 
           middleware, 
@@ -55,7 +55,9 @@ export const tifAPITransport = (baseURL: URL, middleware: TiFAPITransportMiddlew
           log.error("Failed to make tif API request.", {
             error,
             errorMessage: error.message,
-            input,
+            body,
+            query,
+            params,
             endpointName
           })
         }

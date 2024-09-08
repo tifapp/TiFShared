@@ -1,6 +1,6 @@
 import { ZodError, ZodObject, ZodTypeAny, z } from "zod";
 import { addLogHandler, consoleLogHandler, logger } from "../logging";
-import { APIMiddleware, GenericEndpointSchema } from "./TransportTypes";
+import { APIMiddleware } from "./TransportTypes";
 
 const log = logger("tif.api.validation")
 addLogHandler(consoleLogHandler())
@@ -18,13 +18,13 @@ const zodValidation = async (data: any, schema: ZodObject<any>, errorMessage: st
     }
 }
 
-export const tryParseAPICall: APIMiddleware = 
+export const tryParseAPICall: APIMiddleware<any> = 
   async (endpointInput, next) => {
-    const {endpointName, endpointSchema: {input: inputSchema, outputs, constraints}, input} = endpointInput
+    const {endpointName, endpointSchema: {input: inputSchema, outputs: outputSchemas, constraints}, body, query, params} = endpointInput
 
-    await zodValidation(input ?? {}, z.object(inputSchema), `Making an invalid request to TiF API endpoint ${endpointName}`)
+    await zodValidation({body, query, params}, z.object(inputSchema), `Making an invalid request to TiF API endpoint ${endpointName}`)
 
-    const response = await next(input)
+    const response = await next(endpointInput)
 
     const responseSchema = outputSchemas[`status${response.status}` as keyof typeof outputSchemas] as ZodTypeAny | "no-content"
 

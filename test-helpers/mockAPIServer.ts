@@ -1,12 +1,12 @@
 import { HttpResponse, http } from "msw";
+import { TEST_API_URL, TiFAPIClient, TiFAPISchema } from "../api";
+import { APIHandler, APISchema, EndpointSchemasToFunctions, GenericEndpointSchema } from "../api/TransportTypes";
 import { queryFromSearchParams } from "../lib/URL";
-import { mswServer } from "../test-helpers/MSW";
-import { TEST_API_URL } from "./TiFAPI";
-import { TiFAPIClient, implementTiFAPI } from "./TiFAPISchema";
-import { APIHandler, APISchema, EndpointSchemasToFunctions, HTTPMethod } from "./TransportTypes";
-import { implementAPI } from "./implementAPI";
+import { mswServer } from "./MSW";
 
-export const mswBuilder = (testUrl: URL, method: HTTPMethod, endpoint: string, {expectedRequest, handler, mockResponse}: MockAPIImplementation<APIHandler>) => {
+const mswBuilder = (testUrl: URL, endpointName: string, endpointSchema: GenericEndpointSchema, {expectedRequest, handler, mockResponse}: MockAPIImplementation<APIHandler>) => {
+  const {httpRequest: {method, endpoint}} = endpointSchema
+
   mswServer.use(
     http[method.toLowerCase() as Lowercase<typeof method>](`${testUrl}${endpoint.slice(1)}`, async ({ request, params }) => {
       let body: any
@@ -26,7 +26,7 @@ export const mswBuilder = (testUrl: URL, method: HTTPMethod, endpoint: string, {
         }
       }
 
-      handler?.(input)
+      handler?.({...input, endpointName, endpointSchema})
 
       //@ts-expect-error Only for mocks
       return HttpResponse.json(mockResponse.data, { status: mockResponse.status })
@@ -47,19 +47,13 @@ export const mockAPIServer = <T extends APISchema>(
     [EndpointName in keyof EndpointSchemasToFunctions<T>]: MockAPIImplementation<EndpointSchemasToFunctions<T>[EndpointName]>
   }
 ) => 
-  implementAPI(
-    endpointSchema,
-    ({endpointName, httpRequest: { method, endpoint }}) => 
-      mswBuilder(testUrl, method, endpoint, endpointMocks[endpointName as keyof EndpointSchemasToFunctions<T>] as any)
+  Object.entries(endpointSchema).forEach(([endpointName, endpointSchema]) =>
+    mswBuilder(testUrl, endpointName, endpointSchema, endpointMocks[endpointName as keyof EndpointSchemasToFunctions<T>] as any)
   )
-
 
 export const mockTiFServer = (
   endpointMocks: Partial<{
     [EndpointName in keyof TiFAPIClient]: MockAPIImplementation<TiFAPIClient[EndpointName]>
   }>
 ) =>
-  implementTiFAPI(
-    ({endpointName, httpRequest: { method, endpoint }}) => 
-      mswBuilder(TEST_API_URL, method, endpoint, endpointMocks[endpointName as keyof TiFAPIClient] as any)
-  );
+  mockAPIServer(TEST_API_URL, TiFAPISchema, endpointMocks as any)

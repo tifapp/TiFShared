@@ -45,6 +45,7 @@ type TiFAPIResponse<Schemas extends APIResponseSchemas> = {
   [key in keyof StatusCodeMap]: Schemas[key] extends APINoContentSchema
     ? {
       status: 204,
+      data: undefined
     }
     : SchemaFor<key, Schemas> extends ZodType ? {
         status: StatusCodeMap[key]
@@ -57,15 +58,14 @@ type TiFAPIInput = {
   body?: APIRequestBody;
   query?: URLParameters;
   params?: URLParameters;
-} | void;
+};
 
 type TiFAPIInputContext<T> = {
+  endpointName: string;
   endpointSchema: GenericEndpointSchema;
-  input?: T & TiFAPIInput;
-}
+} & T & TiFAPIInput;
 
 export type GenericEndpointSchema = {
-  endpointName: string;
   input: InputSchema;
   outputs: APIResponseSchemas;
   constraints?: (input: any, output: any) => boolean;
@@ -75,14 +75,12 @@ export type GenericEndpointSchema = {
 /**
  * Generic API endpoint middleware
  */
-export type APIMiddleware<T = {}> = Middleware<TiFAPIInputContext<T>, TiFAPIResponse<any>>;
-
-export type APIMiddlewareHandler<T = {}> = Handler<TiFAPIInputContext<T>, TiFAPIResponse<any>>
+export type APIMiddleware<T = {}> = Middleware<TiFAPIInputContext<T>, TiFAPIResponse<any>>
 
 /**
  * Generic API endpoint function
  */
-export type APIHandler<T = {}> = Handler<T & TiFAPIInput, TiFAPIResponse<any>>;
+export type APIHandler<T = {}> = Handler<TiFAPIInputContext<T>, TiFAPIResponse<any>>;
 
 /**
  * Type asserts an endpoint schema.

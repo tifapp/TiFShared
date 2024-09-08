@@ -1,8 +1,10 @@
 import { z } from "zod";
+import { MockAPIImplementation, mockAPIServer } from "../test-helpers/mockAPIServer";
+import { APIClientCreator } from "./APIClient";
+import { tryParseAPICall } from "./APIValidation";
+import { TEST_API_URL } from "./TiFAPI";
 import { tifAPITransport } from "./Transport";
 import { APISchema, EndpointSchemasToFunctions, HTTPMethod } from "./TransportTypes";
-import { implementAPI } from "./implementAPI";
-import { MockAPIImplementation, mockAPIServer } from "./mockAPIServer";
 
 const TEST_BASE_URL = "http://localhost:8080"
 const TEST_ENDPOINT = "/test"
@@ -16,15 +18,16 @@ const mockAPI = <T extends APISchema>({endpointSchema, endpointMocks}: {
   mockAPIServer(new URL(TEST_BASE_URL), endpointSchema, endpointMocks)
 
 const apiClient = <T extends APISchema>(endpointSchema: T) => 
-  implementAPI(
+  APIClientCreator(    
     endpointSchema,
+    tryParseAPICall,
     tifAPITransport(
-      new URL(TEST_BASE_URL),
+      TEST_API_URL,
       async (request, next) => next(request)
-    ),
+    )
   )
 
-describe("implementAPI tests", () => {
+describe("APIClient tests", () => {
   it("should throw an error when performing an invalid request", async () => {
     const endpointSchema = {
       checkUser: {
@@ -271,7 +274,7 @@ describe("implementAPI tests", () => {
             expectedRequest: {
               body: { name: "John" }
             } as any,
-            handler: (request) => savedRequest = request,
+            handler: (request) => savedRequest = request ?? undefined,
             mockResponse: { 
               status: 200,
               data: { name: 'John Doe', age: 30 }

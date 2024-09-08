@@ -1,20 +1,20 @@
 import { z } from "zod"
-import { runMiddleware } from "../lib/Middleware"
+import { middlewareRunner } from "../lib/Middleware"
 import { tryParseAPICall } from "./APIValidation"
 import { GenericEndpointSchema } from "./TransportTypes"
 
 const endpointName = "MOCK_ENDPOINT"
 
 const apiValidator = ({endpointSchema, mockRequest, mockResponse}: {
-  endpointSchema: Omit<GenericEndpointSchema, "httpRequest">, 
+  endpointSchema: Omit<GenericEndpointSchema, "httpRequest" | "endpointName">, 
   mockRequest: any, 
   mockResponse: any
 }) => 
-  runMiddleware(
+  middlewareRunner(
     tryParseAPICall,
     async () => mockResponse
-  )({
-    endpointName, 
+  )({ 
+    endpointName,
     endpointSchema: endpointSchema as GenericEndpointSchema,
     input: mockRequest
   })

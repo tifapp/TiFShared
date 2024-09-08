@@ -2,13 +2,12 @@ import { z } from "zod";
 import { EventAttendeesPageSchema, EventIDSchema, EventRegionSchema, TrackableEventArrivalRegionsSchema } from "../domain-models/Event";
 import { LocationCoordinate2DSchema } from "../domain-models/LocationCoordinate2D";
 import { UserHandleSchema, UserIDSchema } from "../domain-models/User";
-import { APISchema, EndpointSchemasToFunctions, InputSchema, assertEndpointSchemaType } from "./TransportTypes";
-import { APIHandlerCreator, implementAPI } from "./implementAPI";
+import { APISchema, EndpointSchemasToFunctions, assertEndpointSchemaType } from "./TransportTypes";
 import { tifAPIErrorSchema } from "./models/Error";
 import { CreateEventSchema, EventNotFoundErrorSchema, EventResponseSchema, EventWhenBlockedByHostResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
 import { RegisterPushTokenRequestSchema, SelfProfileSchema, UpdateCurrentUserProfileRequestSchema, UpdateUserSettingsRequestSchema, UserFriendRequestResponseSchema, UserNotFoundResponseSchema, UserProfileSchema, UserSettingsResponseSchema, userTiFAPIErrorSchema } from "./models/User";
 
-const TiFAPISchema = {
+export const TiFAPISchema = {
   /**
    * Creates the user's TiF profile after they have fully signed up and verified their account.
    *
@@ -522,12 +521,5 @@ export type TiFAPIClient<InputExtension = {}> = EndpointSchemasToFunctions<typeo
  * //response is inferred to be {status: 201, data: {id: string}}
  * ```
  */
-export const implementTiFAPI = <InputExtension>(
-  handlerCollector: APIHandlerCreator
-): TiFAPIClient<InputExtension & InputSchema> =>
-  implementAPI<typeof TiFAPISchema, InputExtension & InputSchema>(
-    TiFAPISchema,
-    handlerCollector
-  )
 
 //everything is in the form of middleware already, so I can wrap each individual implementation in implementTiFAPIMiddleware, then probably combine them all together in the backend repo as another middleware
