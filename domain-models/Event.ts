@@ -212,7 +212,6 @@ export type EventEditLocation = z.rInfer<typeof EventEditLocationSchema>
 export const EventEditSchema = z.object({
   title: z.string().min(1).max(75),
   description: z.string(),
-  color: ColorStringSchema,
   startDate: z.date(),
   duration: z.number(),
   shouldHideAfterStartDate: z.boolean(),
