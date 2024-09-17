@@ -20,7 +20,7 @@ const optionalParse = <Input, Output>(
       if (!arg) return undefined;
 
       if (arg instanceof parseable.constructor) {
-        parsedValue = arg as Output;
+        parsedValue = arg as unknown as Output;
         return;
       }
 
