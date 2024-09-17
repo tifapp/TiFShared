@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { PlacemarkSchema } from "./Placemark"
+import { EventEditLocationSchema } from "./Event"
 
 export const UserSettingsVersionSchema = z.number().nonnegative()
 
@@ -121,7 +121,7 @@ export const UserSettingsSchema = z.object({
   eventCalendarStartOfWeekDay: EventCalendarWeekdaySchema,
   eventCalendarDefaultLayout: EventCalendarLayoutIDSchema,
   eventPresetShouldHideAfterStartDate: z.boolean(),
-  eventPresetPlacemark: PlacemarkSchema.optional(),
+  eventPresetPlacemark: EventEditLocationSchema.optional(),
   eventPresetDurations: z.array(z.number()),
   version: UserSettingsVersionSchema
 })

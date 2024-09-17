@@ -1,7 +1,6 @@
 import { urlString } from "../lib/URL"
 import { logger } from "../logging"
-import { TiFAPITransportMiddleware } from "./TransportMiddleware"
-import { APIMiddleware, APIRequestBody, HTTPMethod, StatusCodes } from "./TransportTypes"
+import { APIMiddleware, StatusCodes } from "./TransportTypes"
 
 export function resp<StatusCode extends StatusCodes, const T>(status: StatusCode, data: T): { status: StatusCode, data: T };
 export function resp<StatusCode extends StatusCodes>(status: StatusCode): { status: StatusCode, data?: undefined };
@@ -16,7 +15,7 @@ const NoContentStatusCode = 204
 
 const log = logger("tif.api.client")
 
-export type Abortable = {signal: AbortSignal}
+export type ClientExtensions = {signal: AbortSignal, headers: HeadersInit}
 
 /**
  * TiFAPIMiddleware that fetches data from a given url for clients of TiFAPI.
@@ -25,16 +24,18 @@ export type Abortable = {signal: AbortSignal}
  * @param middleware a function to modify the fetch call.
  * @returns TiFAPIMiddleware to construct an instance of a TiFAPIClient.
  */
-export const tifAPITransport = (baseURL: URL, middleware: TiFAPITransportMiddleware): APIMiddleware<Abortable> =>
-  async ({endpointName, endpointSchema: {httpRequest: { endpoint, method } }, body, query, params, signal}) => 
+export const tifAPITransport = (baseURL: URL): APIMiddleware<ClientExtensions> =>
+  async ({headers, endpointName, endpointSchema: {httpRequest: { endpoint, method } }, body, query, params, signal}) => 
     {
       try {
-        const resp = await performRequest(
-          method, 
-          middleware, 
+        const resp = await fetch(
           urlString({baseURL, endpoint, params, query}), 
-          body,
-          signal
+          {
+            method,
+            headers: {"Content-Type": "application/json", ...headers},
+            body: JSON.stringify(body),
+            signal
+          }
         )
         
         const data = await tryResponseBody(resp)
@@ -64,26 +65,6 @@ export const tifAPITransport = (baseURL: URL, middleware: TiFAPITransportMiddlew
         throw error
       }
     }
-
-const performRequest = async (
-  method: HTTPMethod,
-  middleware: TiFAPITransportMiddleware,
-  url: string,
-  body?: APIRequestBody,
-  signal?: AbortSignal
-) => {
-  return await middleware(
-    {
-      method,
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(body),
-      signal
-    },
-    (request) => fetch(url, request)
-  )
-}
 
 const tryResponseBody = async (resp: Response) => {
   try {

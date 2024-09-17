@@ -1,18 +1,16 @@
 import { z } from "zod"
 import { ColorStringSchema } from "../../domain-models/ColorString"
 import {
-  EventAttendeeSchema,
+  EventHostSchema,
   EventIDSchema,
   EventLocationSchema,
   EventPreviewAttendeeSchema,
   EventSettingsSchema,
   EventUserAttendeeStatusSchema,
-  EventWhenBlockedByHostSchema,
   TrackableEventArrivalRegionsSchema
 } from "../../domain-models/Event"
 import { LocationCoordinate2DSchema } from "../../domain-models/LocationCoordinate2D"
 import { TodayOrTomorrowSchema } from "../../domain-models/TodayOrTomorrow"
-import { StringDateSchema } from "../../lib/Date"
 import { ChatTokenRequestSchema } from "./Chat"
 import { tifAPIErrorSchema } from "./Error"
 import { FixedDateRangeSchema } from "./FixedDateRange"
@@ -55,9 +53,9 @@ export const EventResponseSchema = z.object({
   description: z.string().max(500),
   color: ColorStringSchema,
   attendeeCount: z.number().nonnegative(),
-  joinedDateTime: StringDateSchema.optional(),
-  createdDateTime: StringDateSchema,
-  updatedDateTime: StringDateSchema,
+  joinedDateTime: z.coerce.date().optional(),
+  createdDateTime: z.coerce.date(),
+  updatedDateTime: z.coerce.date(),
   hasArrived: z.boolean(),
   isChatExpired: z.boolean(),
   userAttendeeStatus: EventUserAttendeeStatusSchema,
@@ -65,8 +63,8 @@ export const EventResponseSchema = z.object({
   time: EventTimeResponseSchema,
   location: EventLocationSchema,
   previewAttendees: z.array(EventPreviewAttendeeSchema),
-  host: EventAttendeeSchema,
-  endedDateTime: StringDateSchema.optional()
+  host: EventHostSchema,
+  endedDateTime: z.coerce.date().optional()
 })
 
 export type EventResponse = z.rInfer<typeof EventResponseSchema>
@@ -87,9 +85,3 @@ export const EventsInAreaResponseSchema = z.object({
 })
 
 export type EventsInAreaResponse = z.rInfer<typeof EventsInAreaResponseSchema>
-
-export const EventWhenBlockedByHostResponseSchema =
-  EventWhenBlockedByHostSchema.omit({
-    createdAt: true,
-    updatedAt: true
-  }).extend({ createdAt: StringDateSchema, updatedAt: StringDateSchema })

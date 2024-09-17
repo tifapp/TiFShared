@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { EventAttendeesPageSchema, EventIDSchema, EventRegionSchema, TrackableEventArrivalRegionsSchema } from "../domain-models/Event";
+import { EventAttendeesPageSchema, EventIDSchema, EventRegionSchema, EventWhenBlockedByHostSchema, TrackableEventArrivalRegionsSchema } from "../domain-models/Event";
 import { LocationCoordinate2DSchema } from "../domain-models/LocationCoordinate2D";
 import { UserHandleSchema, UserIDSchema } from "../domain-models/User";
 import { APISchema, EndpointSchemasToFunctions, assertEndpointSchemaType } from "./TransportTypes";
 import { tifAPIErrorSchema } from "./models/Error";
-import { CreateEventSchema, EventNotFoundErrorSchema, EventResponseSchema, EventWhenBlockedByHostResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
+import { CreateEventSchema, EventNotFoundErrorSchema, EventResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
 import { RegisterPushTokenRequestSchema, SelfProfileSchema, UpdateCurrentUserProfileRequestSchema, UpdateUserSettingsRequestSchema, UserFriendRequestResponseSchema, UserNotFoundResponseSchema, UserProfileSchema, UserSettingsResponseSchema, userTiFAPIErrorSchema } from "./models/User";
 
 export const TiFAPISchema = {
@@ -55,9 +55,7 @@ export const TiFAPISchema = {
     input: {
       query: z.object({
         handle: UserHandleSchema,
-        limit: z
-          .string()
-          .transform((arg) => parseInt(arg))
+        limit: z.coerce.number()
           .refine((arg) => arg >= 1 && arg <= 50)
       })
     },
@@ -145,9 +143,12 @@ export const TiFAPISchema = {
     outputs: {
       status200: EventResponseSchema,
       status404: EventNotFoundErrorSchema,
-      status403: EventWhenBlockedByHostResponseSchema
+      status403: EventWhenBlockedByHostSchema,
     },
     constraints: (input, output) => {
+      console.log("input is")
+      console.log(input)
+      console.log(output)
       if (output.status === 200 || output.status === 403) {
         return output.data.id === input.params.eventId
       }
@@ -173,13 +174,12 @@ export const TiFAPISchema = {
         eventId: EventIDSchema
       }),
       query: z.object({
-        limit: z.number(),
-        nextPage: z.string().optional()
+        limit: z.coerce.number().min(1).max(50),
+        nextPageCursor: z.string().optional()
       }),
     },
     outputs: {
       status200: EventAttendeesPageSchema,
-      status204: "no-content",
       status404: EventNotFoundErrorSchema.or(tifAPIErrorSchema("no-attendees")),
       status403: tifAPIErrorSchema("blocked-by-host")
     },

@@ -49,7 +49,10 @@ export class ColorString {
    *
    * `123456AA -> 🔴` (Needs #)
    */
-  static parse(hexString: string) {
+  static parse(hexString: ColorString | string) {
+    if (hexString instanceof ColorString) {
+      return hexString
+    }
     if (!ColorString.REGEX.test(hexString)) return undefined
     const opacityHex = hexString.slice(ColorString.RGB_HEX_STRING_LENGTH)
     return new ColorString(

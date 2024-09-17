@@ -1,33 +1,36 @@
 import { TiFAPIClientCreator } from "./APIClient";
-import { tryParseAPICall } from "./APIValidation";
+import { validateAPICall } from "./APIValidation";
 import { TiFAPIClient } from "./TiFAPISchema";
-import { Abortable, tifAPITransport } from "./Transport";
+import { ClientExtensions, tifAPITransport } from "./Transport";
 import { jwtMiddleware } from "./TransportMiddleware";
 
 export const TEST_API_URL = new URL("http://localhost:8080")
+
+const validateAPIClientCall = validateAPICall((status, value) => {
+  if (status !== "passed") {
+    throw new Error(status)
+  }
+
+  return value
+})
 
 export class TiFAPI {
   /**
    * An instance of {@link TiFAPIClient} for unit testing.
    */
   static testAuthenticatedInstance =
-    TiFAPIClientCreator<Abortable>(
-      tryParseAPICall,
-      tifAPITransport(
-        TEST_API_URL,
-        jwtMiddleware(async () => "I was here at the beginning, and I will proclaim the end.")
-      )
+    TiFAPIClientCreator<ClientExtensions>(
+      validateAPIClientCall,
+      jwtMiddleware(async () => "I was here at the beginning, and I will proclaim the end."),
+      tifAPITransport(TEST_API_URL)
     )
 
   /**
    * An instance of {@link TiFAPIClient} for unit testing.
    */
   static testUnauthenticatedInstance =
-    TiFAPIClientCreator<Abortable>(
-      tryParseAPICall,
-      tifAPITransport(
-        TEST_API_URL,
-        async (request, next) => next(request)
-      )
+    TiFAPIClientCreator<ClientExtensions>(
+      validateAPIClientCall,
+      tifAPITransport(TEST_API_URL)
     )
 }

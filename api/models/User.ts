@@ -12,6 +12,9 @@ export const userTiFAPIErrorSchema = <T extends z.Primitive>(literal: T) => {
 export const UserNotFoundResponseSchema =
   userTiFAPIErrorSchema("user-not-found")
 
+export const BlockedUserResponseSchema =
+  userTiFAPIErrorSchema("blocked")
+
 export const UpdateCurrentUserProfileRequestSchema = z.object({
   name: z.string().optional(),
   bio: z.string().optional(),
@@ -67,7 +70,7 @@ export const UserProfileSchema = z.object({
 })
 
 export const RegisterPushTokenRequestSchema = z.object({
-  pushToken: z.string(),
+  pushToken: z.string().min(1), //generic nonempty string schema?
   platformName: DevicePlatformSchema
 })
 

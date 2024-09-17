@@ -41,11 +41,11 @@ type SchemaFor<
     : undefined
   : Schemas[Key]
 
-type TiFAPIResponse<Schemas extends APIResponseSchemas> = {
+export type TiFAPIResponse<Schemas extends APIResponseSchemas> = {
   [key in keyof StatusCodeMap]: Schemas[key] extends APINoContentSchema
     ? {
       status: 204,
-      data: undefined
+      data?: undefined
     }
     : SchemaFor<key, Schemas> extends ZodType ? {
         status: StatusCodeMap[key]
@@ -60,7 +60,7 @@ type TiFAPIInput = {
   params?: URLParameters;
 };
 
-type TiFAPIInputContext<T> = {
+export type TiFAPIInputContext<T> = {
   endpointName: string;
   endpointSchema: GenericEndpointSchema;
 } & T & TiFAPIInput;

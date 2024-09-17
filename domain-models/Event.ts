@@ -1,6 +1,5 @@
 import { Match } from "linkify-it"
 import { z } from "zod"
-import { StringDateSchema } from "../lib/Date"
 import {
   ensureWhitespaceBeforeSchemaValidator,
   linkify
@@ -21,7 +20,7 @@ import {
 
 export type EventID = Tagged<number, "eventId">
 
-export const EventIDSchema = z.number().transform((id) => id as EventID)
+export const EventIDSchema = z.coerce.number().transform((id) => id as EventID)
 
 /**
  * A zod schema for {@link EventRegion}.
@@ -52,9 +51,11 @@ export const EventAttendeeSchema = z.object({
   handle: UserHandleSchema,
   profileImageURL: z.string().url().optional(),
   relations: UnblockedBidirectionalUserRelationsSchema,
-  joinedDateTime: StringDateSchema,
-  arrivedDateTime: StringDateSchema,
+  joinedDateTime: z.coerce.date(),
+  arrivedDateTime: z.coerce.date().optional(),
 })
+
+export const EventHostSchema = EventAttendeeSchema.omit({joinedDateTime: true, arrivedDateTime: true})
 
 /**
  * User information given for an attendee of an event.
@@ -121,9 +122,9 @@ export type EventUserAttendeeStatus = z.rInfer<
 export const EventWhenBlockedByHostSchema = z.object({
   id: EventIDSchema,
   title: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  host: EventWhenBlockedByHostAttendeeSchema
+  createdDateTime: z.coerce.date(),
+  updatedDateTime: z.coerce.date(),
+  //host: EventWhenBlockedByHostAttendeeSchema
 })
 
 export type EventWhenBlockedByHost = z.rInfer<

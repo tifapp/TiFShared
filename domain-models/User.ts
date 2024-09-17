@@ -176,8 +176,8 @@ export class UserHandle {
   /**
    * Attempts to parse this handle and returns `undefined` if the handle can't be parsed.
    */
-  static optionalParse(rawValue: string) {
-    return UserHandle.parse(rawValue).handle
+  static optionalParse(value: string) {
+    return UserHandle.parse(value).handle
   }
 
   /**
@@ -203,7 +203,7 @@ export class UserHandle {
  */
 export const UserHandleSchema = z.optionalParseable(
   {
-    parse: (rawValue: string) => UserHandle.optionalParse(rawValue)
+    parse: (value: UserHandle | string) => value instanceof UserHandle ? value : UserHandle.optionalParse(value)
   },
   () => {
     return "A valid user handle only contains letters, numbers, underscores, and can only be upto 15 characters long."

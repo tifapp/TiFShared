@@ -16,9 +16,11 @@ const MIN_EVENT_DURATION = 60
 export const FixedDateRangeSchema = z.optionalParseable(
   {
     parse: ({ startDateTime, endDateTime }: StringDateRangeResponse) => {
+      console.error("start date is", startDateTime)
+      console.error("end date is ", endDateTime)
       const sDate = StringDateSchema.safeParse(startDateTime)
       const eDate = StringDateSchema.refine(
-        (date) => date > new Date(),
+        (date) => date > new Date(), //account for server delay???
         {
           message: "endDateTime must be in the future"
         }
@@ -38,7 +40,7 @@ export const FixedDateRangeSchema = z.optionalParseable(
       return dateRange(sDate.data, eDate.data)
     }
   },
-  () => {
-    return `Response must have startDateTime before endDateTime.`
+  (r) => {
+    return `${r}`
   }
 )

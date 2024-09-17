@@ -51,8 +51,8 @@ describe("EventAPIModels tests", () => {
       joinDate: null,
       isChatExpired: false,
       hasArrived: false,
-      updatedAt: "2024-03-25T07:54:28.000Z",
-      createdAt: "2024-03-25T07:54:28.000Z",
+      updateDateTime: "2024-03-25T07:54:28.000Z",
+      createdDateTime: "2024-03-25T07:54:28.000Z",
       endedAt: null
     }
     const result = EventResponseSchema.safeParse(json) as {
@@ -104,8 +104,8 @@ describe("EventAPIModels tests", () => {
       joinDate: null,
       isChatExpired: false,
       hasArrived: false,
-      updatedAt: new Date("2024-03-25T07:54:28.000Z"),
-      createdAt: new Date("2024-03-25T07:54:28.000Z"),
+      updateDateTime: new Date("2024-03-25T07:54:28.000Z"),
+      createdDateTime: new Date("2024-03-25T07:54:28.000Z"),
       endedAt: null
     })
   })
