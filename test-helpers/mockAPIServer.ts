@@ -28,7 +28,6 @@ const mswBuilder = (testUrl: URL, endpointName: string, endpointSchema: GenericE
 
       handler?.({...input, endpointName, endpointSchema})
 
-      //@ts-expect-error Only for mocks
       return HttpResponse.json(mockResponse.data, { status: mockResponse.status })
     })
   );
