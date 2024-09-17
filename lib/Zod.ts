@@ -1,4 +1,4 @@
-import { ZodSchema, z } from "zod"
+import { ZodSchema, z } from "zod";
 
 /**
  * An interface which defines a method of parsing that returns either an output type or `undefined`.
@@ -16,6 +16,9 @@ const optionalParse = <Input, Output>(
   return z
     .custom<Input>()
     .superRefine((arg, ctx) => {
+      // For schema generation
+      if (!arg) return undefined;
+
       if (arg instanceof parseable.constructor) {
         parsedValue = arg as Output;
         return;
