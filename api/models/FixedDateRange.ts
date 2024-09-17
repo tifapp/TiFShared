@@ -16,26 +16,8 @@ const MIN_EVENT_DURATION = 60
 export const FixedDateRangeSchema = z.optionalParseable(
   {
     parse: ({ startDateTime, endDateTime }: StringDateRangeResponse) => {
-      console.error("start date is", startDateTime)
-      console.error("end date is ", endDateTime)
       const sDate = StringDateSchema.safeParse(startDateTime)
-      const eDate = StringDateSchema.refine(
-        (date) => date > new Date(), //account for server delay???
-        {
-          message: "endDateTime must be in the future"
-        }
-      ).refine(
-        (date) => date > new Date(startDateTime),
-        {
-          message: "endDateTime must be after startDateTime"
-        }
-      ).refine(
-        //@ts-ignore date comparison
-        (date) => (date - (new Date(startDateTime))) > MIN_EVENT_DURATION,
-        {
-          message: `endDateTime must be at least ${MIN_EVENT_DURATION}`
-        }
-      ).safeParse(endDateTime)
+      const eDate = StringDateSchema.safeParse(endDateTime)
       if (!sDate.success || !eDate.success) return undefined
       return dateRange(sDate.data, eDate.data)
     }
@@ -44,3 +26,29 @@ export const FixedDateRangeSchema = z.optionalParseable(
     return `${r}`
   }
 )
+
+export const CreateFixedDateRangeSchema = FixedDateRangeSchema.superRefine((dateRange, ctx) => {
+  if (!dateRange) return;
+
+  const { startDateTime, endDateTime } = dateRange;
+
+  const startDate = new Date(startDateTime)
+  const endDate = new Date(endDateTime)
+
+  const secondDiff = (+endDate - +startDate) / 1000;
+  const isEndDatePast = endDate < new Date();
+
+  if (secondDiff < MIN_EVENT_DURATION) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "The duration must be at least 60 seconds."
+    });
+  }
+
+  if (isEndDatePast) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "The end date cannot be in the past."
+    });
+  }
+})

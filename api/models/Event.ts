@@ -13,7 +13,7 @@ import { LocationCoordinate2DSchema } from "../../domain-models/LocationCoordina
 import { TodayOrTomorrowSchema } from "../../domain-models/TodayOrTomorrow"
 import { ChatTokenRequestSchema } from "./Chat"
 import { tifAPIErrorSchema } from "./Error"
-import { FixedDateRangeSchema } from "./FixedDateRange"
+import { CreateFixedDateRangeSchema, FixedDateRangeSchema } from "./FixedDateRange"
 
 export const EventTimeResponseSchema = z.object({
   secondsToStart: z.number(),
@@ -37,7 +37,7 @@ const EventDescriptionSchema = z.string().max(500)
 export const CreateEventSchema = z
   .object({
     description: EventDescriptionSchema,
-    dateRange: FixedDateRangeSchema,
+    dateRange: CreateFixedDateRangeSchema,
     color: ColorStringSchema,
     title: EventTitleSchema,
     shouldHideAfterStartDate: z.boolean(),

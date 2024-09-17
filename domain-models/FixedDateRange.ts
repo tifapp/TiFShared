@@ -32,7 +32,7 @@ export class FixedDateRange {
     readonly startDateTime: Date,
     readonly endDateTime: Date
   ) {
-    if (startDateTime > endDateTime) {
+    if (startDateTime >= endDateTime) {
       throw new Error("Start Date must be before End Date.")
     }
   }
