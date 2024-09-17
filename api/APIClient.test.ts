@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { MockAPIImplementation, mockAPIServer } from "../test-helpers/mockAPIServer";
 import { APIClientCreator } from "./APIClient";
-import { tryParseAPICall } from "./APIValidation";
+import { validateAPICall } from "./APIValidation";
 import { TEST_API_URL } from "./TiFAPI";
 import { tifAPITransport } from "./Transport";
 import { APISchema, EndpointSchemasToFunctions, HTTPMethod } from "./TransportTypes";
@@ -20,11 +20,8 @@ const mockAPI = <T extends APISchema>({endpointSchema, endpointMocks}: {
 const apiClient = <T extends APISchema>(endpointSchema: T) => 
   APIClientCreator(    
     endpointSchema,
-    tryParseAPICall,
-    tifAPITransport(
-      TEST_API_URL,
-      async (request, next) => next(request)
-    )
+    validateAPICall((_,value) => value),
+    tifAPITransport(TEST_API_URL)
   )
 
 describe("APIClient tests", () => {
