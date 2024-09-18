@@ -6,6 +6,11 @@ import {
 } from "../lib/LinkifyIt"
 import { Tagged } from "../lib/Types/HelperTypes"
 
+export const UserNameSchema = z
+  .string()
+  .min(1)
+  .max(300)
+
 export type UserID = Tagged<string, "userId">
 
 export const UserIDSchema = z

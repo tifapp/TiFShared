@@ -16,6 +16,7 @@ const optionalParse = <Input, Output>(
   return z
     .custom<Input>()
     .superRefine((arg, ctx) => {
+      // Check env if generating api schema
       // For schema generation
       if (!arg) return undefined;
 

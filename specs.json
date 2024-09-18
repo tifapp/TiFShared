@@ -1,0 +1,3738 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "tifRestAPI",
+    "description": "API used for the TiF mobile app",
+    "version": "Tue Sep 17 2024 12:10:25 GMT-0700 (Pacific Daylight Time)"
+  },
+  "servers": [
+    {
+      "url": "{API_ENDPOINT}/{basePath}",
+      "variables": {
+        "basePath": {
+          "default": "staging"
+        }
+      }
+    }
+  ],
+  "components": {
+    "schemas": {},
+    "parameters": {}
+  },
+  "paths": {
+    "/user": {
+      "post": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "responses": {
+          "201": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "handle": {
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/user/self": {
+      "patch": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "bio": {
+                    "type": "string"
+                  },
+                  "handle": {
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      },
+      "get": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "bio": {
+                      "type": "string"
+                    },
+                    "handle": {
+                      "nullable": true
+                    },
+                    "createdDateTime": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "profileImageURL": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "updatedDateTime": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "createdDateTime",
+                    "updatedDateTime"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/autocomplete": {
+      "get": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "parameters": [
+          {
+            "schema": {
+              "nullable": true
+            },
+            "required": false,
+            "name": "handle",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "required": true,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 300
+                          },
+                          "handle": {
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "users"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/arrived": {
+      "post": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "coordinate": {
+                    "type": "object",
+                    "properties": {
+                      "latitude": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180
+                      }
+                    },
+                    "required": [
+                      "latitude",
+                      "longitude"
+                    ]
+                  },
+                  "arrivalRadiusMeters": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "coordinate",
+                  "arrivalRadiusMeters"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "trackableRegions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "coordinate": {
+                            "type": "object",
+                            "properties": {
+                              "latitude": {
+                                "type": "number",
+                                "minimum": -90,
+                                "maximum": 90
+                              },
+                              "longitude": {
+                                "type": "number",
+                                "minimum": -180,
+                                "maximum": 180
+                              }
+                            },
+                            "required": [
+                              "latitude",
+                              "longitude"
+                            ]
+                          },
+                          "arrivalRadiusMeters": {
+                            "type": "number"
+                          },
+                          "eventIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "number",
+                              "nullable": true
+                            }
+                          },
+                          "hasArrived": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "coordinate",
+                          "arrivalRadiusMeters",
+                          "eventIds",
+                          "hasArrived"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "trackableRegions"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/departed": {
+      "post": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "coordinate": {
+                    "type": "object",
+                    "properties": {
+                      "latitude": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180
+                      }
+                    },
+                    "required": [
+                      "latitude",
+                      "longitude"
+                    ]
+                  },
+                  "arrivalRadiusMeters": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "coordinate",
+                  "arrivalRadiusMeters"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "trackableRegions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "coordinate": {
+                            "type": "object",
+                            "properties": {
+                              "latitude": {
+                                "type": "number",
+                                "minimum": -90,
+                                "maximum": 90
+                              },
+                              "longitude": {
+                                "type": "number",
+                                "minimum": -180,
+                                "maximum": 180
+                              }
+                            },
+                            "required": [
+                              "latitude",
+                              "longitude"
+                            ]
+                          },
+                          "arrivalRadiusMeters": {
+                            "type": "number"
+                          },
+                          "eventIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "number",
+                              "nullable": true
+                            }
+                          },
+                          "hasArrived": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "coordinate",
+                          "arrivalRadiusMeters",
+                          "eventIds",
+                          "hasArrived"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "trackableRegions"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/upcoming": {
+      "get": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "trackableRegions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "coordinate": {
+                            "type": "object",
+                            "properties": {
+                              "latitude": {
+                                "type": "number",
+                                "minimum": -90,
+                                "maximum": 90
+                              },
+                              "longitude": {
+                                "type": "number",
+                                "minimum": -180,
+                                "maximum": 180
+                              }
+                            },
+                            "required": [
+                              "latitude",
+                              "longitude"
+                            ]
+                          },
+                          "arrivalRadiusMeters": {
+                            "type": "number"
+                          },
+                          "eventIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "number",
+                              "nullable": true
+                            }
+                          },
+                          "hasArrived": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "coordinate",
+                          "arrivalRadiusMeters",
+                          "eventIds",
+                          "hasArrived"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "trackableRegions"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/details/{eventId}": {
+      "get": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true
+            },
+            "required": false,
+            "name": "eventId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string",
+                      "maxLength": 500
+                    },
+                    "color": {
+                      "nullable": true
+                    },
+                    "attendeeCount": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "joinedDateTime": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "createdDateTime": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "updatedDateTime": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "hasArrived": {
+                      "type": "boolean"
+                    },
+                    "isChatExpired": {
+                      "type": "boolean"
+                    },
+                    "userAttendeeStatus": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "not-participating"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "hosting"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "attending"
+                          ]
+                        }
+                      ]
+                    },
+                    "settings": {
+                      "type": "object",
+                      "properties": {
+                        "shouldHideAfterStartDate": {
+                          "type": "boolean"
+                        },
+                        "isChatEnabled": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "shouldHideAfterStartDate",
+                        "isChatEnabled"
+                      ]
+                    },
+                    "time": {
+                      "type": "object",
+                      "properties": {
+                        "secondsToStart": {
+                          "type": "number"
+                        },
+                        "todayOrTomorrow": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "today"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "tomorrow"
+                              ]
+                            }
+                          ]
+                        },
+                        "dateRange": {
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "secondsToStart"
+                      ]
+                    },
+                    "location": {
+                      "type": "object",
+                      "properties": {
+                        "coordinate": {
+                          "type": "object",
+                          "properties": {
+                            "latitude": {
+                              "type": "number",
+                              "minimum": -90,
+                              "maximum": 90
+                            },
+                            "longitude": {
+                              "type": "number",
+                              "minimum": -180,
+                              "maximum": 180
+                            }
+                          },
+                          "required": [
+                            "latitude",
+                            "longitude"
+                          ]
+                        },
+                        "arrivalRadiusMeters": {
+                          "type": "number"
+                        },
+                        "isInArrivalTrackingPeriod": {
+                          "type": "boolean"
+                        },
+                        "timezoneIdentifier": {
+                          "type": "string"
+                        },
+                        "placemark": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "country": {
+                              "type": "string"
+                            },
+                            "postalCode": {
+                              "type": "string"
+                            },
+                            "street": {
+                              "type": "string"
+                            },
+                            "streetNumber": {
+                              "type": "string"
+                            },
+                            "region": {
+                              "type": "string"
+                            },
+                            "isoCountryCode": {
+                              "type": "string"
+                            },
+                            "city": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "coordinate",
+                        "arrivalRadiusMeters",
+                        "isInArrivalTrackingPeriod",
+                        "timezoneIdentifier"
+                      ]
+                    },
+                    "previewAttendees": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "profileImageURL": {
+                            "type": "string",
+                            "format": "uri"
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ]
+                      }
+                    },
+                    "host": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "handle": {
+                          "nullable": true
+                        },
+                        "profileImageURL": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "relations": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "fromThemToYou": {
+                                  "type": "string",
+                                  "enum": [
+                                    "not-friends"
+                                  ]
+                                },
+                                "fromYouToThem": {
+                                  "type": "string",
+                                  "enum": [
+                                    "not-friends"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "fromThemToYou",
+                                "fromYouToThem"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "fromThemToYou": {
+                                  "type": "string",
+                                  "enum": [
+                                    "friend-request-pending"
+                                  ]
+                                },
+                                "fromYouToThem": {
+                                  "type": "string",
+                                  "enum": [
+                                    "not-friends"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "fromThemToYou",
+                                "fromYouToThem"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "fromThemToYou": {
+                                  "type": "string",
+                                  "enum": [
+                                    "not-friends"
+                                  ]
+                                },
+                                "fromYouToThem": {
+                                  "type": "string",
+                                  "enum": [
+                                    "blocked"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "fromThemToYou",
+                                "fromYouToThem"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "fromThemToYou": {
+                                  "type": "string",
+                                  "enum": [
+                                    "not-friends"
+                                  ]
+                                },
+                                "fromYouToThem": {
+                                  "type": "string",
+                                  "enum": [
+                                    "friend-request-pending"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "fromThemToYou",
+                                "fromYouToThem"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "fromThemToYou": {
+                                  "type": "string",
+                                  "enum": [
+                                    "friends"
+                                  ]
+                                },
+                                "fromYouToThem": {
+                                  "type": "string",
+                                  "enum": [
+                                    "friends"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "fromThemToYou",
+                                "fromYouToThem"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "fromThemToYou": {
+                                  "type": "string",
+                                  "enum": [
+                                    "current-user"
+                                  ]
+                                },
+                                "fromYouToThem": {
+                                  "type": "string",
+                                  "enum": [
+                                    "current-user"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "fromThemToYou",
+                                "fromYouToThem"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "relations"
+                      ]
+                    },
+                    "endedDateTime": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "description",
+                    "attendeeCount",
+                    "createdDateTime",
+                    "updatedDateTime",
+                    "hasArrived",
+                    "isChatExpired",
+                    "userAttendeeStatus",
+                    "settings",
+                    "time",
+                    "location",
+                    "previewAttendees",
+                    "host"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "createdDateTime": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "updatedDateTime": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "createdDateTime",
+                    "updatedDateTime"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "event-not-found"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/attendees/{eventId}": {
+      "get": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true
+            },
+            "required": false,
+            "name": "eventId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "required": true,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "nextPageCursor",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "attendees": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "handle": {
+                            "nullable": true
+                          },
+                          "profileImageURL": {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "relations": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "fromThemToYou": {
+                                    "type": "string",
+                                    "enum": [
+                                      "not-friends"
+                                    ]
+                                  },
+                                  "fromYouToThem": {
+                                    "type": "string",
+                                    "enum": [
+                                      "not-friends"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "fromThemToYou",
+                                  "fromYouToThem"
+                                ]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "fromThemToYou": {
+                                    "type": "string",
+                                    "enum": [
+                                      "friend-request-pending"
+                                    ]
+                                  },
+                                  "fromYouToThem": {
+                                    "type": "string",
+                                    "enum": [
+                                      "not-friends"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "fromThemToYou",
+                                  "fromYouToThem"
+                                ]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "fromThemToYou": {
+                                    "type": "string",
+                                    "enum": [
+                                      "not-friends"
+                                    ]
+                                  },
+                                  "fromYouToThem": {
+                                    "type": "string",
+                                    "enum": [
+                                      "blocked"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "fromThemToYou",
+                                  "fromYouToThem"
+                                ]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "fromThemToYou": {
+                                    "type": "string",
+                                    "enum": [
+                                      "not-friends"
+                                    ]
+                                  },
+                                  "fromYouToThem": {
+                                    "type": "string",
+                                    "enum": [
+                                      "friend-request-pending"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "fromThemToYou",
+                                  "fromYouToThem"
+                                ]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "fromThemToYou": {
+                                    "type": "string",
+                                    "enum": [
+                                      "friends"
+                                    ]
+                                  },
+                                  "fromYouToThem": {
+                                    "type": "string",
+                                    "enum": [
+                                      "friends"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "fromThemToYou",
+                                  "fromYouToThem"
+                                ]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "fromThemToYou": {
+                                    "type": "string",
+                                    "enum": [
+                                      "current-user"
+                                    ]
+                                  },
+                                  "fromYouToThem": {
+                                    "type": "string",
+                                    "enum": [
+                                      "current-user"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "fromThemToYou",
+                                  "fromYouToThem"
+                                ]
+                              }
+                            ]
+                          },
+                          "joinedDateTime": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "arrivedDateTime": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "relations",
+                          "joinedDateTime"
+                        ]
+                      }
+                    },
+                    "totalAttendeeCount": {
+                      "type": "number"
+                    },
+                    "nextPageCursor": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "attendees",
+                    "totalAttendeeCount",
+                    "nextPageCursor"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "blocked-by-host"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "type": "string",
+                          "enum": [
+                            "event-not-found"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "type": "string",
+                          "enum": [
+                            "no-attendees"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/end/{eventId}": {
+      "post": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true
+            },
+            "required": false,
+            "name": "eventId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-has-ended"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "user-not-host"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "event-not-found"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event": {
+      "post": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "maxLength": 500
+                  },
+                  "dateRange": {
+                    "nullable": true
+                  },
+                  "color": {
+                    "nullable": true
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 50
+                  },
+                  "shouldHideAfterStartDate": {
+                    "type": "boolean"
+                  },
+                  "isChatEnabled": {
+                    "type": "boolean"
+                  },
+                  "coordinates": {
+                    "type": "object",
+                    "properties": {
+                      "latitude": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180
+                      }
+                    },
+                    "required": [
+                      "latitude",
+                      "longitude"
+                    ]
+                  }
+                },
+                "required": [
+                  "description",
+                  "title",
+                  "shouldHideAfterStartDate",
+                  "isChatEnabled",
+                  "coordinates"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "number",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/join/{eventId}": {
+      "post": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true
+            },
+            "required": false,
+            "name": "eventId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "region": {
+                    "type": "object",
+                    "properties": {
+                      "coordinate": {
+                        "type": "object",
+                        "properties": {
+                          "latitude": {
+                            "type": "number",
+                            "minimum": -90,
+                            "maximum": 90
+                          },
+                          "longitude": {
+                            "type": "number",
+                            "minimum": -180,
+                            "maximum": 180
+                          }
+                        },
+                        "required": [
+                          "latitude",
+                          "longitude"
+                        ]
+                      },
+                      "arrivalRadiusMeters": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "coordinate",
+                      "arrivalRadiusMeters"
+                    ]
+                  }
+                },
+                "required": [
+                  "region"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "trackableRegions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "coordinate": {
+                            "type": "object",
+                            "properties": {
+                              "latitude": {
+                                "type": "number",
+                                "minimum": -90,
+                                "maximum": 90
+                              },
+                              "longitude": {
+                                "type": "number",
+                                "minimum": -180,
+                                "maximum": 180
+                              }
+                            },
+                            "required": [
+                              "latitude",
+                              "longitude"
+                            ]
+                          },
+                          "arrivalRadiusMeters": {
+                            "type": "number"
+                          },
+                          "eventIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "number",
+                              "nullable": true
+                            }
+                          },
+                          "hasArrived": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "coordinate",
+                          "arrivalRadiusMeters",
+                          "eventIds",
+                          "hasArrived"
+                        ]
+                      }
+                    },
+                    "id": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "chatToken": {
+                      "type": "object",
+                      "properties": {
+                        "capability": {
+                          "type": "string"
+                        },
+                        "clientId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "keyName": {
+                          "type": "string"
+                        },
+                        "mac": {
+                          "type": "string"
+                        },
+                        "timestamp": {
+                          "type": "number"
+                        },
+                        "nonce": {
+                          "type": "string",
+                          "minLength": 16
+                        }
+                      },
+                      "required": [
+                        "capability",
+                        "keyName",
+                        "mac",
+                        "timestamp",
+                        "nonce"
+                      ]
+                    },
+                    "hasArrived": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "trackableRegions",
+                    "id",
+                    "chatToken",
+                    "hasArrived"
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "trackableRegions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "coordinate": {
+                            "type": "object",
+                            "properties": {
+                              "latitude": {
+                                "type": "number",
+                                "minimum": -90,
+                                "maximum": 90
+                              },
+                              "longitude": {
+                                "type": "number",
+                                "minimum": -180,
+                                "maximum": 180
+                              }
+                            },
+                            "required": [
+                              "latitude",
+                              "longitude"
+                            ]
+                          },
+                          "arrivalRadiusMeters": {
+                            "type": "number"
+                          },
+                          "eventIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "number",
+                              "nullable": true
+                            }
+                          },
+                          "hasArrived": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "coordinate",
+                          "arrivalRadiusMeters",
+                          "eventIds",
+                          "hasArrived"
+                        ]
+                      }
+                    },
+                    "id": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "chatToken": {
+                      "type": "object",
+                      "properties": {
+                        "capability": {
+                          "type": "string"
+                        },
+                        "clientId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "keyName": {
+                          "type": "string"
+                        },
+                        "mac": {
+                          "type": "string"
+                        },
+                        "timestamp": {
+                          "type": "number"
+                        },
+                        "nonce": {
+                          "type": "string",
+                          "minLength": 16
+                        }
+                      },
+                      "required": [
+                        "capability",
+                        "keyName",
+                        "mac",
+                        "timestamp",
+                        "nonce"
+                      ]
+                    },
+                    "hasArrived": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "trackableRegions",
+                    "id",
+                    "chatToken",
+                    "hasArrived"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-has-ended"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "user-is-blocked"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "event-not-found"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/leave/{eventId}": {
+      "post": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true
+            },
+            "required": false,
+            "name": "eventId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "co-host-not-found"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "already-left-event"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-has-been-cancelled"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-has-ended"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "event-not-found"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/notifications/push/register": {
+      "post": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pushToken": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "platformName": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "apple"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "android"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "pushToken",
+                  "platformName"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "inserted"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "token-already-registered"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{userId}": {
+      "get": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "bio": {
+                      "type": "string"
+                    },
+                    "handle": {
+                      "nullable": true
+                    },
+                    "createdDateTime": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "profileImageURL": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "updatedDateTime": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "relations": {
+                      "type": "object",
+                      "properties": {
+                        "fromThemToYou": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "not-friends"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "friend-request-pending"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "friends"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "blocked"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "current-user"
+                              ]
+                            }
+                          ]
+                        },
+                        "fromYouToThem": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "not-friends"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "friend-request-pending"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "friends"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "blocked"
+                              ]
+                            },
+                            {
+                              "type": "string",
+                              "enum": [
+                                "current-user"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "fromThemToYou",
+                        "fromYouToThem"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "createdDateTime",
+                    "updatedDateTime",
+                    "relations"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "blocked"
+                      ]
+                    },
+                    "userId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "userId"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "user-not-found"
+                      ]
+                    },
+                    "userId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "userId"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/block/{userId}": {
+      "patch": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "user-not-found"
+                      ]
+                    },
+                    "userId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "userId"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "user-not-blocked"
+                      ]
+                    },
+                    "userId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "userId"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "user-not-found"
+                      ]
+                    },
+                    "userId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "userId"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/friend/{userId}": {
+      "post": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "friend-request-pending"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "friends"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "friend-request-pending"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "friends"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "blocked"
+                      ]
+                    },
+                    "userId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "userId"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "user-not-found"
+                      ]
+                    },
+                    "userId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "userId"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event/region": {
+      "post": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userLocation": {
+                    "type": "object",
+                    "properties": {
+                      "latitude": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180
+                      }
+                    },
+                    "required": [
+                      "latitude",
+                      "longitude"
+                    ]
+                  },
+                  "radius": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "userLocation",
+                  "radius"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 500
+                          },
+                          "color": {
+                            "nullable": true
+                          },
+                          "attendeeCount": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "joinedDateTime": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "createdDateTime": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "updatedDateTime": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "hasArrived": {
+                            "type": "boolean"
+                          },
+                          "isChatExpired": {
+                            "type": "boolean"
+                          },
+                          "userAttendeeStatus": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "not-participating"
+                                ]
+                              },
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "hosting"
+                                ]
+                              },
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "attending"
+                                ]
+                              }
+                            ]
+                          },
+                          "settings": {
+                            "type": "object",
+                            "properties": {
+                              "shouldHideAfterStartDate": {
+                                "type": "boolean"
+                              },
+                              "isChatEnabled": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "shouldHideAfterStartDate",
+                              "isChatEnabled"
+                            ]
+                          },
+                          "time": {
+                            "type": "object",
+                            "properties": {
+                              "secondsToStart": {
+                                "type": "number"
+                              },
+                              "todayOrTomorrow": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "today"
+                                    ]
+                                  },
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "tomorrow"
+                                    ]
+                                  }
+                                ]
+                              },
+                              "dateRange": {
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "secondsToStart"
+                            ]
+                          },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "coordinate": {
+                                "type": "object",
+                                "properties": {
+                                  "latitude": {
+                                    "type": "number",
+                                    "minimum": -90,
+                                    "maximum": 90
+                                  },
+                                  "longitude": {
+                                    "type": "number",
+                                    "minimum": -180,
+                                    "maximum": 180
+                                  }
+                                },
+                                "required": [
+                                  "latitude",
+                                  "longitude"
+                                ]
+                              },
+                              "arrivalRadiusMeters": {
+                                "type": "number"
+                              },
+                              "isInArrivalTrackingPeriod": {
+                                "type": "boolean"
+                              },
+                              "timezoneIdentifier": {
+                                "type": "string"
+                              },
+                              "placemark": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "country": {
+                                    "type": "string"
+                                  },
+                                  "postalCode": {
+                                    "type": "string"
+                                  },
+                                  "street": {
+                                    "type": "string"
+                                  },
+                                  "streetNumber": {
+                                    "type": "string"
+                                  },
+                                  "region": {
+                                    "type": "string"
+                                  },
+                                  "isoCountryCode": {
+                                    "type": "string"
+                                  },
+                                  "city": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "required": [
+                              "coordinate",
+                              "arrivalRadiusMeters",
+                              "isInArrivalTrackingPeriod",
+                              "timezoneIdentifier"
+                            ]
+                          },
+                          "previewAttendees": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid"
+                                },
+                                "profileImageURL": {
+                                  "type": "string",
+                                  "format": "uri"
+                                }
+                              },
+                              "required": [
+                                "id"
+                              ]
+                            }
+                          },
+                          "host": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "handle": {
+                                "nullable": true
+                              },
+                              "profileImageURL": {
+                                "type": "string",
+                                "format": "uri"
+                              },
+                              "relations": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "fromThemToYou": {
+                                        "type": "string",
+                                        "enum": [
+                                          "not-friends"
+                                        ]
+                                      },
+                                      "fromYouToThem": {
+                                        "type": "string",
+                                        "enum": [
+                                          "not-friends"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "fromThemToYou",
+                                      "fromYouToThem"
+                                    ]
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "fromThemToYou": {
+                                        "type": "string",
+                                        "enum": [
+                                          "friend-request-pending"
+                                        ]
+                                      },
+                                      "fromYouToThem": {
+                                        "type": "string",
+                                        "enum": [
+                                          "not-friends"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "fromThemToYou",
+                                      "fromYouToThem"
+                                    ]
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "fromThemToYou": {
+                                        "type": "string",
+                                        "enum": [
+                                          "not-friends"
+                                        ]
+                                      },
+                                      "fromYouToThem": {
+                                        "type": "string",
+                                        "enum": [
+                                          "blocked"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "fromThemToYou",
+                                      "fromYouToThem"
+                                    ]
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "fromThemToYou": {
+                                        "type": "string",
+                                        "enum": [
+                                          "not-friends"
+                                        ]
+                                      },
+                                      "fromYouToThem": {
+                                        "type": "string",
+                                        "enum": [
+                                          "friend-request-pending"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "fromThemToYou",
+                                      "fromYouToThem"
+                                    ]
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "fromThemToYou": {
+                                        "type": "string",
+                                        "enum": [
+                                          "friends"
+                                        ]
+                                      },
+                                      "fromYouToThem": {
+                                        "type": "string",
+                                        "enum": [
+                                          "friends"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "fromThemToYou",
+                                      "fromYouToThem"
+                                    ]
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "fromThemToYou": {
+                                        "type": "string",
+                                        "enum": [
+                                          "current-user"
+                                        ]
+                                      },
+                                      "fromYouToThem": {
+                                        "type": "string",
+                                        "enum": [
+                                          "current-user"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "fromThemToYou",
+                                      "fromYouToThem"
+                                    ]
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "relations"
+                            ]
+                          },
+                          "endedDateTime": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "description",
+                          "attendeeCount",
+                          "createdDateTime",
+                          "updatedDateTime",
+                          "hasArrived",
+                          "isChatExpired",
+                          "userAttendeeStatus",
+                          "settings",
+                          "time",
+                          "location",
+                          "previewAttendees",
+                          "host"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "events"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/self/settings": {
+      "get": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "isAnalyticsEnabled": {
+                      "type": "boolean"
+                    },
+                    "isCrashReportingEnabled": {
+                      "type": "boolean"
+                    },
+                    "pushNotificationTriggerIds": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "friend-request-received"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "friend-request-accepted"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "user-entered-region"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-attendance-headcount"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-periodic-arrivals"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-starting-soon"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-started"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-ended"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-name-changed"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-description-changed"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-time-changed"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-location-changed"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-cancelled"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "canShareArrivalStatus": {
+                      "type": "boolean"
+                    },
+                    "eventCalendarStartOfWeekDay": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "sunday"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "monday"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "tuesday"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "wednesday"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "thursday"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "friday"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "saturday"
+                          ]
+                        }
+                      ]
+                    },
+                    "eventCalendarDefaultLayout": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "single-day-layout"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "week-layout"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "month-layout"
+                          ]
+                        }
+                      ]
+                    },
+                    "eventPresetShouldHideAfterStartDate": {
+                      "type": "boolean"
+                    },
+                    "eventPresetPlacemark": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "country": {
+                              "type": "string"
+                            },
+                            "postalCode": {
+                              "type": "string"
+                            },
+                            "street": {
+                              "type": "string"
+                            },
+                            "streetNumber": {
+                              "type": "string"
+                            },
+                            "region": {
+                              "type": "string"
+                            },
+                            "isoCountryCode": {
+                              "type": "string"
+                            },
+                            "city": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "latitude": {
+                              "type": "number",
+                              "minimum": -90,
+                              "maximum": 90
+                            },
+                            "longitude": {
+                              "type": "number",
+                              "minimum": -180,
+                              "maximum": 180
+                            }
+                          },
+                          "required": [
+                            "latitude",
+                            "longitude"
+                          ]
+                        }
+                      ]
+                    },
+                    "eventPresetDurations": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "version": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "isAnalyticsEnabled",
+                    "isCrashReportingEnabled",
+                    "pushNotificationTriggerIds",
+                    "canShareArrivalStatus",
+                    "eventCalendarStartOfWeekDay",
+                    "eventCalendarDefaultLayout",
+                    "eventPresetShouldHideAfterStartDate",
+                    "eventPresetDurations",
+                    "version"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "x-amazon-apigateway-integration": {
+          "httpMethod": "POST",
+          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "passthroughBehavior": "when_no_match",
+          "contentHandling": "CONVERT_TO_TEXT",
+          "type": "aws_proxy"
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "isAnalyticsEnabled": {
+                    "type": "boolean"
+                  },
+                  "isCrashReportingEnabled": {
+                    "type": "boolean"
+                  },
+                  "pushNotificationTriggerIds": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "friend-request-received"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "friend-request-accepted"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "user-entered-region"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-attendance-headcount"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-periodic-arrivals"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-starting-soon"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-started"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-ended"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-name-changed"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-description-changed"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-time-changed"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-location-changed"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "event-cancelled"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "canShareArrivalStatus": {
+                    "type": "boolean"
+                  },
+                  "eventCalendarStartOfWeekDay": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "sunday"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "monday"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "tuesday"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "wednesday"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "thursday"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "friday"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "saturday"
+                        ]
+                      }
+                    ]
+                  },
+                  "eventCalendarDefaultLayout": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "single-day-layout"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "week-layout"
+                        ]
+                      },
+                      {
+                        "type": "string",
+                        "enum": [
+                          "month-layout"
+                        ]
+                      }
+                    ]
+                  },
+                  "eventPresetShouldHideAfterStartDate": {
+                    "type": "boolean"
+                  },
+                  "eventPresetPlacemark": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "country": {
+                            "type": "string"
+                          },
+                          "postalCode": {
+                            "type": "string"
+                          },
+                          "street": {
+                            "type": "string"
+                          },
+                          "streetNumber": {
+                            "type": "string"
+                          },
+                          "region": {
+                            "type": "string"
+                          },
+                          "isoCountryCode": {
+                            "type": "string"
+                          },
+                          "city": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "latitude": {
+                            "type": "number",
+                            "minimum": -90,
+                            "maximum": 90
+                          },
+                          "longitude": {
+                            "type": "number",
+                            "minimum": -180,
+                            "maximum": 180
+                          }
+                        },
+                        "required": [
+                          "latitude",
+                          "longitude"
+                        ]
+                      }
+                    ]
+                  },
+                  "eventPresetDurations": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "isAnalyticsEnabled": {
+                      "type": "boolean"
+                    },
+                    "isCrashReportingEnabled": {
+                      "type": "boolean"
+                    },
+                    "pushNotificationTriggerIds": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "friend-request-received"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "friend-request-accepted"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "user-entered-region"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-attendance-headcount"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-periodic-arrivals"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-starting-soon"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-started"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-ended"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-name-changed"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-description-changed"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-time-changed"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-location-changed"
+                            ]
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "event-cancelled"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "canShareArrivalStatus": {
+                      "type": "boolean"
+                    },
+                    "eventCalendarStartOfWeekDay": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "sunday"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "monday"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "tuesday"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "wednesday"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "thursday"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "friday"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "saturday"
+                          ]
+                        }
+                      ]
+                    },
+                    "eventCalendarDefaultLayout": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "single-day-layout"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "week-layout"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "month-layout"
+                          ]
+                        }
+                      ]
+                    },
+                    "eventPresetShouldHideAfterStartDate": {
+                      "type": "boolean"
+                    },
+                    "eventPresetPlacemark": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "country": {
+                              "type": "string"
+                            },
+                            "postalCode": {
+                              "type": "string"
+                            },
+                            "street": {
+                              "type": "string"
+                            },
+                            "streetNumber": {
+                              "type": "string"
+                            },
+                            "region": {
+                              "type": "string"
+                            },
+                            "isoCountryCode": {
+                              "type": "string"
+                            },
+                            "city": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "latitude": {
+                              "type": "number",
+                              "minimum": -90,
+                              "maximum": 90
+                            },
+                            "longitude": {
+                              "type": "number",
+                              "minimum": -180,
+                              "maximum": 180
+                            }
+                          },
+                          "required": [
+                            "latitude",
+                            "longitude"
+                          ]
+                        }
+                      ]
+                    },
+                    "eventPresetDurations": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "version": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "isAnalyticsEnabled",
+                    "isCrashReportingEnabled",
+                    "pushNotificationTriggerIds",
+                    "canShareArrivalStatus",
+                    "eventCalendarStartOfWeekDay",
+                    "eventCalendarDefaultLayout",
+                    "eventPresetShouldHideAfterStartDate",
+                    "eventPresetDurations",
+                    "version"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

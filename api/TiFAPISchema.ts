@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { EventAttendeesPageSchema, EventIDSchema, EventRegionSchema, EventWhenBlockedByHostSchema, TrackableEventArrivalRegionsSchema } from "../domain-models/Event";
 import { LocationCoordinate2DSchema } from "../domain-models/LocationCoordinate2D";
-import { UserHandleSchema, UserIDSchema } from "../domain-models/User";
+import { UserHandleSchema, UserIDSchema, UserNameSchema } from "../domain-models/User";
 import { APISchema, EndpointSchemasToFunctions, assertEndpointSchemaType } from "./TransportTypes";
 import { tifAPIErrorSchema } from "./models/Error";
 import { CreateEventSchema, EventNotFoundErrorSchema, EventResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
@@ -55,8 +55,7 @@ export const TiFAPISchema = {
     input: {
       query: z.object({
         handle: UserHandleSchema,
-        limit: z.coerce.number()
-          .refine((arg) => arg >= 1 && arg <= 50)
+        limit: z.number().min(1).max(50)
       })
     },
     outputs: {
@@ -64,7 +63,7 @@ export const TiFAPISchema = {
         users: z.array(
           z.object({
             id: UserIDSchema,
-            name: z.string(),
+            name: UserNameSchema,
             handle: UserHandleSchema
           })
         )
@@ -174,7 +173,7 @@ export const TiFAPISchema = {
         eventId: EventIDSchema
       }),
       query: z.object({
-        limit: z.coerce.number().min(1).max(50),
+        limit: z.number().min(1).max(50),
         nextPageCursor: z.string().optional()
       }),
     },
@@ -320,6 +319,7 @@ export const TiFAPISchema = {
     }
   }),
   
+  //TiFAPI section in wiki
   /**
    * Gets the user's details.
    */

@@ -4,6 +4,7 @@
   "description": "Shared utilities for the TiF app.",
   "main": "index.js",
   "scripts": {
+    "genapispecs": "npx ts-node --transpile-only npm-scripts/generateApiSpecs && npx lint-openapi specs.json",
     "test": "jest --collectCoverage",
     "test:ci": "jest --ci --collectCoverage",
     "prepare": "node prepare.js",
@@ -26,6 +27,8 @@
     "linkify-it": "^5.0.0"
   },
   "devDependencies": {
+    "@asteasolutions/zod-to-openapi": "^6.4.0",
+    "@ibm-cloud/openapi-ruleset": "^1.15.3",
     "@faker-js/faker": "^7.6.0",
     "@swc/jest": "^0.2.36",
     "@types/jest": "^29.5.12",
@@ -41,6 +44,7 @@
     "eslint-plugin-jest": "^27.2.3",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.1.1",
+    "ibm-openapi-validator": "^1.16.3",
     "jest": "^29.7.0",
     "msw": "^2.1.7",
     "node-fetch": "^3.3.2",

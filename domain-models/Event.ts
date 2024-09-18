@@ -20,8 +20,9 @@ import {
 
 export type EventID = Tagged<number, "eventId">
 
-export const EventIDSchema = z.coerce.number().transform((id) => id as EventID)
-
+export const EventIDSchema = z.number().transform((id) => id as EventID)
+//do not install js files by default, clutters up the folders
+//fix having to include body: undefined whenever calling an endpoint with an optional body.
 /**
  * A zod schema for {@link EventRegion}.
  */

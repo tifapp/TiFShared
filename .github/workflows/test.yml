@@ -36,6 +36,11 @@ jobs:
         run: |
           npm run test:ci
 
+      # TODO
+      # - name: Validate openapi specs
+      #   run: |
+      #     npm run genapispecs
+
       - name: Build
         run: |
           npm run build
