@@ -3,14 +3,22 @@
   "info": {
     "title": "tifRestAPI",
     "description": "API used for the TiF mobile app",
-    "version": "Tue Sep 17 2024 12:10:25 GMT-0700 (Pacific Daylight Time)"
+    "version": "Thu Sep 19 2024 16:42:40 GMT-0700 (Pacific Daylight Time)"
   },
   "servers": [
     {
-      "url": "{API_ENDPOINT}/{basePath}",
+      "url": "{apiEndpoint}/{environment}",
       "variables": {
-        "basePath": {
-          "default": "staging"
+        "environment": {
+          "default": "staging",
+          "enum": [
+            "stagintTest",
+            "staging",
+            "production"
+          ]
+        },
+        "apiEndpoint": {
+          "default": "URL_GOES_HERE"
         }
       }
     }
@@ -22,18 +30,6 @@
   "paths": {
     "/user": {
       "post": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "responses": {
           "201": {
             "description": "Object with user data.",
@@ -60,18 +56,6 @@
         }
       },
       "delete": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "responses": {
           "204": {
             "description": "No Content"
@@ -81,18 +65,6 @@
     },
     "/user/self": {
       "patch": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "requestBody": {
           "content": {
             "application/json": {
@@ -120,18 +92,6 @@
         }
       },
       "get": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "responses": {
           "200": {
             "description": "Object with user data.",
@@ -180,18 +140,6 @@
     },
     "/user/autocomplete": {
       "get": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "parameters": [
           {
             "schema": {
@@ -203,7 +151,9 @@
           },
           {
             "schema": {
-              "type": "number"
+              "type": "number",
+              "minimum": 1,
+              "maximum": 50
             },
             "required": true,
             "name": "limit",
@@ -255,18 +205,6 @@
     },
     "/event/arrived": {
       "post": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "requestBody": {
           "content": {
             "application/json": {
@@ -342,8 +280,7 @@
                           "eventIds": {
                             "type": "array",
                             "items": {
-                              "type": "number",
-                              "nullable": true
+                              "type": "number"
                             }
                           },
                           "hasArrived": {
@@ -371,18 +308,6 @@
     },
     "/event/departed": {
       "post": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "requestBody": {
           "content": {
             "application/json": {
@@ -458,8 +383,7 @@
                           "eventIds": {
                             "type": "array",
                             "items": {
-                              "type": "number",
-                              "nullable": true
+                              "type": "number"
                             }
                           },
                           "hasArrived": {
@@ -487,18 +411,6 @@
     },
     "/event/upcoming": {
       "get": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "responses": {
           "200": {
             "description": "Object with user data.",
@@ -537,8 +449,7 @@
                           "eventIds": {
                             "type": "array",
                             "items": {
-                              "type": "number",
-                              "nullable": true
+                              "type": "number"
                             }
                           },
                           "hasArrived": {
@@ -566,25 +477,12 @@
     },
     "/event/details/{eventId}": {
       "get": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "parameters": [
           {
             "schema": {
-              "type": "number",
-              "nullable": true
+              "type": "number"
             },
-            "required": false,
+            "required": true,
             "name": "eventId",
             "in": "path"
           }
@@ -598,8 +496,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "number",
-                      "nullable": true
+                      "type": "number"
                     },
                     "title": {
                       "type": "string"
@@ -974,8 +871,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "number",
-                      "nullable": true
+                      "type": "number"
                     },
                     "title": {
                       "type": "string"
@@ -1025,25 +921,12 @@
     },
     "/event/attendees/{eventId}": {
       "get": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "parameters": [
           {
             "schema": {
-              "type": "number",
-              "nullable": true
+              "type": "number"
             },
-            "required": false,
+            "required": true,
             "name": "eventId",
             "in": "path"
           },
@@ -1322,25 +1205,12 @@
     },
     "/event/end/{eventId}": {
       "post": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "parameters": [
           {
             "schema": {
-              "type": "number",
-              "nullable": true
+              "type": "number"
             },
-            "required": false,
+            "required": true,
             "name": "eventId",
             "in": "path"
           }
@@ -1406,18 +1276,6 @@
     },
     "/event": {
       "post": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "requestBody": {
           "content": {
             "application/json": {
@@ -1484,8 +1342,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "number",
-                      "nullable": true
+                      "type": "number"
                     }
                   },
                   "required": [
@@ -1500,25 +1357,12 @@
     },
     "/event/join/{eventId}": {
       "post": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "parameters": [
           {
             "schema": {
-              "type": "number",
-              "nullable": true
+              "type": "number"
             },
-            "required": false,
+            "required": true,
             "name": "eventId",
             "in": "path"
           }
@@ -1606,8 +1450,7 @@
                           "eventIds": {
                             "type": "array",
                             "items": {
-                              "type": "number",
-                              "nullable": true
+                              "type": "number"
                             }
                           },
                           "hasArrived": {
@@ -1623,8 +1466,7 @@
                       }
                     },
                     "id": {
-                      "type": "number",
-                      "nullable": true
+                      "type": "number"
                     },
                     "chatToken": {
                       "type": "object",
@@ -1709,8 +1551,7 @@
                           "eventIds": {
                             "type": "array",
                             "items": {
-                              "type": "number",
-                              "nullable": true
+                              "type": "number"
                             }
                           },
                           "hasArrived": {
@@ -1726,8 +1567,7 @@
                       }
                     },
                     "id": {
-                      "type": "number",
-                      "nullable": true
+                      "type": "number"
                     },
                     "chatToken": {
                       "type": "object",
@@ -1832,25 +1672,12 @@
     },
     "/event/leave/{eventId}": {
       "post": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "parameters": [
           {
             "schema": {
-              "type": "number",
-              "nullable": true
+              "type": "number"
             },
-            "required": false,
+            "required": true,
             "name": "eventId",
             "in": "path"
           }
@@ -1947,18 +1774,6 @@
     },
     "/user/notifications/push/register": {
       "post": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "requestBody": {
           "content": {
             "application/json": {
@@ -2042,18 +1857,6 @@
     },
     "/user/{userId}": {
       "get": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "parameters": [
           {
             "schema": {
@@ -2243,18 +2046,6 @@
     },
     "/user/block/{userId}": {
       "patch": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "parameters": [
           {
             "schema": {
@@ -2299,18 +2090,6 @@
         }
       },
       "delete": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "parameters": [
           {
             "schema": {
@@ -2383,18 +2162,6 @@
     },
     "/friend/{userId}": {
       "post": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "parameters": [
           {
             "schema": {
@@ -2526,18 +2293,6 @@
     },
     "/event/region": {
       "post": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "requestBody": {
           "content": {
             "application/json": {
@@ -2589,8 +2344,7 @@
                         "type": "object",
                         "properties": {
                           "id": {
-                            "type": "number",
-                            "nullable": true
+                            "type": "number"
                           },
                           "title": {
                             "type": "string"
@@ -2968,18 +2722,6 @@
     },
     "/user/self/settings": {
       "get": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "responses": {
           "200": {
             "description": "Object with user data.",
@@ -3234,18 +2976,6 @@
         }
       },
       "patch": {
-        "x-amazon-apigateway-integration": {
-          "httpMethod": "POST",
-          "uri": "{API_LAMBDA_ID}:stagingTest/invocations",
-          "responses": {
-            "default": {
-              "statusCode": "200"
-            }
-          },
-          "passthroughBehavior": "when_no_match",
-          "contentHandling": "CONVERT_TO_TEXT",
-          "type": "aws_proxy"
-        },
         "requestBody": {
           "content": {
             "application/json": {

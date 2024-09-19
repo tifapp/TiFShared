@@ -55,19 +55,6 @@ Object.entries(TiFAPISchema as APISchema).forEach(
 
         return acc
       }, {}),
-      "x-amazon-apigateway-integration": {
-        httpMethod: "POST", // "For Lambda integrations, you must use the HTTP method of POST for the integration request" https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-        uri: `{API_LAMBDA_ID}:stagingTest/invocations`,
-        responses: {
-          default: {
-            // TODO: Generate responses
-            statusCode: "200"
-          }
-        },
-        passthroughBehavior: "when_no_match",
-        contentHandling: "CONVERT_TO_TEXT",
-        type: "aws_proxy"
-      }
     })
   }
 )
@@ -82,10 +69,14 @@ const specs = generator.generateDocument({
     version: `${new Date()}`
   },
   servers: [{
-    url: `{API_ENDPOINT}/{basePath}`,
+    url: `{apiEndpoint}/{environment}`,
     variables: {
-      basePath: {
-        default: "staging"
+      environment: {
+        default: "staging",
+        enum: ["stagintTest", "staging", "production"]
+      },
+      apiEndpoint: {
+        default: "URL_GOES_HERE"
       }
     }
   }]
