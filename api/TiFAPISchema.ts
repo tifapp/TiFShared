@@ -55,7 +55,7 @@ export const TiFAPISchema = {
     input: {
       query: z.object({
         handle: UserHandleSchema,
-        limit: z.number().min(1).max(50)
+        limit: z.coerce.number().min(1).max(50)
       })
     },
     outputs: {
@@ -173,7 +173,7 @@ export const TiFAPISchema = {
         eventId: EventIDSchema
       }),
       query: z.object({
-        limit: z.number().min(1).max(50),
+        limit: z.coerce.number().min(1).max(50),
         nextPageCursor: z.string().optional()
       }),
     },
