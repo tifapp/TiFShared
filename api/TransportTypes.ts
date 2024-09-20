@@ -1,8 +1,8 @@
-import { Handler, Middleware } from "lib/Middleware";
-import { JSONSerializableValue, NonEmptyPartial } from "lib/Types/HelperTypes";
-import { StrictExtends } from "lib/Types/StrictExtendsType";
-import { URLEndpoint, URLParameters } from "lib/URL";
 import { ZodType, z } from "zod";
+import { Handler, Middleware } from "../lib/Middleware";
+import { JSONSerializableValue, NonEmptyPartial } from "../lib/Types/HelperTypes";
+import { StrictExtends } from "../lib/Types/StrictExtendsType";
+import { URLEndpoint, URLParameters } from "../lib/URL";
 
 export type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
