@@ -92,10 +92,10 @@ export const EventSettingsSchema = z.object({
  */
 export type EventSettings = z.rInfer<typeof EventSettingsSchema>
 
-export const EventUserAttendeeStatusSchema = z.union([
-  z.literal("not-participating"),
-  z.literal("hosting"),
-  z.literal("attending")
+export const EventUserAttendeeStatusSchema = z.enum([
+  "not-participating",
+  "hosting",
+  "attending"
 ])
 
 /**

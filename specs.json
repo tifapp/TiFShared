@@ -3,7 +3,7 @@
   "info": {
     "title": "tifRestAPI",
     "description": "API used for the TiF mobile app",
-    "version": "Thu Sep 19 2024 16:42:40 GMT-0700 (Pacific Daylight Time)"
+    "version": "Fri Sep 20 2024 00:12:02 GMT-0700 (Pacific Daylight Time)"
   },
   "servers": [
     {
@@ -280,7 +280,8 @@
                           "eventIds": {
                             "type": "array",
                             "items": {
-                              "type": "number"
+                              "type": "number",
+                              "nullable": true
                             }
                           },
                           "hasArrived": {
@@ -383,7 +384,8 @@
                           "eventIds": {
                             "type": "array",
                             "items": {
-                              "type": "number"
+                              "type": "number",
+                              "nullable": true
                             }
                           },
                           "hasArrived": {
@@ -449,7 +451,8 @@
                           "eventIds": {
                             "type": "array",
                             "items": {
-                              "type": "number"
+                              "type": "number",
+                              "nullable": true
                             }
                           },
                           "hasArrived": {
@@ -480,9 +483,10 @@
         "parameters": [
           {
             "schema": {
-              "type": "number"
+              "type": "number",
+              "nullable": true
             },
-            "required": true,
+            "required": false,
             "name": "eventId",
             "in": "path"
           }
@@ -496,7 +500,8 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "number"
+                      "type": "number",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
@@ -531,25 +536,11 @@
                       "type": "boolean"
                     },
                     "userAttendeeStatus": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "not-participating"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "hosting"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "attending"
-                          ]
-                        }
+                      "type": "string",
+                      "enum": [
+                        "not-participating",
+                        "hosting",
+                        "attending"
                       ]
                     },
                     "settings": {
@@ -574,19 +565,10 @@
                           "type": "number"
                         },
                         "todayOrTomorrow": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "enum": [
-                                "today"
-                              ]
-                            },
-                            {
-                              "type": "string",
-                              "enum": [
-                                "tomorrow"
-                              ]
-                            }
+                          "type": "string",
+                          "enum": [
+                            "today",
+                            "tomorrow"
                           ]
                         },
                         "dateRange": {
@@ -702,133 +684,31 @@
                           "format": "uri"
                         },
                         "relations": {
-                          "anyOf": [
-                            {
-                              "type": "object",
-                              "properties": {
-                                "fromThemToYou": {
-                                  "type": "string",
-                                  "enum": [
-                                    "not-friends"
-                                  ]
-                                },
-                                "fromYouToThem": {
-                                  "type": "string",
-                                  "enum": [
-                                    "not-friends"
-                                  ]
-                                }
-                              },
-                              "required": [
-                                "fromThemToYou",
-                                "fromYouToThem"
+                          "type": "object",
+                          "properties": {
+                            "fromThemToYou": {
+                              "type": "string",
+                              "enum": [
+                                "not-friends",
+                                "friend-request-pending",
+                                "friends",
+                                "current-user"
                               ]
                             },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "fromThemToYou": {
-                                  "type": "string",
-                                  "enum": [
-                                    "friend-request-pending"
-                                  ]
-                                },
-                                "fromYouToThem": {
-                                  "type": "string",
-                                  "enum": [
-                                    "not-friends"
-                                  ]
-                                }
-                              },
-                              "required": [
-                                "fromThemToYou",
-                                "fromYouToThem"
-                              ]
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "fromThemToYou": {
-                                  "type": "string",
-                                  "enum": [
-                                    "not-friends"
-                                  ]
-                                },
-                                "fromYouToThem": {
-                                  "type": "string",
-                                  "enum": [
-                                    "blocked"
-                                  ]
-                                }
-                              },
-                              "required": [
-                                "fromThemToYou",
-                                "fromYouToThem"
-                              ]
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "fromThemToYou": {
-                                  "type": "string",
-                                  "enum": [
-                                    "not-friends"
-                                  ]
-                                },
-                                "fromYouToThem": {
-                                  "type": "string",
-                                  "enum": [
-                                    "friend-request-pending"
-                                  ]
-                                }
-                              },
-                              "required": [
-                                "fromThemToYou",
-                                "fromYouToThem"
-                              ]
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "fromThemToYou": {
-                                  "type": "string",
-                                  "enum": [
-                                    "friends"
-                                  ]
-                                },
-                                "fromYouToThem": {
-                                  "type": "string",
-                                  "enum": [
-                                    "friends"
-                                  ]
-                                }
-                              },
-                              "required": [
-                                "fromThemToYou",
-                                "fromYouToThem"
-                              ]
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "fromThemToYou": {
-                                  "type": "string",
-                                  "enum": [
-                                    "current-user"
-                                  ]
-                                },
-                                "fromYouToThem": {
-                                  "type": "string",
-                                  "enum": [
-                                    "current-user"
-                                  ]
-                                }
-                              },
-                              "required": [
-                                "fromThemToYou",
-                                "fromYouToThem"
+                            "fromYouToThem": {
+                              "type": "string",
+                              "enum": [
+                                "not-friends",
+                                "blocked",
+                                "friend-request-pending",
+                                "friends",
+                                "current-user"
                               ]
                             }
+                          },
+                          "required": [
+                            "fromThemToYou",
+                            "fromYouToThem"
                           ]
                         }
                       },
@@ -846,7 +726,6 @@
                   "required": [
                     "id",
                     "title",
-                    "description",
                     "attendeeCount",
                     "createdDateTime",
                     "updatedDateTime",
@@ -871,7 +750,8 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "number"
+                      "type": "number",
+                      "nullable": true
                     },
                     "title": {
                       "type": "string"
@@ -924,9 +804,10 @@
         "parameters": [
           {
             "schema": {
-              "type": "number"
+              "type": "number",
+              "nullable": true
             },
-            "required": true,
+            "required": false,
             "name": "eventId",
             "in": "path"
           },
@@ -977,133 +858,31 @@
                             "format": "uri"
                           },
                           "relations": {
-                            "anyOf": [
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "fromThemToYou": {
-                                    "type": "string",
-                                    "enum": [
-                                      "not-friends"
-                                    ]
-                                  },
-                                  "fromYouToThem": {
-                                    "type": "string",
-                                    "enum": [
-                                      "not-friends"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "fromThemToYou",
-                                  "fromYouToThem"
+                            "type": "object",
+                            "properties": {
+                              "fromThemToYou": {
+                                "type": "string",
+                                "enum": [
+                                  "not-friends",
+                                  "friend-request-pending",
+                                  "friends",
+                                  "current-user"
                                 ]
                               },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "fromThemToYou": {
-                                    "type": "string",
-                                    "enum": [
-                                      "friend-request-pending"
-                                    ]
-                                  },
-                                  "fromYouToThem": {
-                                    "type": "string",
-                                    "enum": [
-                                      "not-friends"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "fromThemToYou",
-                                  "fromYouToThem"
-                                ]
-                              },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "fromThemToYou": {
-                                    "type": "string",
-                                    "enum": [
-                                      "not-friends"
-                                    ]
-                                  },
-                                  "fromYouToThem": {
-                                    "type": "string",
-                                    "enum": [
-                                      "blocked"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "fromThemToYou",
-                                  "fromYouToThem"
-                                ]
-                              },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "fromThemToYou": {
-                                    "type": "string",
-                                    "enum": [
-                                      "not-friends"
-                                    ]
-                                  },
-                                  "fromYouToThem": {
-                                    "type": "string",
-                                    "enum": [
-                                      "friend-request-pending"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "fromThemToYou",
-                                  "fromYouToThem"
-                                ]
-                              },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "fromThemToYou": {
-                                    "type": "string",
-                                    "enum": [
-                                      "friends"
-                                    ]
-                                  },
-                                  "fromYouToThem": {
-                                    "type": "string",
-                                    "enum": [
-                                      "friends"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "fromThemToYou",
-                                  "fromYouToThem"
-                                ]
-                              },
-                              {
-                                "type": "object",
-                                "properties": {
-                                  "fromThemToYou": {
-                                    "type": "string",
-                                    "enum": [
-                                      "current-user"
-                                    ]
-                                  },
-                                  "fromYouToThem": {
-                                    "type": "string",
-                                    "enum": [
-                                      "current-user"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "fromThemToYou",
-                                  "fromYouToThem"
+                              "fromYouToThem": {
+                                "type": "string",
+                                "enum": [
+                                  "not-friends",
+                                  "blocked",
+                                  "friend-request-pending",
+                                  "friends",
+                                  "current-user"
                                 ]
                               }
+                            },
+                            "required": [
+                              "fromThemToYou",
+                              "fromYouToThem"
                             ]
                           },
                           "joinedDateTime": {
@@ -1166,35 +945,18 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "anyOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "error": {
-                          "type": "string",
-                          "enum": [
-                            "event-not-found"
-                          ]
-                        }
-                      },
-                      "required": [
-                        "error"
-                      ]
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "error": {
-                          "type": "string",
-                          "enum": [
-                            "no-attendees"
-                          ]
-                        }
-                      },
-                      "required": [
-                        "error"
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "no-attendees",
+                        "event-not-found"
                       ]
                     }
+                  },
+                  "required": [
+                    "error"
                   ]
                 }
               }
@@ -1208,9 +970,10 @@
         "parameters": [
           {
             "schema": {
-              "type": "number"
+              "type": "number",
+              "nullable": true
             },
-            "required": true,
+            "required": false,
             "name": "eventId",
             "in": "path"
           }
@@ -1227,19 +990,10 @@
                   "type": "object",
                   "properties": {
                     "error": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-has-ended"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "user-not-host"
-                          ]
-                        }
+                      "type": "string",
+                      "enum": [
+                        "event-has-ended",
+                        "user-not-host"
                       ]
                     }
                   },
@@ -1323,7 +1077,6 @@
                   }
                 },
                 "required": [
-                  "description",
                   "title",
                   "shouldHideAfterStartDate",
                   "isChatEnabled",
@@ -1342,7 +1095,8 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "number"
+                      "type": "number",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -1360,9 +1114,10 @@
         "parameters": [
           {
             "schema": {
-              "type": "number"
+              "type": "number",
+              "nullable": true
             },
-            "required": true,
+            "required": false,
             "name": "eventId",
             "in": "path"
           }
@@ -1450,7 +1205,8 @@
                           "eventIds": {
                             "type": "array",
                             "items": {
-                              "type": "number"
+                              "type": "number",
+                              "nullable": true
                             }
                           },
                           "hasArrived": {
@@ -1466,7 +1222,8 @@
                       }
                     },
                     "id": {
-                      "type": "number"
+                      "type": "number",
+                      "nullable": true
                     },
                     "chatToken": {
                       "type": "object",
@@ -1551,7 +1308,8 @@
                           "eventIds": {
                             "type": "array",
                             "items": {
-                              "type": "number"
+                              "type": "number",
+                              "nullable": true
                             }
                           },
                           "hasArrived": {
@@ -1567,7 +1325,8 @@
                       }
                     },
                     "id": {
-                      "type": "number"
+                      "type": "number",
+                      "nullable": true
                     },
                     "chatToken": {
                       "type": "object",
@@ -1623,19 +1382,10 @@
                   "type": "object",
                   "properties": {
                     "error": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-has-ended"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "user-is-blocked"
-                          ]
-                        }
+                      "type": "string",
+                      "enum": [
+                        "event-has-ended",
+                        "user-is-blocked"
                       ]
                     }
                   },
@@ -1675,9 +1425,10 @@
         "parameters": [
           {
             "schema": {
-              "type": "number"
+              "type": "number",
+              "nullable": true
             },
-            "required": true,
+            "required": false,
             "name": "eventId",
             "in": "path"
           }
@@ -1694,19 +1445,10 @@
                   "type": "object",
                   "properties": {
                     "error": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "co-host-not-found"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "already-left-event"
-                          ]
-                        }
+                      "type": "string",
+                      "enum": [
+                        "co-host-not-found",
+                        "already-left-event"
                       ]
                     }
                   },
@@ -1725,19 +1467,10 @@
                   "type": "object",
                   "properties": {
                     "error": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-has-been-cancelled"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-has-ended"
-                          ]
-                        }
+                      "type": "string",
+                      "enum": [
+                        "event-has-been-cancelled",
+                        "event-has-ended"
                       ]
                     }
                   },
@@ -1785,19 +1518,10 @@
                     "minLength": 1
                   },
                   "platformName": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "apple"
-                        ]
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "android"
-                        ]
-                      }
+                    "type": "string",
+                    "enum": [
+                      "apple",
+                      "android"
                     ]
                   }
                 },
@@ -1905,71 +1629,23 @@
                       "type": "object",
                       "properties": {
                         "fromThemToYou": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "enum": [
-                                "not-friends"
-                              ]
-                            },
-                            {
-                              "type": "string",
-                              "enum": [
-                                "friend-request-pending"
-                              ]
-                            },
-                            {
-                              "type": "string",
-                              "enum": [
-                                "friends"
-                              ]
-                            },
-                            {
-                              "type": "string",
-                              "enum": [
-                                "blocked"
-                              ]
-                            },
-                            {
-                              "type": "string",
-                              "enum": [
-                                "current-user"
-                              ]
-                            }
+                          "type": "string",
+                          "enum": [
+                            "not-friends",
+                            "friend-request-pending",
+                            "friends",
+                            "blocked",
+                            "current-user"
                           ]
                         },
                         "fromYouToThem": {
-                          "anyOf": [
-                            {
-                              "type": "string",
-                              "enum": [
-                                "not-friends"
-                              ]
-                            },
-                            {
-                              "type": "string",
-                              "enum": [
-                                "friend-request-pending"
-                              ]
-                            },
-                            {
-                              "type": "string",
-                              "enum": [
-                                "friends"
-                              ]
-                            },
-                            {
-                              "type": "string",
-                              "enum": [
-                                "blocked"
-                              ]
-                            },
-                            {
-                              "type": "string",
-                              "enum": [
-                                "current-user"
-                              ]
-                            }
+                          "type": "string",
+                          "enum": [
+                            "not-friends",
+                            "friend-request-pending",
+                            "friends",
+                            "blocked",
+                            "current-user"
                           ]
                         }
                       },
@@ -2182,19 +1858,10 @@
                   "type": "object",
                   "properties": {
                     "status": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "friend-request-pending"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "friends"
-                          ]
-                        }
+                      "type": "string",
+                      "enum": [
+                        "friend-request-pending",
+                        "friends"
                       ]
                     }
                   },
@@ -2213,19 +1880,10 @@
                   "type": "object",
                   "properties": {
                     "status": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "friend-request-pending"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "friends"
-                          ]
-                        }
+                      "type": "string",
+                      "enum": [
+                        "friend-request-pending",
+                        "friends"
                       ]
                     }
                   },
@@ -2344,7 +2002,8 @@
                         "type": "object",
                         "properties": {
                           "id": {
-                            "type": "number"
+                            "type": "number",
+                            "nullable": true
                           },
                           "title": {
                             "type": "string"
@@ -2379,25 +2038,11 @@
                             "type": "boolean"
                           },
                           "userAttendeeStatus": {
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "enum": [
-                                  "not-participating"
-                                ]
-                              },
-                              {
-                                "type": "string",
-                                "enum": [
-                                  "hosting"
-                                ]
-                              },
-                              {
-                                "type": "string",
-                                "enum": [
-                                  "attending"
-                                ]
-                              }
+                            "type": "string",
+                            "enum": [
+                              "not-participating",
+                              "hosting",
+                              "attending"
                             ]
                           },
                           "settings": {
@@ -2422,19 +2067,10 @@
                                 "type": "number"
                               },
                               "todayOrTomorrow": {
-                                "anyOf": [
-                                  {
-                                    "type": "string",
-                                    "enum": [
-                                      "today"
-                                    ]
-                                  },
-                                  {
-                                    "type": "string",
-                                    "enum": [
-                                      "tomorrow"
-                                    ]
-                                  }
+                                "type": "string",
+                                "enum": [
+                                  "today",
+                                  "tomorrow"
                                 ]
                               },
                               "dateRange": {
@@ -2550,133 +2186,31 @@
                                 "format": "uri"
                               },
                               "relations": {
-                                "anyOf": [
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "fromThemToYou": {
-                                        "type": "string",
-                                        "enum": [
-                                          "not-friends"
-                                        ]
-                                      },
-                                      "fromYouToThem": {
-                                        "type": "string",
-                                        "enum": [
-                                          "not-friends"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "fromThemToYou",
-                                      "fromYouToThem"
+                                "type": "object",
+                                "properties": {
+                                  "fromThemToYou": {
+                                    "type": "string",
+                                    "enum": [
+                                      "not-friends",
+                                      "friend-request-pending",
+                                      "friends",
+                                      "current-user"
                                     ]
                                   },
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "fromThemToYou": {
-                                        "type": "string",
-                                        "enum": [
-                                          "friend-request-pending"
-                                        ]
-                                      },
-                                      "fromYouToThem": {
-                                        "type": "string",
-                                        "enum": [
-                                          "not-friends"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "fromThemToYou",
-                                      "fromYouToThem"
-                                    ]
-                                  },
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "fromThemToYou": {
-                                        "type": "string",
-                                        "enum": [
-                                          "not-friends"
-                                        ]
-                                      },
-                                      "fromYouToThem": {
-                                        "type": "string",
-                                        "enum": [
-                                          "blocked"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "fromThemToYou",
-                                      "fromYouToThem"
-                                    ]
-                                  },
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "fromThemToYou": {
-                                        "type": "string",
-                                        "enum": [
-                                          "not-friends"
-                                        ]
-                                      },
-                                      "fromYouToThem": {
-                                        "type": "string",
-                                        "enum": [
-                                          "friend-request-pending"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "fromThemToYou",
-                                      "fromYouToThem"
-                                    ]
-                                  },
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "fromThemToYou": {
-                                        "type": "string",
-                                        "enum": [
-                                          "friends"
-                                        ]
-                                      },
-                                      "fromYouToThem": {
-                                        "type": "string",
-                                        "enum": [
-                                          "friends"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "fromThemToYou",
-                                      "fromYouToThem"
-                                    ]
-                                  },
-                                  {
-                                    "type": "object",
-                                    "properties": {
-                                      "fromThemToYou": {
-                                        "type": "string",
-                                        "enum": [
-                                          "current-user"
-                                        ]
-                                      },
-                                      "fromYouToThem": {
-                                        "type": "string",
-                                        "enum": [
-                                          "current-user"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "fromThemToYou",
-                                      "fromYouToThem"
+                                  "fromYouToThem": {
+                                    "type": "string",
+                                    "enum": [
+                                      "not-friends",
+                                      "blocked",
+                                      "friend-request-pending",
+                                      "friends",
+                                      "current-user"
                                     ]
                                   }
+                                },
+                                "required": [
+                                  "fromThemToYou",
+                                  "fromYouToThem"
                                 ]
                               }
                             },
@@ -2694,7 +2228,6 @@
                         "required": [
                           "id",
                           "title",
-                          "description",
                           "attendeeCount",
                           "createdDateTime",
                           "updatedDateTime",
@@ -2739,85 +2272,21 @@
                     "pushNotificationTriggerIds": {
                       "type": "array",
                       "items": {
-                        "anyOf": [
-                          {
-                            "type": "string",
-                            "enum": [
-                              "friend-request-received"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "friend-request-accepted"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "user-entered-region"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-attendance-headcount"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-periodic-arrivals"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-starting-soon"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-started"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-ended"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-name-changed"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-description-changed"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-time-changed"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-location-changed"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-cancelled"
-                            ]
-                          }
+                        "type": "string",
+                        "enum": [
+                          "friend-request-received",
+                          "friend-request-accepted",
+                          "user-entered-region",
+                          "event-attendance-headcount",
+                          "event-periodic-arrivals",
+                          "event-starting-soon",
+                          "event-started",
+                          "event-ended",
+                          "event-name-changed",
+                          "event-description-changed",
+                          "event-time-changed",
+                          "event-location-changed",
+                          "event-cancelled"
                         ]
                       }
                     },
@@ -2825,71 +2294,23 @@
                       "type": "boolean"
                     },
                     "eventCalendarStartOfWeekDay": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "sunday"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "monday"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "tuesday"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "wednesday"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "thursday"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "friday"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "saturday"
-                          ]
-                        }
+                      "type": "string",
+                      "enum": [
+                        "sunday",
+                        "monday",
+                        "tuesday",
+                        "wednesday",
+                        "thursday",
+                        "friday",
+                        "saturday"
                       ]
                     },
                     "eventCalendarDefaultLayout": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "single-day-layout"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "week-layout"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "month-layout"
-                          ]
-                        }
+                      "type": "string",
+                      "enum": [
+                        "single-day-layout",
+                        "week-layout",
+                        "month-layout"
                       ]
                     },
                     "eventPresetShouldHideAfterStartDate": {
@@ -2991,85 +2412,21 @@
                   "pushNotificationTriggerIds": {
                     "type": "array",
                     "items": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "friend-request-received"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "friend-request-accepted"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "user-entered-region"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-attendance-headcount"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-periodic-arrivals"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-starting-soon"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-started"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-ended"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-name-changed"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-description-changed"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-time-changed"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-location-changed"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "event-cancelled"
-                          ]
-                        }
+                      "type": "string",
+                      "enum": [
+                        "friend-request-received",
+                        "friend-request-accepted",
+                        "user-entered-region",
+                        "event-attendance-headcount",
+                        "event-periodic-arrivals",
+                        "event-starting-soon",
+                        "event-started",
+                        "event-ended",
+                        "event-name-changed",
+                        "event-description-changed",
+                        "event-time-changed",
+                        "event-location-changed",
+                        "event-cancelled"
                       ]
                     }
                   },
@@ -3077,71 +2434,23 @@
                     "type": "boolean"
                   },
                   "eventCalendarStartOfWeekDay": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "sunday"
-                        ]
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "monday"
-                        ]
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "tuesday"
-                        ]
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "wednesday"
-                        ]
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "thursday"
-                        ]
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "friday"
-                        ]
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "saturday"
-                        ]
-                      }
+                    "type": "string",
+                    "enum": [
+                      "sunday",
+                      "monday",
+                      "tuesday",
+                      "wednesday",
+                      "thursday",
+                      "friday",
+                      "saturday"
                     ]
                   },
                   "eventCalendarDefaultLayout": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "single-day-layout"
-                        ]
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "week-layout"
-                        ]
-                      },
-                      {
-                        "type": "string",
-                        "enum": [
-                          "month-layout"
-                        ]
-                      }
+                    "type": "string",
+                    "enum": [
+                      "single-day-layout",
+                      "week-layout",
+                      "month-layout"
                     ]
                   },
                   "eventPresetShouldHideAfterStartDate": {
@@ -3227,85 +2536,21 @@
                     "pushNotificationTriggerIds": {
                       "type": "array",
                       "items": {
-                        "anyOf": [
-                          {
-                            "type": "string",
-                            "enum": [
-                              "friend-request-received"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "friend-request-accepted"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "user-entered-region"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-attendance-headcount"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-periodic-arrivals"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-starting-soon"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-started"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-ended"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-name-changed"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-description-changed"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-time-changed"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-location-changed"
-                            ]
-                          },
-                          {
-                            "type": "string",
-                            "enum": [
-                              "event-cancelled"
-                            ]
-                          }
+                        "type": "string",
+                        "enum": [
+                          "friend-request-received",
+                          "friend-request-accepted",
+                          "user-entered-region",
+                          "event-attendance-headcount",
+                          "event-periodic-arrivals",
+                          "event-starting-soon",
+                          "event-started",
+                          "event-ended",
+                          "event-name-changed",
+                          "event-description-changed",
+                          "event-time-changed",
+                          "event-location-changed",
+                          "event-cancelled"
                         ]
                       }
                     },
@@ -3313,71 +2558,23 @@
                       "type": "boolean"
                     },
                     "eventCalendarStartOfWeekDay": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "sunday"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "monday"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "tuesday"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "wednesday"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "thursday"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "friday"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "saturday"
-                          ]
-                        }
+                      "type": "string",
+                      "enum": [
+                        "sunday",
+                        "monday",
+                        "tuesday",
+                        "wednesday",
+                        "thursday",
+                        "friday",
+                        "saturday"
                       ]
                     },
                     "eventCalendarDefaultLayout": {
-                      "anyOf": [
-                        {
-                          "type": "string",
-                          "enum": [
-                            "single-day-layout"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "week-layout"
-                          ]
-                        },
-                        {
-                          "type": "string",
-                          "enum": [
-                            "month-layout"
-                          ]
-                        }
+                      "type": "string",
+                      "enum": [
+                        "single-day-layout",
+                        "week-layout",
+                        "month-layout"
                       ]
                     },
                     "eventPresetShouldHideAfterStartDate": {

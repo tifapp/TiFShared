@@ -26,12 +26,12 @@ export const FriendsStatusSchema = z.literal("friends")
 export const BlockedStatusSchema = z.literal("blocked")
 export const CurrentUserStatusSchema = z.literal("current-user")
 
-export const UserToProfileRelationStatusSchema = z.union([
-  NotFriendsStatusSchema,
-  FriendRequestPendingStatusSchema,
-  FriendsStatusSchema,
-  BlockedStatusSchema,
-  CurrentUserStatusSchema
+export const UserToProfileRelationStatusSchema = z.enum([
+  NotFriendsStatusSchema.value,
+  FriendRequestPendingStatusSchema.value,
+  FriendsStatusSchema.value,
+  BlockedStatusSchema.value,
+  CurrentUserStatusSchema.value
 ])
 
 /**
@@ -48,16 +48,10 @@ export type UserToProfileRelationStatus = z.rInfer<
   typeof UserToProfileRelationStatusSchema
 >
 
-export const BlockedBidirectionalUserRelationsSchema = z.union([
-  z.object({
-    fromThemToYou: BlockedStatusSchema,
-    fromYouToThem: BlockedStatusSchema
-  }),
-  z.object({
-    fromThemToYou: BlockedStatusSchema,
-    fromYouToThem: NotFriendsStatusSchema
-  })
-])
+export const BlockedBidirectionalUserRelationsSchema = z.object({
+  fromThemToYou: z.enum([BlockedStatusSchema.value]),
+  fromYouToThem: z.enum([NotFriendsStatusSchema.value, BlockedStatusSchema.value]),
+})
 
 /**
  * A 2-way relationship from a user to another profile where at least one party
@@ -67,32 +61,10 @@ export type BlockedBidirectionalUserRelations = z.rInfer<
   typeof BlockedBidirectionalUserRelationsSchema
 >
 
-export const UnblockedBidirectionalUserRelationsSchema = z.union([
-  z.object({
-    fromThemToYou: NotFriendsStatusSchema,
-    fromYouToThem: NotFriendsStatusSchema
-  }),
-  z.object({
-    fromThemToYou: FriendRequestPendingStatusSchema,
-    fromYouToThem: NotFriendsStatusSchema
-  }),
-  z.object({
-    fromThemToYou: NotFriendsStatusSchema,
-    fromYouToThem: BlockedStatusSchema
-  }),
-  z.object({
-    fromThemToYou: NotFriendsStatusSchema,
-    fromYouToThem: FriendRequestPendingStatusSchema
-  }),
-  z.object({
-    fromThemToYou: FriendsStatusSchema,
-    fromYouToThem: FriendsStatusSchema
-  }),
-  z.object({
-    fromThemToYou: CurrentUserStatusSchema,
-    fromYouToThem: CurrentUserStatusSchema
-  })
-])
+export const UnblockedBidirectionalUserRelationsSchema = z.object({
+  fromThemToYou: z.enum([NotFriendsStatusSchema.value, FriendRequestPendingStatusSchema.value, FriendsStatusSchema.value, CurrentUserStatusSchema.value]),
+  fromYouToThem: z.enum([NotFriendsStatusSchema.value, BlockedStatusSchema.value, FriendRequestPendingStatusSchema.value, FriendsStatusSchema.value, CurrentUserStatusSchema.value]),
+})
 
 /**
  * A 2-way relationship from a user to another profile where no party is blocking the other.

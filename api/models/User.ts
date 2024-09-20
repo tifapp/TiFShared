@@ -41,9 +41,9 @@ export type UserSettingsResponse = UserSettings
 
 export const UserSettingsResponseSchema = UserSettingsSchema
 
-export const UserFriendRequestResponseSchema = z.object({status: z.union([FriendRequestPendingStatusSchema, FriendsStatusSchema])})
+export const UserFriendRequestResponseSchema = z.object({status: z.enum([FriendRequestPendingStatusSchema.value, FriendsStatusSchema.value])})
 
-const DevicePlatformSchema = z.literal("apple").or(z.literal("android"))
+const DevicePlatformSchema = z.enum(["apple", "android"])
 
 export const SelfProfileSchema = z.object({
   id: UserIDSchema,

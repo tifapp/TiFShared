@@ -1,8 +1,8 @@
 import { z } from "zod"
 
-export const TodayOrTomorrowSchema = z.union([
-  z.literal("today"),
-  z.literal("tomorrow")
+export const TodayOrTomorrowSchema = z.enum([
+  "today",
+  "tomorrow"
 ])
 
 export type TodayOrTomorrow = z.infer<typeof TodayOrTomorrowSchema>

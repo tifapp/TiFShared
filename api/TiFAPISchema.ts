@@ -179,7 +179,7 @@ export const TiFAPISchema = {
     },
     outputs: {
       status200: EventAttendeesPageSchema,
-      status404: EventNotFoundErrorSchema.or(tifAPIErrorSchema("no-attendees")),
+      status404: tifAPIErrorSchema("no-attendees", "event-not-found"),
       status403: tifAPIErrorSchema("blocked-by-host")
     },
     httpRequest: {

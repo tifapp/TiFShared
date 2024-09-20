@@ -22,6 +22,8 @@ Object.entries(TiFAPISchema as APISchema).forEach(
       method: method.toLowerCase() as Lowercase<typeof method>,
       path: `${endpoint.replace(/:(\w+)/g, "{$1}")}`,
       request: {
+        // needs patch so "coerce" doesnt give isnullable=true
+        // need to make sure domain models get properly referenced in the specs
         // TODO conditional headers
         // headers: z.object({
         //   Authorization: z.string().openapi({ example: "1212121" })
