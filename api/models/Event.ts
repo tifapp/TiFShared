@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { ColorStringSchema } from "../../domain-models/ColorString"
 import {
+  EventEditLocationSchema,
   EventHostSchema,
   EventIDSchema,
   EventLocationSchema,
@@ -38,7 +39,7 @@ export const CreateEventSchema = z
   .object({
     description: EventDescriptionSchema,
     dateRange: CreateFixedDateRangeSchema,
-    color: ColorStringSchema,
+    color: ColorStringSchema.optional(),
     title: EventTitleSchema,
     shouldHideAfterStartDate: z.boolean(),
     isChatEnabled: z.boolean(),
@@ -47,11 +48,26 @@ export const CreateEventSchema = z
 
 export type CreateEvent = z.rInfer<typeof CreateEventSchema>
 
+export const EventEditSchema = z.object({
+  title: EventTitleSchema,
+  description: EventDescriptionSchema,
+  color: ColorStringSchema.optional(),
+  startDate: z.date(),
+  duration: z.number(),
+  shouldHideAfterStartDate: z.boolean(),
+  location: EventEditLocationSchema
+})
+
+/**
+ * A request to create a new/or edit an existing event.
+ */
+export type EventEdit = z.rInfer<typeof EventEditSchema>
+
 export const EventResponseSchema = z.object({
   id: EventIDSchema,
   title: z.string(), // TODO: - Decide max length.
-  description: z.string().max(500),
-  color: ColorStringSchema,
+  description: EventDescriptionSchema,
+  color: ColorStringSchema.optional(),
   attendeeCount: z.number().nonnegative(),
   joinedDateTime: z.coerce.date().optional(),
   createdDateTime: z.coerce.date(),
