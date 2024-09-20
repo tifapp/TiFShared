@@ -32,7 +32,7 @@ export const EventTimeResponseSchema = z.object({
 export type EventTimeResponse = z.rInfer<typeof EventTimeResponseSchema>
 
 const EventTitleSchema = z.string().max(50)
-const EventDescriptionSchema = z.string().max(500)
+const EventDescriptionSchema = z.string().max(500).optional()
 
 export const CreateEventSchema = z
   .object({
