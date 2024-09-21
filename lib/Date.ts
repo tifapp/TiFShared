@@ -7,10 +7,15 @@ export type DateUnit = dayjs.ManipulateType
 export interface ExtendedDate extends Extension<Date, typeof extensions> {}
 
 declare global {
+  interface DateConstructor {
+    fromSeconds(seconds: number): Date
+  }
   interface Date {
     get ext(): ExtendedDate
   }
 }
+
+Date.fromSeconds = (seconds: number) => new Date(seconds * 1000)
 
 const extensions = {
   /**
@@ -41,6 +46,14 @@ const extensions = {
    */
   addSeconds: (date: Date, amount: number) => {
     return date.ext.add(amount, "seconds")
+  },
+  /**
+   * Adds the designated number of seconds to a date and returns the result.
+   */
+  toSeconds: (date: Date) => {
+    return date.getHours() * 3600 +
+      date.getMinutes() * 60 +
+      date.getSeconds()
   }
 }
 
