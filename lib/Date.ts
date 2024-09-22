@@ -8,14 +8,14 @@ export interface ExtendedDate extends Extension<Date, typeof extensions> {}
 
 declare global {
   interface DateConstructor {
-    fromSeconds(seconds: number): Date
+    fromSecondsSince1970(seconds: number): Date
   }
   interface Date {
     get ext(): ExtendedDate
   }
 }
 
-Date.fromSeconds = (seconds: number) => new Date(seconds * 1000)
+Date.fromSecondsSince1970 = (seconds: number) => new Date(seconds * 1000)
 
 const extensions = {
   /**
@@ -50,7 +50,7 @@ const extensions = {
   /**
    * Adds the designated number of seconds to a date and returns the result.
    */
-  toSeconds: (date: Date) => {
+  toSecondsSince1970: (date: Date) => {
     return date.getHours() * 3600 +
       date.getMinutes() * 60 +
       date.getSeconds()
