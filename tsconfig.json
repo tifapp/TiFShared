@@ -5,7 +5,7 @@
     "baseUrl": ".",
     "module": "commonjs",
     "target": "esnext",
-    "lib": ["esnext"],
+    "lib": ["dom", "esnext"],
     "checkJs": true,
     "allowJs": true,
     "skipLibCheck": true,

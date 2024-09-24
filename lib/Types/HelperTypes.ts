@@ -87,8 +87,3 @@ export type Reassign<Obj, Key extends keyof Obj, Type> = {
  */
 export type Tagged<T, Tag extends string> = T & { _tag?: Tag }
 
-declare global {
-  class DOMException extends Error {
-    new(message: string): DOMException
-  }
-}
