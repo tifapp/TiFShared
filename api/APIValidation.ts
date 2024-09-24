@@ -25,6 +25,7 @@ type ValidationResult = "invalid-request" | "unexpected-response" | "invalid-res
 // TODO: fix value type should not be any
 type ValidationResultParser = (status: ValidationResult, value: TiFAPIInputContext<any> | TiFAPIResponse<any>) => (TiFAPIResponse<any>)
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const validateAPICall = (resultParser: ValidationResultParser): APIMiddleware<any> => 
   async (endpointInput, next) => {
     const {endpointName, endpointSchema: {input: inputSchema, outputs: outputSchemas, constraints}, body, query, params} = endpointInput

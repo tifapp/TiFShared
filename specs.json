@@ -3,7 +3,7 @@
   "info": {
     "title": "tifRestAPI",
     "description": "API used for the TiF mobile app",
-    "version": "Fri Sep 20 2024 00:12:02 GMT-0700 (Pacific Daylight Time)"
+    "version": "Mon Sep 23 2024 22:58:00 GMT-0700 (Pacific Daylight Time)"
   },
   "servers": [
     {
@@ -52,13 +52,6 @@
                 }
               }
             }
-          }
-        }
-      },
-      "delete": {
-        "responses": {
-          "204": {
-            "description": "No Content"
           }
         }
       }
@@ -134,6 +127,13 @@
                 }
               }
             }
+          }
+        }
+      },
+      "delete": {
+        "responses": {
+          "204": {
+            "description": "No Content"
           }
         }
       }
@@ -1836,7 +1836,7 @@
         }
       }
     },
-    "/friend/{userId}": {
+    "/user/friend/{userId}": {
       "post": {
         "parameters": [
           {
@@ -2317,46 +2317,85 @@
                       "type": "boolean"
                     },
                     "eventPresetPlacemark": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "coordinate"
+                              ]
+                            },
+                            "value": {
+                              "type": "object",
+                              "properties": {
+                                "latitude": {
+                                  "type": "number",
+                                  "minimum": -90,
+                                  "maximum": 90
+                                },
+                                "longitude": {
+                                  "type": "number",
+                                  "minimum": -180,
+                                  "maximum": 180
+                                }
+                              },
+                              "required": [
+                                "latitude",
+                                "longitude"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "value"
+                          ]
                         },
-                        "country": {
-                          "type": "string"
-                        },
-                        "postalCode": {
-                          "type": "string"
-                        },
-                        "street": {
-                          "type": "string"
-                        },
-                        "streetNumber": {
-                          "type": "string"
-                        },
-                        "region": {
-                          "type": "string"
-                        },
-                        "isoCountryCode": {
-                          "type": "string"
-                        },
-                        "city": {
-                          "type": "string"
-                        },
-                        "latitude": {
-                          "type": "number",
-                          "minimum": -90,
-                          "maximum": 90
-                        },
-                        "longitude": {
-                          "type": "number",
-                          "minimum": -180,
-                          "maximum": 180
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "placemark"
+                              ]
+                            },
+                            "value": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "country": {
+                                  "type": "string"
+                                },
+                                "postalCode": {
+                                  "type": "string"
+                                },
+                                "street": {
+                                  "type": "string"
+                                },
+                                "streetNumber": {
+                                  "type": "string"
+                                },
+                                "region": {
+                                  "type": "string"
+                                },
+                                "isoCountryCode": {
+                                  "type": "string"
+                                },
+                                "city": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "value"
+                          ]
                         }
-                      },
-                      "required": [
-                        "latitude",
-                        "longitude"
                       ]
                     },
                     "eventPresetDurations": {
@@ -2448,46 +2487,85 @@
                     "type": "boolean"
                   },
                   "eventPresetPlacemark": {
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "coordinate"
+                            ]
+                          },
+                          "value": {
+                            "type": "object",
+                            "properties": {
+                              "latitude": {
+                                "type": "number",
+                                "minimum": -90,
+                                "maximum": 90
+                              },
+                              "longitude": {
+                                "type": "number",
+                                "minimum": -180,
+                                "maximum": 180
+                              }
+                            },
+                            "required": [
+                              "latitude",
+                              "longitude"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "value"
+                        ]
                       },
-                      "country": {
-                        "type": "string"
-                      },
-                      "postalCode": {
-                        "type": "string"
-                      },
-                      "street": {
-                        "type": "string"
-                      },
-                      "streetNumber": {
-                        "type": "string"
-                      },
-                      "region": {
-                        "type": "string"
-                      },
-                      "isoCountryCode": {
-                        "type": "string"
-                      },
-                      "city": {
-                        "type": "string"
-                      },
-                      "latitude": {
-                        "type": "number",
-                        "minimum": -90,
-                        "maximum": 90
-                      },
-                      "longitude": {
-                        "type": "number",
-                        "minimum": -180,
-                        "maximum": 180
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "placemark"
+                            ]
+                          },
+                          "value": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "country": {
+                                "type": "string"
+                              },
+                              "postalCode": {
+                                "type": "string"
+                              },
+                              "street": {
+                                "type": "string"
+                              },
+                              "streetNumber": {
+                                "type": "string"
+                              },
+                              "region": {
+                                "type": "string"
+                              },
+                              "isoCountryCode": {
+                                "type": "string"
+                              },
+                              "city": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "value"
+                        ]
                       }
-                    },
-                    "required": [
-                      "latitude",
-                      "longitude"
                     ]
                   },
                   "eventPresetDurations": {
@@ -2563,46 +2641,85 @@
                       "type": "boolean"
                     },
                     "eventPresetPlacemark": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string"
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "coordinate"
+                              ]
+                            },
+                            "value": {
+                              "type": "object",
+                              "properties": {
+                                "latitude": {
+                                  "type": "number",
+                                  "minimum": -90,
+                                  "maximum": 90
+                                },
+                                "longitude": {
+                                  "type": "number",
+                                  "minimum": -180,
+                                  "maximum": 180
+                                }
+                              },
+                              "required": [
+                                "latitude",
+                                "longitude"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "value"
+                          ]
                         },
-                        "country": {
-                          "type": "string"
-                        },
-                        "postalCode": {
-                          "type": "string"
-                        },
-                        "street": {
-                          "type": "string"
-                        },
-                        "streetNumber": {
-                          "type": "string"
-                        },
-                        "region": {
-                          "type": "string"
-                        },
-                        "isoCountryCode": {
-                          "type": "string"
-                        },
-                        "city": {
-                          "type": "string"
-                        },
-                        "latitude": {
-                          "type": "number",
-                          "minimum": -90,
-                          "maximum": 90
-                        },
-                        "longitude": {
-                          "type": "number",
-                          "minimum": -180,
-                          "maximum": 180
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "placemark"
+                              ]
+                            },
+                            "value": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "country": {
+                                  "type": "string"
+                                },
+                                "postalCode": {
+                                  "type": "string"
+                                },
+                                "street": {
+                                  "type": "string"
+                                },
+                                "streetNumber": {
+                                  "type": "string"
+                                },
+                                "region": {
+                                  "type": "string"
+                                },
+                                "isoCountryCode": {
+                                  "type": "string"
+                                },
+                                "city": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "value"
+                          ]
                         }
-                      },
-                      "required": [
-                        "latitude",
-                        "longitude"
                       ]
                     },
                     "eventPresetDurations": {

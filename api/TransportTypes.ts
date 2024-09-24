@@ -111,11 +111,15 @@ export type InputSchema = {
   params?: ZodType;
 };
 
-type OptionalInput<T> = {} extends T ? void : T
-
 type ZodInferredInput<T extends InputSchema> = {
-  [K in keyof T]: T[K] extends ZodType ? z.rInfer<T[K]> : T[K];
+  [K in keyof T as T[K] extends z.ZodOptional<any> ? never : K]: 
+    T[K] extends ZodType ? z.rInfer<T[K]> : T[K];
+} & {
+  [K in keyof T as T[K] extends z.ZodOptional<any> ? K : never]?: 
+    T[K] extends z.ZodOptional<any> ? z.rInfer<T[K]> : T[K];
 };
+
+type OptionalInput<T> = {} extends T ? void : T
 
 type HttpRequest<T extends HTTPMethod> = { method: T; endpoint: URLEndpoint; }
 

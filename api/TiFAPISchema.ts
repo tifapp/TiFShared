@@ -344,7 +344,7 @@ export const TiFAPISchema = {
     },
     httpRequest: {
       method: "DELETE",
-      endpoint: `/user`
+      endpoint: `/user/self`
     }
   }),
   
@@ -435,7 +435,7 @@ export const TiFAPISchema = {
     },
     httpRequest: {
       method: "POST",
-      endpoint: `/friend/:userId`
+      endpoint: `/user/friend/:userId`
     },
   }),
 

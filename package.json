@@ -7,7 +7,7 @@
     "genapispecs": "npx ts-node --transpile-only npm-scripts/generateApiSpecs && npx lint-openapi specs.json",
     "test": "jest --collectCoverage",
     "test:ci": "jest --ci --collectCoverage",
-    "prepare": "node prepare.js",
+    "prepare": "node --loader ts-node/esm npm-scripts/prepare.ts",
     "pr": "node --loader ts-node/esm npm-scripts/auto-pr.ts",
     "build": "npx tsc"
   },

@@ -249,34 +249,28 @@ const foo = async (api: TiFAPIClient) => {
 
 #### API Clients
 
-API clients can be created using the `implementTiFAPI()` method and `TiFAPITransport`.
+API clients can be created using the `TiFAPIClientCreator()` method or reducing the `TiFAPISchema`.
 
-1. `implementTiFAPI()`
+1. `TiFAPIClientCreator()`
 
-- Creates a typesafe TiFAPI client from `TiFAPISchema`, where the inputs and outputs of each function are derived from the schema.
+- Creates a typesafe TiFAPI client with methods that map to each endpoint on the `TiFAPISchema`.
 
-1a. `TiFAPIMiddleware`
+1a. `APIMiddleware`
 
-- Can be passed to `implementTiFAPI()` to consume or transform the high-level requests or responses of the `TiFAPIClient`. By default, validation middleware is used in `implementTiFAPI()`.
+- Can be passed to `TiFAPIClientCreator()` to consume or transform the high-level requests or responses of the `TiFAPIClient`. By default, validation middleware is used in `implementTiFAPI()`.
 
 2. `TiFAPITransport`
 
-- An instance of `TiFAPIMiddleware` responsible for sending and retrieving data across the network via `fetch`.
-
-2a. `TiFAPITransportMiddleware`
-
-- Can be passed to `TiFAPITransport` to transform a network request (eg. adding a JWT to the Authorization header), and handle the low level response.
+- An instance of `APIMiddleware` responsible for sending and retrieving data across the network via `fetch`.
 
 An example API client can be constructed as follows:
 
 ```ts
 // jwtMiddleware comes with this library, you can also write your own middleware functions.
-const middleware = jwtMiddleware(async () => "My JWT token")
-const transport = tifAPITransport(
-  new URL("https://api.production.com"),
-  middleware
+const apiClient = implementTiFAPI(
+  jwtMiddleware(async () => "My JWT token"),
+  tifAPITransport(new URL("https://api.production.com"))
 )
-const apiClient = implementTiFAPI(transport)
 ```
 
 ## Local Development Setup

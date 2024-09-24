@@ -194,11 +194,8 @@ describe("Result tests", () => {
   it("should allow promise results to be unwrapped", async () => {
     expect(await promiseResult(failure("failed" as const)).unwrap()).toBe("failed")
     expect(await promiseResult(success("passed" as const)).unwrap()).toBe("passed")
-<<<<<<< HEAD
     expect(await promiseResult(Promise.resolve(failure("failed" as const))).unwrap()).toBe("failed")
     expect(await promiseResult(Promise.resolve(success("passed" as const))).unwrap()).toBe("passed")
-=======
->>>>>>> ee285f2 (sync backend models)
   })
 
   it("should allow promise results to be transformed", async () => {

@@ -199,7 +199,7 @@ const EventEditPlacemarkSchema = z.object({
   value: PlacemarkSchema
 })
 
-export const EventEditLocationSchema = z.union([
+export const EventEditLocationSchema = z.discriminatedUnion("type", [
   EventEditCoordinateSchema,
   EventEditPlacemarkSchema
 ])
