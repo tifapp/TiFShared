@@ -15,6 +15,11 @@ const optionalParse = <Input, Output>(
   return z
     .custom<Input>()
     .superRefine((arg, ctx) => {
+      if (arg instanceof parseable.constructor) {
+        parsedValue = arg as unknown as Output
+        return
+      }
+
       parsedValue = parseable.parse(arg)
       if (!parsedValue) {
         const message = errorMessage?.(arg)
