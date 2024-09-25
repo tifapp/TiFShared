@@ -17,7 +17,6 @@ export type Result<Success, Failure> =
 
 export type AwaitableResult<Success, Failure> =
   | Result<Success, Failure>
-  | Promise<Result<Success, Failure>>
   | PromiseResult<Success, Failure>
 
 /**
@@ -335,8 +334,7 @@ export class PromiseResult<Success, Failure> extends Promise<
   passthroughSuccess<NewSuccess, NewFailure>(
     handler: (value: Success) => AwaitableResult<NewSuccess, NewFailure>
   ): AwaitableResult<Success, Failure | NewFailure> {
-    const result = this.then((result) => result.passthroughSuccess(handler))
-    return promiseResult(result)
+    return promiseResult(this.then((result) => result.passthroughSuccess(handler)))
   }
 
   /**
@@ -348,8 +346,7 @@ export class PromiseResult<Success, Failure> extends Promise<
   passthroughFailure<NewSuccess, NewFailure>(
     handler: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
   ): AwaitableResult<NewSuccess, Failure | NewFailure> {
-    const result = this.then((result) => result.passthroughFailure(handler))
-    return promiseResult(result)
+    return promiseResult(this.then((result) => result.passthroughFailure(handler)))
   }
 
   /**
@@ -360,8 +357,7 @@ export class PromiseResult<Success, Failure> extends Promise<
   flatMapSuccess<NewSuccess, NewFailure>(
     mapper: (value: Success) => AwaitableResult<NewSuccess, NewFailure>
   ): PromiseResult<NewSuccess, Failure | NewFailure> {
-    const result = this.then((result) => result.flatMapSuccess(mapper))
-    return promiseResult(result)
+    return promiseResult(this.then((result) => result.flatMapSuccess(mapper)))
   }
 
   /**
@@ -372,24 +368,21 @@ export class PromiseResult<Success, Failure> extends Promise<
   flatMapFailure<NewSuccess, NewFailure>(
     mapper: (value: Failure) => AwaitableResult<NewSuccess, NewFailure>
   ) {
-    const result = this.then((result) => result.flatMapFailure(mapper))
-    return promiseResult(result)
+    return promiseResult(this.then((result) => result.flatMapFailure(mapper)))
   }
 
   /**
    * Transforms the success value into a new one lazily.
    */
   mapSuccess<NewSuccess>(mapper: (value: Success) => NewSuccess) {
-    const result = this.then((result) => result.mapSuccess(mapper))
-    return promiseResult(result)
+    return promiseResult(this.then((result) => result.mapSuccess(mapper)))
   }
 
   /**
    * Transforms the failure value into a new one lazily.
    */
   mapFailure<NewFailure>(mapper: (value: Failure) => NewFailure) {
-    const result = this.then((result) => result.mapFailure(mapper))
-    return promiseResult(result)
+    return promiseResult(this.then((result) => result.mapFailure(mapper)))
   }
 
   /**
@@ -425,26 +418,21 @@ export class PromiseResult<Success, Failure> extends Promise<
  * Wraps a result into a {@link PromiseResult}.
  */
 export const promiseResult = <Success, Failure>(
-  promise: AwaitableResult<Success, Failure>
-) => {
-  return new PromiseResult<Success, Failure>((resolve, reject) => {
-    const handleResult = (res: AwaitableResult<Success, Failure>) => {
-      if (res instanceof PromiseResult) {
-        res.then(resolve).catch(reject)
-      } else {
-        resolve(res)
-      }
-    }
+  promise: Promise<Result<Success, Failure>> | Result<Success, Failure>
+): PromiseResult<Success, Failure> => {
+  if (promise instanceof PromiseResult) {
+    return promise;
+  }
 
-    if (promise instanceof Promise) {
-      promise.then(handleResult).catch(reject)
-    } else if (promise instanceof PromiseResult) {
-      promise.then(resolve).catch(reject)
-    } else {
-      handleResult(promise)
-    }
-  })
-}
+  if (promise instanceof Promise) {
+    Object.setPrototypeOf(promise, PromiseResult.prototype);
+    return promise as PromiseResult<Success, Failure>;
+  }
+
+  return new PromiseResult<Success, Failure>((resolve) => {
+    resolve(promise);
+  });
+};
 
 /**
  * Extracts the success value of a given result. Ex.
