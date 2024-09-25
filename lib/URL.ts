@@ -6,11 +6,11 @@ export type URLParameters = {
 
 export type URLEndpoint = `/${string}`
 
-export const urlString = ({baseURL, endpoint, params, query}: {baseURL: URL, endpoint: URLEndpoint, params?: URLParameters, query?: URLParameters}) => {
+export const urlString = ({baseURL, endpoint, params, query}: {baseURL?: URL, endpoint: URLEndpoint, params?: URLParameters, query?: URLParameters}) => {
   const path = parameterizeEndpoint(endpoint, params ?? {}).slice(1)
   const searchParams = queryToSearchParams(query ?? {})
   const queryString = searchParams.toString() ? `?${searchParams}` : '';
-  return `${baseURL}${path}${queryString}`
+  return `${baseURL ?? '/'}${path}${queryString}`
 }
 
 export const queryFromSearchParams = (url: URL) => {
