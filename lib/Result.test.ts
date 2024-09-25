@@ -190,6 +190,13 @@ describe("Result tests", () => {
     expect(result1).toBe(result2)
     expect(observeFn).toHaveBeenCalledWith("passed" as const)
   })
+  
+  it("should allow promise results to be unwrapped", async () => {
+    expect(await promiseResult(failure("failed" as const)).unwrap()).toBe("failed")
+    expect(await promiseResult(success("passed" as const)).unwrap()).toBe("passed")
+    expect(await promiseResult(Promise.resolve(failure("failed" as const))).unwrap()).toBe("failed")
+    expect(await promiseResult(Promise.resolve(success("passed" as const))).unwrap()).toBe("passed")
+  })
 
   it("should allow promise results to be transformed", async () => {
     const currentResult = promiseResult(failure("failed" as const))
