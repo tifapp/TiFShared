@@ -21,8 +21,7 @@ describe("EventAPIModels tests", () => {
       },
       previewAttendees: [
         {
-          id: "2fd22e4a-147c-4189-889e-15469b80eaf7",
-          profileImageURL: null
+          id: "2fd22e4a-147c-4189-889e-15469b80eaf7"
         }
       ],
       location: {
@@ -40,20 +39,17 @@ describe("EventAPIModels tests", () => {
         isInArrivalTrackingPeriod: true
       },
       host: {
-        relations: { fromThemToYou: "not-friends", fromYouToThem: "not-friends" },
+        relationStatus: "not-friends",
         id: "2fd22e4a-147c-4189-889e-15469b80eaf7",
-        username: "Caroline Parisian",
-        handle: "carolinepar0103",
-        profileImageURL: null
+        name: "Caroline Parisian",
+        handle: "carolinepar0103"
       },
       settings: { shouldHideAfterStartDate: true, isChatEnabled: true },
       userAttendeeStatus: "not-participating",
-      joinDate: null,
       isChatExpired: false,
       hasArrived: false,
-      updateDateTime: "2024-03-25T07:54:28.000Z",
+      updatedDateTime: "2024-03-25T07:54:28.000Z",
       createdDateTime: "2024-03-25T07:54:28.000Z",
-      endedAt: null
     }
     const result = EventResponseSchema.safeParse(json) as {
       data: EventResponse
@@ -74,8 +70,7 @@ describe("EventAPIModels tests", () => {
       },
       previewAttendees: [
         {
-          id: "2fd22e4a-147c-4189-889e-15469b80eaf7",
-          profileImageURL: null
+          id: "2fd22e4a-147c-4189-889e-15469b80eaf7"
         }
       ],
       location: {
@@ -93,20 +88,17 @@ describe("EventAPIModels tests", () => {
         isInArrivalTrackingPeriod: true
       },
       host: {
-        relations: { fromThemToYou: "not-friends", fromYouToThem: "not-friends" },
+        relationStatus: "not-friends",
         id: "2fd22e4a-147c-4189-889e-15469b80eaf7",
-        username: "Caroline Parisian",
-        handle: UserHandle.optionalParse("carolinepar0103")!,
-        profileImageURL: null
+        name: "Caroline Parisian",
+        handle: UserHandle.optionalParse("carolinepar0103")!
       },
       settings: { shouldHideAfterStartDate: true, isChatEnabled: true },
       userAttendeeStatus: "not-participating",
-      joinDate: null,
       isChatExpired: false,
       hasArrived: false,
-      updateDateTime: new Date("2024-03-25T07:54:28.000Z"),
+      updatedDateTime: new Date("2024-03-25T07:54:28.000Z"),
       createdDateTime: new Date("2024-03-25T07:54:28.000Z"),
-      endedAt: null
     })
   })
 })

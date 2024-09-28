@@ -8,6 +8,5 @@ export const tifAPIErrorSchema = <
   ...literals: [...V]
 ) => {
   if (literals.length === 0) return z.object({ error: z.literal(literal) })
-  const [literal2, ...rest] = literals.map((l) => String(l))
-  return z.object({ error: z.enum([String(literal), literal2, ...rest]) })
+  return z.object({ error: z.enum([String(literal), ...literals.map((l) => String(l))]) })
 }

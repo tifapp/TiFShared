@@ -1,28 +1,31 @@
 import { Match } from "linkify-it"
 import { z } from "zod"
+import { CreateFixedDateRangeSchema } from "../api/models/FixedDateRange"
 import {
   ensureWhitespaceBeforeSchemaValidator,
   linkify
 } from "../lib/LinkifyIt"
 import { Tagged } from "../lib/Types/HelperTypes"
-import { ColorString, ColorStringSchema } from "./ColorString"
+import { ColorString } from "./ColorString"
 import {
   LocationCoordinate2DSchema,
   areCoordinatesEqual
 } from "./LocationCoordinate2D"
 import { PlacemarkSchema } from "./Placemark"
 import {
-  BlockedBidirectionalUserRelationsSchema,
-  UnblockedBidirectionalUserRelationsSchema,
+  BlockedYouStatusSchema,
+  UnblockedUserRelationsSchema,
   UserHandleSchema,
   UserIDSchema
 } from "./User"
 
+export const EventTitleSchema = z.string().min(1).max(75)
+export const EventDescriptionSchema = z.string().max(500).optional()
+
 export type EventID = Tagged<number, "eventId">
 
 export const EventIDSchema = z.coerce.number().transform((id) => id as EventID)
-//do not install js files by default, clutters up the folders
-//fix having to include body: undefined whenever calling an endpoint with an optional body.
+
 /**
  * A zod schema for {@link EventRegion}.
  */
@@ -51,7 +54,7 @@ export const EventAttendeeSchema = z.object({
   name: z.string(),
   handle: UserHandleSchema,
   profileImageURL: z.string().url().optional(),
-  relations: UnblockedBidirectionalUserRelationsSchema,
+  relationStatus: UnblockedUserRelationsSchema,
   joinedDateTime: z.coerce.date(),
   arrivedDateTime: z.coerce.date().optional(),
 })
@@ -63,9 +66,9 @@ export const EventHostSchema = EventAttendeeSchema.omit({joinedDateTime: true, a
  */
 export type EventAttendee = z.rInfer<typeof EventAttendeeSchema>
 
-export const EventWhenBlockedByHostAttendeeSchema = EventAttendeeSchema.omit({
-  relations: true
-}).extend({ relations: BlockedBidirectionalUserRelationsSchema })
+export const EventWhenBlockedByHostAttendeeSchema = EventHostSchema.omit({
+  relationStatus: true
+}).extend({ relationStatus: BlockedYouStatusSchema })
 
 export type EventWhenBlockedByHostAttendee = z.rInfer<
   typeof EventWhenBlockedByHostAttendeeSchema
@@ -121,11 +124,12 @@ export type EventUserAttendeeStatus = z.rInfer<
 >
 
 export const EventWhenBlockedByHostSchema = z.object({
+  error: BlockedYouStatusSchema,
   id: EventIDSchema,
-  title: z.string(),
+  title: EventTitleSchema,
   createdDateTime: z.coerce.date(),
   updatedDateTime: z.coerce.date(),
-  //host: EventWhenBlockedByHostAttendeeSchema
+  host: EventWhenBlockedByHostAttendeeSchema
 })
 
 export type EventWhenBlockedByHost = z.rInfer<
@@ -216,10 +220,22 @@ export const EventEditLocationSchema = z.discriminatedUnion("type", [
  */
 export type EventEditLocation = z.rInfer<typeof EventEditLocationSchema>
 
+export const CreateEventSchema = z
+  .object({
+    description: EventDescriptionSchema,
+    dateRange: CreateFixedDateRangeSchema,
+    title: EventTitleSchema,
+    shouldHideAfterStartDate: z.boolean(),
+    isChatEnabled: z.boolean(),
+    coordinates: LocationCoordinate2DSchema
+  })
+
+export type CreateEvent = z.rInfer<typeof CreateEventSchema>
+
 export const EventEditSchema = z.object({
-  title: z.string().min(1).max(75),
-  description: z.string(),
-  startDate: z.date(),
+  title: EventTitleSchema,
+  description: EventDescriptionSchema,
+  startDateTime: z.date(),
   duration: z.number(),
   shouldHideAfterStartDate: z.boolean(),
   location: EventEditLocationSchema

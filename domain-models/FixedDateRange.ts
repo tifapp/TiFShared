@@ -1,3 +1,4 @@
+import { z } from "zod"
 
 /**
  * A data type to deal with a date range that has a known start and end date.
@@ -8,7 +9,7 @@
  * ```ts
  * // Makes range.endDateTime "new Date(3)" because the previous interval was 1 second
  * const range = dateRange(new Date(0), new Date(1))?
- *   .moveStartDateTimeWithAutocorrection(new Date(2))
+ *   .moveStartWithAutocorrection(new Date(2))
  * ```
  *
  * If the intial start date and end date are incompatible with each other, this
@@ -32,7 +33,7 @@ export class FixedDateRange {
     readonly startDateTime: Date,
     readonly endDateTime: Date
   ) {
-    if (startDateTime >= endDateTime) {
+    if (startDateTime > endDateTime) {
       throw new Error("Start Date must be before End Date.")
     }
   }
@@ -41,7 +42,7 @@ export class FixedDateRange {
    * Sets the start date of this range adjusting the end date ahead of the
    * start date by amount of the previous interval between the 2 dates.
    */
-  moveStartDateTimeWithAutocorrection(date: Date) {
+  moveStartWithAutocorrection(date: Date) {
     const { seconds } = date.ext.diff(this.endDateTime)
     if (date > this.endDateTime) {
       return new FixedDateRange(date, date.ext.addSeconds(seconds))
@@ -53,12 +54,19 @@ export class FixedDateRange {
    * Sets the start date of this range adjusting the start date to be behind
    * the end date by amount of the previous interval between the 2 dates.
    */
-  moveEndDateTimeWithAutocorrection(date: Date) {
+  moveEndWithAutocorrection(date: Date) {
     const { seconds } = date.ext.diff(this.startDateTime)
     if (date < this.startDateTime) {
       return new FixedDateRange(date.ext.addSeconds(seconds), date)
     }
     return new FixedDateRange(this.startDateTime, date)
+  }
+
+  static parse({ startDateTime, endDateTime }: FixedDateRange) {
+    const sDate = z.coerce.date().safeParse(startDateTime)
+    const eDate = z.coerce.date().safeParse(endDateTime)
+    if (!sDate.success || !eDate.success) return undefined
+    return dateRange(sDate.data, eDate.data)
   }
 }
 

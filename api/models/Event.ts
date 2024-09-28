@@ -8,10 +8,12 @@ import {
   EventPreviewAttendeeSchema,
   EventSettingsSchema,
   EventUserAttendeeStatusSchema,
+  EventWhenBlockedByHostSchema,
   TrackableEventArrivalRegionsSchema
 } from "../../domain-models/Event"
 import { LocationCoordinate2DSchema } from "../../domain-models/LocationCoordinate2D"
 import { TodayOrTomorrowSchema } from "../../domain-models/TodayOrTomorrow"
+import { BlockedYouStatusSchema } from "../../domain-models/User"
 import { ChatTokenRequestSchema } from "./Chat"
 import { tifAPIErrorSchema } from "./Error"
 import { CreateFixedDateRangeSchema, FixedDateRangeSchema } from "./FixedDateRange"
@@ -65,7 +67,7 @@ export type EventEdit = z.rInfer<typeof EventEditSchema>
 
 export const EventResponseSchema = z.object({
   id: EventIDSchema,
-  title: z.string(), // TODO: - Decide max length.
+  title: EventTitleSchema,
   description: EventDescriptionSchema,
   color: ColorStringSchema.optional(),
   attendeeCount: z.number().nonnegative(),
@@ -88,7 +90,7 @@ export type EventResponse = z.rInfer<typeof EventResponseSchema>
 export const JoinEventResponseSchema =
   TrackableEventArrivalRegionsSchema.extend({
     id: EventIDSchema,
-    chatToken: ChatTokenRequestSchema,
+    chatToken: ChatTokenRequestSchema.optional(),
     hasArrived: z.boolean()
   })
 
@@ -101,3 +103,6 @@ export const EventsInAreaResponseSchema = z.object({
 })
 
 export type EventsInAreaResponse = z.rInfer<typeof EventsInAreaResponseSchema>
+
+export const EventWhenBlockedByHostResponseSchema =
+  EventWhenBlockedByHostSchema.merge(tifAPIErrorSchema(BlockedYouStatusSchema.value))

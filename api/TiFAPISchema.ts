@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { EventAttendeesPageSchema, EventIDSchema, EventRegionSchema, EventWhenBlockedByHostSchema, TrackableEventArrivalRegionsSchema } from "../domain-models/Event";
 import { LocationCoordinate2DSchema } from "../domain-models/LocationCoordinate2D";
-import { UserHandleSchema, UserIDSchema, UserNameSchema } from "../domain-models/User";
+import { BlockedYouStatusSchema, UserHandleSchema, UserIDSchema, UserNameSchema } from "../domain-models/User";
 import { APISchema, EndpointSchemasToFunctions, assertEndpointSchemaType } from "./TransportTypes";
 import { tifAPIErrorSchema } from "./models/Error";
 import { CreateEventSchema, EventNotFoundErrorSchema, EventResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
@@ -180,7 +180,7 @@ export const TiFAPISchema = {
     outputs: {
       status200: EventAttendeesPageSchema,
       status404: tifAPIErrorSchema("no-attendees", "event-not-found"),
-      status403: tifAPIErrorSchema("blocked-by-host")
+      status403: tifAPIErrorSchema(BlockedYouStatusSchema.value)
     },
     httpRequest: {
       method: "GET",

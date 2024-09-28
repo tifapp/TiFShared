@@ -121,7 +121,7 @@ export const UserSettingsSchema = z.object({
   eventCalendarStartOfWeekDay: EventCalendarWeekdaySchema,
   eventCalendarDefaultLayout: EventCalendarLayoutIDSchema,
   eventPresetShouldHideAfterStartDate: z.boolean(),
-  eventPresetPlacemark: EventEditLocationSchema.optional(),
+  eventPresetLocation: EventEditLocationSchema.optional(),
   eventPresetDurations: z.array(z.number()),
   version: UserSettingsVersionSchema
 })
@@ -165,7 +165,7 @@ export const DEFAULT_USER_SETTINGS = {
   eventCalendarStartOfWeekDay: "monday",
   eventCalendarDefaultLayout: "week-layout",
   eventPresetDurations: [900, 1800, 2700, 3600, 5400],
-  eventPresetPlacemark: undefined,
+  eventPresetLocation: undefined,
   eventPresetShouldHideAfterStartDate: false,
   version: 0
 } satisfies Readonly<UserSettings>

@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { UserSettings, UserSettingsSchema } from "../../domain-models/Settings"
-import { FriendRequestPendingStatusSchema, FriendsStatusSchema, UserHandleSchema, UserIDSchema, UserToProfileRelationStatusSchema } from "../../domain-models/User"
+import { FriendRequestSentStatusSchema, FriendsStatusSchema, UserHandleSchema, UserIDSchema, UserToProfileRelationStatusSchema } from "../../domain-models/User"
 import { tifAPIErrorSchema } from "./Error"
 
 export const userTiFAPIErrorSchema = <T extends z.Primitive>(literal: T) => {
@@ -21,10 +21,6 @@ export const UpdateCurrentUserProfileRequestSchema = z.object({
   handle: UserHandleSchema.optional()
 })
 
-    // isEventNotificationsEnabled,
-    // isMentionsNotificationsEnabled,
-    // isChatNotificationsEnabled,
-    // isFriendRequestNotificationsEnabled
 export type UpdateCurrentUserProfileRequest = z.rInfer<
   typeof UpdateCurrentUserProfileRequestSchema
 >
@@ -41,7 +37,7 @@ export type UserSettingsResponse = UserSettings
 
 export const UserSettingsResponseSchema = UserSettingsSchema
 
-export const UserFriendRequestResponseSchema = z.object({status: z.enum([FriendRequestPendingStatusSchema.value, FriendsStatusSchema.value])})
+export const UserFriendRequestResponseSchema = z.object({status: z.enum([FriendRequestSentStatusSchema.value, FriendsStatusSchema.value])})
 
 const DevicePlatformSchema = z.enum(["apple", "android"])
 
@@ -63,10 +59,7 @@ export const UserProfileSchema = z.object({
   createdDateTime: z.coerce.date(),
   profileImageURL: z.string().url().optional(),
   updatedDateTime: z.coerce.date(),
-  relations: z.object({
-    fromThemToYou: UserToProfileRelationStatusSchema,
-    fromYouToThem: UserToProfileRelationStatusSchema
-  })
+  relationStatus: UserToProfileRelationStatusSchema
 })
 
 export const RegisterPushTokenRequestSchema = z.object({

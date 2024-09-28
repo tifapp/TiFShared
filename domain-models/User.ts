@@ -18,19 +18,20 @@ export const UserIDSchema = z
   .uuid()
   .transform((id) => id as UserID)
 
+export const BlockedYouStatusSchema = z.literal("blocked-you")
+export const BlockedThemStatusSchema = z.literal("blocked-them")
 export const NotFriendsStatusSchema = z.literal("not-friends")
-export const FriendRequestPendingStatusSchema = z.literal(
-  "friend-request-pending"
-)
+export const FriendRequestSentStatusSchema = z.literal("friend-request-sent")
+export const FriendRequestReceivedStatusSchema = z.literal("friend-request-received")
 export const FriendsStatusSchema = z.literal("friends")
-export const BlockedStatusSchema = z.literal("blocked")
 export const CurrentUserStatusSchema = z.literal("current-user")
 
 export const UserToProfileRelationStatusSchema = z.enum([
   NotFriendsStatusSchema.value,
-  FriendRequestPendingStatusSchema.value,
+  FriendRequestReceivedStatusSchema.value,
+  FriendRequestSentStatusSchema.value,
   FriendsStatusSchema.value,
-  BlockedStatusSchema.value,
+  BlockedThemStatusSchema.value,
   CurrentUserStatusSchema.value
 ])
 
@@ -48,37 +49,36 @@ export type UserToProfileRelationStatus = z.rInfer<
   typeof UserToProfileRelationStatusSchema
 >
 
-export const BlockedBidirectionalUserRelationsSchema = z.object({
-  fromThemToYou: z.enum([BlockedStatusSchema.value]),
-  fromYouToThem: z.enum([NotFriendsStatusSchema.value, BlockedStatusSchema.value]),
-})
-
 /**
  * A 2-way relationship from a user to another profile where at least one party
  * involved is blocking the other.
  */
-export type BlockedBidirectionalUserRelations = z.rInfer<
-  typeof BlockedBidirectionalUserRelationsSchema
+export type BlockedUserRelationsStatus = z.rInfer<
+  typeof BlockedYouStatusSchema
 >
 
-export const UnblockedBidirectionalUserRelationsSchema = z.object({
-  fromThemToYou: z.enum([NotFriendsStatusSchema.value, FriendRequestPendingStatusSchema.value, FriendsStatusSchema.value, CurrentUserStatusSchema.value]),
-  fromYouToThem: z.enum([NotFriendsStatusSchema.value, BlockedStatusSchema.value, FriendRequestPendingStatusSchema.value, FriendsStatusSchema.value, CurrentUserStatusSchema.value]),
-})
+export const UnblockedUserRelationsSchema = z.enum([
+  BlockedThemStatusSchema.value,
+  NotFriendsStatusSchema.value,
+  FriendRequestSentStatusSchema.value,
+  FriendRequestReceivedStatusSchema.value,
+  FriendsStatusSchema.value,
+  CurrentUserStatusSchema.value
+])
 
 /**
  * A 2-way relationship from a user to another profile where no party is blocking the other.
  */
-export type UnblockedBidirectionalUserRelations = z.rInfer<
-  typeof UnblockedBidirectionalUserRelationsSchema
+export type UnblockedUserRelationsStatus = z.rInfer<
+  typeof UnblockedUserRelationsSchema
 >
 
 /**
  * A descriptor of a 2-way relationship between 2 users.
  */
-export type BidirectionalUserRelations =
-  | UnblockedBidirectionalUserRelations
-  | BlockedBidirectionalUserRelations
+export type UserRelationsStatus =
+  | UnblockedUserRelationsStatus
+  | BlockedUserRelationsStatus
 
 /**
  * An reason that a user handle's raw text was unable to be parsed.
