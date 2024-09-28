@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { MockAPIImplementation, mockAPIServer } from "../test-helpers/mockAPIServer";
 import { APIClientCreator } from "./APIClient";
-import { validateAPICall } from "./APIValidation";
-import { TEST_API_URL } from "./TiFAPI";
+import { TEST_API_URL, validateAPIClientCall } from "./TiFAPI";
 import { tifAPITransport } from "./Transport";
 import { APISchema, EndpointSchemasToFunctions, HTTPMethod } from "./TransportTypes";
 
@@ -20,9 +19,114 @@ const mockAPI = <T extends APISchema>({endpointSchema, endpointMocks}: {
 const apiClient = <T extends APISchema>(endpointSchema: T) => 
   APIClientCreator(    
     endpointSchema,
-    validateAPICall((_,value) => value),
+    validateAPIClientCall,
     tifAPITransport(TEST_API_URL)
   )
+
+describe("MockAPI tests", () => {  
+  it("should throw an error when performing an unexpected request", async () => {
+    const endpointSchema = {
+      checkUser: {
+        input: {
+          query: z.object({
+            name: z.string(),
+          })
+        },
+        outputs: {
+          status204: "no-content"
+        },
+        httpRequest: {
+          method: "GET" as HTTPMethod,
+          endpoint: TEST_ENDPOINT
+        }
+      }
+    } as APISchema
+
+    mockAPI(
+      {
+        endpointSchema,
+        endpointMocks: {
+          checkUser: {
+            expectedRequest: {query: {name: "John"}} as any,
+            mockResponse: { 
+              status: 200,
+              data: undefined
+            } as unknown as never
+          }
+        }
+      }
+    )
+
+    let error = undefined;
+
+    try {
+      await apiClient(endpointSchema).checkUser({query: {name: "Johnny"}} as any)
+    } catch (e) {
+      error = e.cause.matcherResult.message.replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, '');
+    }
+
+     expect(error).toEqual(
+      `expect(received).toMatchObject(expected)
+
+- Expected  - 1
++ Received  + 1
+
+  Object {
+    "query": Object {
+-     "name": "John",
++     "name": "Johnny",
+    },
+  }`
+    )
+  }),
+
+  
+  it("should perform a valid GET request", async () => {
+    const endpointSchema = {
+      checkUser: {
+        input: {
+          query: z.object({
+            name: z.string(),
+          })
+        },
+        outputs: {
+          status200: z.object({
+            name: z.string(),
+            age: z.number()
+          })
+        },
+        httpRequest: {
+          method: "GET" as HTTPMethod,
+          endpoint: TEST_ENDPOINT
+        }
+      }
+    } as APISchema
+
+    mockAPI(
+      {
+        endpointSchema,
+        endpointMocks: {
+          checkUser: {
+            expectedRequest: {
+              query: { name: "John" }
+            } as any,
+            mockResponse: { 
+              status: 200,
+              data: { name: 'John Doe', age: 30 }
+            } as unknown as never
+          }
+        }
+      }
+    )
+
+    await expect(
+      apiClient(endpointSchema).checkUser({ query: { name: "John" } } as any)
+    ).resolves.toStrictEqual({
+      status: 200,
+      data: { name: 'John Doe', age: 30 }
+    })
+  })
+})
 
 describe("APIClient tests", () => {
   it("should throw an error when performing an invalid request", async () => {
@@ -60,53 +164,7 @@ describe("APIClient tests", () => {
     await expect(
       apiClient(endpointSchema).checkUser()
     ).rejects.toThrow(
-      new Error("Making an invalid request to TiF API endpoint checkUser: {}")
-    )
-  })
-  
-  it("should throw an error when performing an unexpected request", async () => {
-    const endpointSchema = {
-      checkUser: {
-        input: {
-          query: z.object({
-            name: z.string(),
-          })
-        },
-        outputs: {
-          status204: "no-content"
-        },
-        httpRequest: {
-          method: "GET" as HTTPMethod,
-          endpoint: TEST_ENDPOINT
-        }
-      }
-    } as APISchema
-
-    mockAPI(
-      {
-        endpointSchema,
-        endpointMocks: {
-          checkUser: {
-            expectedRequest: {query: {name: "John"}} as any,
-            mockResponse: { 
-              status: 200,
-              data: undefined
-            } as unknown as never
-          }
-        }
-      }
-    )
-
-    await expect(
-      apiClient(endpointSchema).checkUser({query: {name: "Johnny"}} as any)
-    ).rejects.toThrow(
-      new Error(`TiF API responded with an unexpected status code 500 and body \
-{\
-"endpoint":"/test",\
-"expectedRequest":{"query":{"name":"John"}},\
-"actualRequest":{"params":{},"query":{"name":"Johnny"}}\
-}`
-      )
+      new Error("invalid-request")
     )
   })
 
@@ -156,7 +214,7 @@ describe("APIClient tests", () => {
     )
   })
   
-  it("should throw an error when server returns invalid data", async () => {
+  it("should throw an error when server returns unexpected data", async () => {
     const endpointSchema = {
       checkUser: {
         input: {},
@@ -188,23 +246,16 @@ describe("APIClient tests", () => {
     await expect(
       apiClient(endpointSchema).checkUser()
     ).rejects.toEqual(
-      new Error(
-        `TiF API responded with an unexpected status code 200 and body {"name":"John Doe"}`
-      )
+      new Error("unexpected-response")
     )
   })
   
-  it("should perform a valid GET request", async () => {
+  it("should throw an error when server returns invalid data", async () => {
     const endpointSchema = {
       checkUser: {
-        input: {
-          query: z.object({
-            name: z.string(),
-          })
-        },
+        input: {},
         outputs: {
           status200: z.object({
-            name: z.string(),
             age: z.number()
           })
         },
@@ -220,12 +271,10 @@ describe("APIClient tests", () => {
         endpointSchema,
         endpointMocks: {
           checkUser: {
-            expectedRequest: {
-              query: { name: "John" }
-            } as any,
+            expectedRequest: undefined,
             mockResponse: { 
               status: 200,
-              data: { name: 'John Doe', age: 30 }
+              data: { name: 'John Doe' }
             } as unknown as never
           }
         }
@@ -233,11 +282,10 @@ describe("APIClient tests", () => {
     )
 
     await expect(
-      apiClient(endpointSchema).checkUser({ query: { name: "John" } } as any)
-    ).resolves.toStrictEqual({
-      status: 200,
-      data: { name: 'John Doe', age: 30 }
-    })
+      apiClient(endpointSchema).checkUser()
+    ).rejects.toEqual(
+      new Error("invalid-response")
+    )
   })
   
   it("should perform a valid POST request", async () => {
@@ -326,51 +374,3 @@ describe("APIClient tests", () => {
     })
   })
 })
-
-// describe("implementAPIMiddleware tests", () => {  
-//   it("should allow custom implementations per endpoint", async () => {
-//     const endpointSchema = {
-//       checkUser: {
-//         input: {},
-//         outputs: {
-//           status200: z.object({
-//             name: z.string()
-//           })
-//         }
-//       },
-//       updateUser: {
-//         input: {
-//           body: z.object({
-//             id: z.number()
-//           })
-//         },
-//         outputs: {
-//           status204: "no-content"
-//         }
-//       }
-//     } as any as APISchema
-
-//     const client = implementAPI(
-//       endpointSchema,
-//       undefined,
-//       {
-//         checkUser: async () => ({status: 200, data: {name: "Drake"}}) as never,
-//         updateUser: async () => ({status: 204, data: undefined}) as never
-//       }
-//     )
-
-//     await expect(
-//       client.checkUser()
-//     ).resolves.toStrictEqual({
-//       status: 200,
-//       data: {name: "Drake"}
-//     })
-    
-//     await expect(
-//       client.updateUser({body: {id: 123}} as any)
-//     ).resolves.toStrictEqual({
-//       status: 204,
-//       data: undefined
-//     })
-//   })
-// })

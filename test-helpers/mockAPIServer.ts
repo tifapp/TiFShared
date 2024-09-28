@@ -19,11 +19,7 @@ const mswBuilder = (testUrl: URL, endpointName: string, endpointSchema: GenericE
       const input = {body, params, query: queryFromSearchParams(new URL(request.url))}
     
       if (expectedRequest) {
-        try {
-          expect(input).toMatchObject(expectedRequest)
-        } catch (e) {
-          return HttpResponse.json({endpoint, expectedRequest, actualRequest: input}, {status: 500})
-        }
+        expect(input).toMatchObject(expectedRequest)
       }
 
       handler?.({...input, endpointName, endpointSchema})
@@ -46,8 +42,8 @@ export const mockAPIServer = <T extends APISchema>(
     [EndpointName in keyof EndpointSchemasToFunctions<T>]: MockAPIImplementation<EndpointSchemasToFunctions<T>[EndpointName]>
   }
 ) => 
-  Object.entries(endpointSchema).forEach(([endpointName, endpointSchema]) =>
-    mswBuilder(testUrl, endpointName, endpointSchema, endpointMocks[endpointName as keyof EndpointSchemasToFunctions<T>] as any)
+  Object.entries(endpointMocks).forEach(([endpointName, endpointMock]) =>
+    mswBuilder(testUrl, endpointName, endpointSchema[endpointName], endpointMock)
   )
 
 export const mockTiFServer = (

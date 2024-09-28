@@ -145,9 +145,6 @@ export const TiFAPISchema = {
       status403: EventWhenBlockedByHostSchema,
     },
     constraints: (input, output) => {
-      console.log("input is")
-      console.log(input)
-      console.log(output)
       if (output.status === 200 || output.status === 403) {
         return output.data.id === input.params.eventId
       }

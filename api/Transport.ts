@@ -37,7 +37,7 @@ export const tifAPITransport = (baseURL: URL): APIMiddleware<ClientExtensions> =
             signal
           }
         )
-        
+
         const data = await tryResponseBody(resp)
         
         if (data && resp.status === NoContentStatusCode) {
@@ -69,6 +69,9 @@ export const tifAPITransport = (baseURL: URL): APIMiddleware<ClientExtensions> =
 const tryResponseBody = async (resp: Response) => {
   try {
     const body = await resp.json()
+
+    console.log("resp is ")
+    console.log(body)
     return body
   } catch {
     if (resp.status !== NoContentStatusCode) {

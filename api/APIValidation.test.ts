@@ -1,25 +1,34 @@
 import { z } from "zod"
 import { middlewareRunner } from "../lib/Middleware"
+import { addLogHandler, resetLogHandlers } from "../logging"
 import { validateAPICall } from "./APIValidation"
 import { GenericEndpointSchema } from "./TransportTypes"
 
 const endpointName = "MOCK_ENDPOINT"
 
-const apiValidator = ({endpointSchema, mockRequest, mockResponse}: {
+const apiValidator = ({validate, endpointSchema, mockRequest, mockResponse}: {
+  validate?: "requestOnly" | "responseOnly"
   endpointSchema: Omit<GenericEndpointSchema, "httpRequest" | "endpointName">, 
   mockRequest: any, 
   mockResponse: any
-}) => 
+}) =>
   middlewareRunner(
-    validateAPICall((_,value) => value),
+    validateAPICall((status, value) =>
+      status === "passed" ? value : status
+    , validate),
     async () => mockResponse
   )({ 
     endpointName,
     endpointSchema: endpointSchema as GenericEndpointSchema,
-    input: mockRequest
+    ...mockRequest
   })
 
 describe("validateAPICall", () => {  
+  const logHandler = jest.fn()
+  
+  beforeAll(() => addLogHandler(logHandler))
+  afterAll(() => resetLogHandlers())
+
   it("should throw an error if the request is invalid", async () => {
     const apiCall = apiValidator({
       endpointSchema: {
@@ -38,9 +47,32 @@ describe("validateAPICall", () => {
       mockResponse: { status: 404, data: { message: "Not Found" } }
     })
 
-    await expect(apiCall).rejects.toThrow(
-      `Making an invalid request to TiF API endpoint ${endpointName}`
-    );
+    await expect(apiCall).resolves.toEqual("invalid-request");
+    expect(logHandler).toHaveBeenNthCalledWith(1, "tif.api.validation", "error", "Zod Schema Error Message", {"zodError": [{"code": "invalid_type", "expected": "object", "message": "Required", "path": ["body"], "received": "undefined"}]})
+    expect(logHandler).toHaveBeenNthCalledWith(2, "tif.api.validation", "error", "Request to TiF API endpoint MOCK_ENDPOINT is not valid", {"body": undefined, "params": undefined, "query": {"name": "John"}})    
+  });
+  
+  it("can ignore request validation", async () => {
+    const apiCall = apiValidator({
+      endpointSchema: {
+        input: {
+          body: z.object({
+            name: z.string(),
+          })
+        },
+        outputs: {
+          status200: z.object({
+            name: z.string(),
+          })
+        }
+      },
+      mockRequest: { query: { name: "John" } },
+      mockResponse: { status: 404, data: { message: "Not Found" } },
+      validate: "responseOnly"
+    })
+
+    await expect(apiCall).resolves.toEqual("unexpected-response");
+    expect(logHandler).toHaveBeenNthCalledWith(1, "tif.api.validation", "error", "TiF API endpoint MOCK_ENDPOINT responded unexpectedly", {"data": {"message": "Not Found"}, "status": 404})
   });
 
   it("should throw an error if the response status is unexpected", async () => {
@@ -61,9 +93,8 @@ describe("validateAPICall", () => {
       mockResponse: { status: 404, data: { message: "Not Found" } }
     })
 
-    await expect(apiCall).rejects.toThrow(
-      `TiF API responded with an unexpected status code 404 and body {"message":"Not Found"}`
-    );
+    await expect(apiCall).resolves.toEqual("unexpected-response");
+    expect(logHandler).toHaveBeenNthCalledWith(1, "tif.api.validation", "error", "TiF API endpoint MOCK_ENDPOINT responded unexpectedly", {"data": {"message": "Not Found"}, "status": 404})
   });
   
   it("should throw an error if response is not valid", async () => {
@@ -84,9 +115,9 @@ describe("validateAPICall", () => {
       mockResponse: { status: 200, data: { name: 123 } }
     })
 
-    await expect(apiCall).rejects.toThrow(
-      `TiF API endpoint ${endpointName} responded with an invalid JSON body: {"name":123}`
-    );
+    await expect(apiCall).resolves.toEqual("invalid-response");
+    expect(logHandler).toHaveBeenNthCalledWith(1, "tif.api.validation", "error", "Zod Schema Error Message", {"zodError": [{"code": "invalid_type", "expected": "string", "message": "Expected string, received number", "path": ["name"], "received": "number"}]})
+    expect(logHandler).toHaveBeenNthCalledWith(2, "tif.api.validation", "error", "Response from TiF API endpoint MOCK_ENDPOINT does not match the expected schema", {"data": {"name": 123}, "status": 200})
   });
   
   it("should throw an error if response does not match constraints", async () => {
@@ -108,9 +139,9 @@ describe("validateAPICall", () => {
       mockResponse: { status: 200, data: { name: "Johnny" } }
     })
 
-    await expect(apiCall).rejects.toThrow(
-      `TiF API endpoint ${endpointName} responded with an invalid JSON body: {"name":"Johnny"}`
-    );
+    await expect(apiCall).resolves.toEqual("invalid-response");
+    expect(logHandler).toHaveBeenNthCalledWith(1, "tif.api.validation", "error", "Zod Schema Error Message", {"zodError": [{"code": "custom", "message": "Invalid input", "path": []}]})
+    expect(logHandler).toHaveBeenNthCalledWith(2, "tif.api.validation", "error", "Response from TiF API endpoint MOCK_ENDPOINT does not match the expected schema", {"data": {"name": "Johnny"}, "status": 200})
   });
   
   it("should return response if request and response are valid", async () => {
@@ -132,9 +163,31 @@ describe("validateAPICall", () => {
       mockResponse: { status: 200, data: { name: "John" } }
     })
 
-    await expect(apiCall).resolves.toStrictEqual(
-      {"data": {"name": "John"}, "status": 200}
-    );
+    await expect(apiCall).resolves.toStrictEqual({"data": {"name": "John"}, "status": 200});
+    expect(logHandler).not.toHaveBeenCalled()
+  });
+
+  it("can ignore response validation", async () => {
+    const apiCall = apiValidator({
+      endpointSchema: {
+        input: {
+          body: z.object({
+            name: z.string(),
+          })
+        },
+        outputs: {
+          status200: z.object({
+            name: z.string(),
+          })
+        }
+      },
+      mockRequest: { body: { name: "John" } },
+      mockResponse: { status: 200, data: { name: 123 } },
+      validate: "requestOnly"
+    })
+
+    await expect(apiCall).resolves.toEqual({"data": {"name": 123}, "status": 200});
+    expect(logHandler).not.toHaveBeenCalled()
   });
   
   it("should allow void inputs", async () => {
@@ -154,6 +207,7 @@ describe("validateAPICall", () => {
     await expect(apiCall).resolves.toStrictEqual(
       {"data": {"name": "John"}, "status": 200}
     );
+    expect(logHandler).not.toHaveBeenCalled()
   });
   
   it("should allow no content responses", async () => {
@@ -175,5 +229,6 @@ describe("validateAPICall", () => {
     await expect(apiCall).resolves.toStrictEqual(
       {"data": undefined, "status": 204}
     );
+    expect(logHandler).not.toHaveBeenCalled()
   });
 });
