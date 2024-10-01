@@ -1,4 +1,4 @@
-import { ColorString } from "./ColorString"
+import { ColorString, ColorStringSchema } from "./ColorString"
 
 describe("ColorString tests", () => {
   it("should parse rrggbb color strings", () => {
@@ -44,5 +44,13 @@ describe("ColorString tests", () => {
     expect(ColorString.parse("#ffffff")?.withOpacity(0.49).toString()).toEqual(
       "#ffffff7d"
     )
+  })
+
+  test("ColorStringSchema", () => {
+    expect(ColorStringSchema.parse("#ffffff")).toEqual(ColorString.parse("#ffffff"))
+    expect(() => ColorStringSchema.parse("iojoigfiowejf")).toThrow("Invalid hex color string.")
+    
+    const color = ColorString.parse("#ffffff")
+    expect(ColorStringSchema.parse(color)).toEqual(color)
   })
 })

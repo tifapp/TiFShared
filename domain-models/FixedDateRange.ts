@@ -1,5 +1,3 @@
-import { z } from "zod"
-
 /**
  * A data type to deal with a date range that has a known start and end date.
  *
@@ -60,13 +58,6 @@ export class FixedDateRange {
       return new FixedDateRange(date.ext.addSeconds(seconds), date)
     }
     return new FixedDateRange(this.startDateTime, date)
-  }
-
-  static parse({ startDateTime, endDateTime }: FixedDateRange) {
-    const sDate = z.coerce.date().safeParse(startDateTime)
-    const eDate = z.coerce.date().safeParse(endDateTime)
-    if (!sDate.success || !eDate.success) return undefined
-    return dateRange(sDate.data, eDate.data)
   }
 }
 

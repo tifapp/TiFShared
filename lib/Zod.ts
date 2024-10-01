@@ -1,41 +1,36 @@
-import { ZodSchema, z } from "zod";
+import { ZodError, ZodIssue, ZodSchema, z } from "zod"
 
 /**
  * An interface which defines a method of parsing that returns either an output type or `undefined`.
  */
 export interface OptionalParseable<Input, Output> {
-  parse(input: Input): Output | undefined
+  parse(input: Input): Output | Error
 }
 
 const optionalParse = <Input, Output>(
-  parseable: OptionalParseable<Input, Output>,
-  errorMessage?: (input: Input) => string
+  parseable: OptionalParseable<Input, Output>
 ) => {
-  let parsedValue: Output | undefined
-
+  let parsedValue: Output
   return z
     .custom<Input>()
     .superRefine((arg, ctx) => {
-      // required: Check env if generating api schema
-      // For schema generation
-      if (!arg) return undefined;
-
-      if (arg instanceof parseable.constructor) {
-        parsedValue = arg as unknown as Output;
-        return;
-      }
-
-      parsedValue = parseable.parse(arg)
-      if (!parsedValue) {
-        const message = errorMessage?.(arg)
+      const result = parseable.parse(arg)
+      if (result instanceof ZodError) {
+        result.issues.forEach((issue: ZodIssue) => {
+          ctx.addIssue(issue);
+        });
+      } else if (result instanceof Error) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `${message ? message + " " : ""}(Received: ${arg})`,
+          message: result.message,
+          params: { arg },
           fatal: true
         })
+      } else {
+        parsedValue = result
       }
     })
-    .transform(() => parsedValue!)
+    .transform(() => parsedValue) // NB: Needed to return the parsed value
 }
 
 declare module "zod" {
@@ -63,8 +58,7 @@ declare module "zod" {
      * @returns a zod schema that wraps the parseable.
      */
     function optionalParseable<Input, Output>(
-      parseable: OptionalParseable<Input, Output>,
-      errorMessage?: (input: Input) => string
+      parseable: OptionalParseable<Input, Output>
     ): ReturnType<typeof optionalParse<Input, Output>>
 
     /**
