@@ -1,32 +1,54 @@
-import "./Zod"
-import { ZodError, z } from "zod"
+import { ZodError, z } from "zod";
+import "./Zod";
 
 describe("ExtendedZod tests", () => {
-  class NonZero {
-    private constructor(readonly rawValue: number) {}
-
-    static parse(number: number): NonZero | undefined {
-      return number > 0 ? new NonZero(number) : undefined
+  class Positive {
+    constructor(readonly rawValue: number) {
+      if (rawValue <= 0) {
+        throw new Error("Number must be greater than 0.")
+      }
     }
   }
-
-  test("optional parseable, basic", () => {
-    const NonZeroSchema = z.optionalParseable(NonZero)
-    let result = NonZeroSchema.safeParse(-1)
-    expect(result.success).toEqual(false)
-    result = NonZeroSchema.safeParse(1)
-    expect(result.success).toEqual(true)
+  
+  const PositiveSchema = z.optionalParseable(Positive, (rawValue: number) => {
+    return new Positive(z.number().parse(rawValue))
   })
 
-  test("optional parseable, error message", () => {
-    const NonZeroSchema = z.optionalParseable(
-      NonZero,
-      (num) => `Invalid number: ${num}.`
-    )
-    const result = NonZeroSchema.safeParse(-1000) as { error: ZodError }
+  test("optional parseable, basic", () => {
+    let result = PositiveSchema.safeParse(-1)
+    expect(result.success).toEqual(false)
+    result = PositiveSchema.safeParse(1)
+    expect(result.success).toEqual(true)
+  })
+  
+  test("optional parseable, pass instances of the constructor", () => {
+    const parseSpy = jest.spyOn(z.ZodNumber.prototype, 'parse')
+    
+    const result = PositiveSchema.safeParse(new Positive(1))
+    expect(result.success).toEqual(true)
+    expect(parseSpy).not.toHaveBeenCalled()
+    
+    parseSpy.mockRestore()
+  })
+  
+  test("optional parseable, zod error message", () => {
+    const result = PositiveSchema.safeParse("invalid input") as { error: ZodError }
     expect(JSON.parse(result.error.message)).toMatchObject([
       {
-        message: "Invalid number: -1000. (Received: -1000)"
+        "code": "invalid_type",
+        "expected": "number",
+        "received": "string",
+        "message": "Expected number, received string"
+      }
+    ])
+  })
+
+  test("optional parseable, custom error message", () => {
+    const result = PositiveSchema.safeParse(-1000) as { error: ZodError }
+    expect(JSON.parse(result.error.message)).toMatchObject([
+      {
+        message: "Number must be greater than 0.",
+        params: { arg: -1000 }
       }
     ])
   })

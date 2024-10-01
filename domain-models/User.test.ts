@@ -1,5 +1,5 @@
 import { linkify } from "../lib/LinkifyIt"
-import { UserHandle, UserHandleLinkifyMatch } from "./User"
+import { UserHandle, UserHandleLinkifyMatch, UserHandleSchema } from "./User"
 
 describe("User tests", () => {
   describe("UserHandle tests", () => {
@@ -45,6 +45,7 @@ describe("User tests", () => {
         "Hello @user @hello, make sure@interlinked names aren't parsed. Also the name has to be @valid(#*&$. @*($&) @world Now for a @superduperlongname"
       const matches = linkify
         .match(str)
+        //@ts-expect-error extends Match
         ?.map((m: UserHandleLinkifyMatch) => m.userHandle.toString())
       expect(matches).toEqual([
         "@user",
@@ -54,5 +55,29 @@ describe("User tests", () => {
         "@superduperlongn"
       ])
     })
+  })
+  
+  describe("UserHandleSchema tests", () => {
+    test("should successfully parse valid user handles", () => {
+      const result = UserHandleSchema.parse("user123");
+      expect(result).toBeInstanceOf(UserHandle);
+      expect(JSON.stringify(result)).toBe("\"user123\"");
+    });
+  
+    test("should fail to parse empty string", () => {
+      expect(() => UserHandleSchema.parse("")).toThrow(`A valid user handle must have at least 1 character.`)
+    });
+  
+    test("should fail to parse strings with invalid characters", () => {
+      expect(() => UserHandleSchema.parse("kbnf&*(&*(")).toThrow(`A valid user handle only contains letters, numbers, and underscores.`);
+    });
+  
+    test("should fail to parse strings that are too long", () => {
+      expect(() => UserHandleSchema.parse("thishandleiswaytoolong")).toThrow(`A valid user handle can only be up to 15 characters long.`)
+    });
+  
+    test("should fail to parse non-string types", () => {
+      expect(() => UserHandleSchema.parse(123)).toThrow("Expected string, received number");
+    });
   })
 })
