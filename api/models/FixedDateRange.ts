@@ -1,11 +1,5 @@
-import { dateRange } from "../../domain-models/FixedDateRange"
-import { StringDateSchema } from "../../lib/Date"
 import { z } from "zod"
-
-export type StringDateRangeResponse = {
-  startDateTime: string
-  endDateTime: string
-}
+import { FixedDateRange } from "../../domain-models/FixedDateRange"
 
 /**
  * A zod schema to parse an {@link FixedDateRange} where the start and end dates
@@ -13,14 +7,23 @@ export type StringDateRangeResponse = {
  */
 export const FixedDateRangeSchema = z.optionalParseable(
   {
-    parse: ({ startDateTime, endDateTime }: StringDateRangeResponse) => {
-      const sDate = StringDateSchema.safeParse(startDateTime)
-      const eDate = StringDateSchema.safeParse(endDateTime)
-      if (!sDate.success || !eDate.success) return undefined
-      return dateRange(sDate.data, eDate.data)
+    parse: (arg: FixedDateRange | {startDateTime: string, endDateTime: string}) => {
+      if (arg instanceof FixedDateRange) {
+        return arg
+      }
+
+      const result = z.object({
+        startDateTime: z.coerce.date(),
+        endDateTime: z.coerce.date()
+      }).safeParse(arg)
+
+      if (!result.success) return result.error
+        
+      try {
+        return new FixedDateRange(result.data.startDateTime, result.data.endDateTime)
+      } catch (e) {
+        return e
+      }
     }
   },
-  () => {
-    return `Response must have startDateTime before endDateTime.`
-  }
 )
