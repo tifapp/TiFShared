@@ -24,6 +24,7 @@ type ValidationResult = "invalid-request" | "unexpected-response" | "invalid-res
 
 type ValidationResultParser = (status: ValidationResult, value: TiFAPIInputContext<any> | TiFAPIResponse<any>) => (TiFAPIResponse<any>)
 
+// NB: Currently needs to be annotated with "any" in order for typescript to mark it compatible with more specific middleware like TiFAPITransport
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const validateAPICall = (resultParser: ValidationResultParser, validate: "requestOnly" | "responseOnly" | "both" = "both"): APIMiddleware<any> => 
   async (endpointInput, next) => {
@@ -48,6 +49,8 @@ export const validateAPICall = (resultParser: ValidationResultParser, validate: 
     Object.assign(endpointInput, request)
 
     const response = await next(endpointInput)
+    
+    let responseData = response.data;
 
     if (validate === "responseOnly" || validate === "both") {
       const responseSchema = outputSchemas[`status${response.status}` as keyof typeof outputSchemas] as ZodTypeAny | "no-content"
@@ -56,15 +59,17 @@ export const validateAPICall = (resultParser: ValidationResultParser, validate: 
         result = "unexpected-response"
         log.error(`TiF API endpoint ${endpointName} responded unexpectedly`, response)
       } else if (responseSchema !== "no-content") {
-        if (await zodValidation(
+        responseData = await zodValidation(
           response.data, 
           responseSchema.refine(() => constraints ? constraints(request, response) : true),
-        ) === "failure") {
+        )
+        
+        if (responseData === "failure") {
           result = "invalid-response"
           log.error(`Response from TiF API endpoint ${endpointName} does not match the expected schema`, response)
         }
       }
     }
 
-    return resultParser(result, response)
+    return resultParser(result, {status: response.status, data: responseData})
   }

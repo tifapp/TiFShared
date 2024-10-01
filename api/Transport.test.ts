@@ -9,16 +9,13 @@ import { GenericEndpointSchema, HTTPMethod } from "./TransportTypes"
 const TEST_BASE_URL = "http://localhost:8080"
 const TEST_ENDPOINT = "/test"
 
-const TEST_JWT = "this is a totally a JWT"
-
-const apiFetch = ({method, body, query, params, signal, endpoint, middleware}: 
-  {method: HTTPMethod, body?: any, query?: any, params?: any, signal?: AbortSignal, endpoint?: URLEndpoint, middleware?: any}
+const apiFetch = ({method, body, query, params, signal, endpoint}: 
+  {method: HTTPMethod, body?: any, query?: any, params?: any, signal?: AbortSignal, endpoint?: URLEndpoint}
 ) => 
-  (
-    tifAPITransport(
-      new URL(TEST_BASE_URL)
-    ) as any
+  tifAPITransport(
+    new URL(TEST_BASE_URL)
   )({
+    endpointName: "TEST",
     endpointSchema: ({httpRequest: {method, endpoint: endpoint ?? TEST_ENDPOINT}} as GenericEndpointSchema),
     body,
     query,
@@ -155,10 +152,12 @@ describe("TiFAPITransport tests", () => {
     })
 
     await expect(respPromise).rejects.toThrow("Failed to fetch")
-    expect(logHandler).toHaveBeenCalledWith("tif.api.client", 
+    expect(logHandler).toHaveBeenCalledWith(
+      "tif.api.client", 
       "error", 
       "Failed to make tif API request.", 
       {
+        "endpointName": "TEST",
         "error": new Error("Failed to fetch"), 
         "errorMessage": "Failed to fetch"
       }

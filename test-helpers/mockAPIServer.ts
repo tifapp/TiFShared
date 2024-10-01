@@ -1,6 +1,6 @@
 import { HttpResponse, http } from "msw";
-import { TEST_API_URL, TiFAPIClient, TiFAPISchema } from "../api";
-import { APIHandler, APISchema, EndpointSchemasToFunctions, GenericEndpointSchema } from "../api/TransportTypes";
+import { TEST_API_URL, TiFAPI, TiFAPIClient, TiFAPISchema } from "../api";
+import { APIHandler, APISchema, EndpointSchemasToFunctions, GenericEndpointSchema, StatusCodes } from "../api/TransportTypes";
 import { queryFromSearchParams } from "../lib/URL";
 import { mswServer } from "./MSW";
 
@@ -24,7 +24,9 @@ const mswBuilder = (testUrl: URL, endpointName: string, endpointSchema: GenericE
 
       handler?.({...input, endpointName, endpointSchema})
 
-      return HttpResponse.json(mockResponse.data, { status: mockResponse.status })
+      const {data, status} = mockResponse
+
+      return HttpResponse.json(data, { status })
     })
   );
 }
@@ -38,9 +40,9 @@ export type MockAPIImplementation<Fn extends (...args: any) => any> = {
 export const mockAPIServer = <T extends APISchema>(
   testUrl: URL,
   endpointSchema: T,
-  endpointMocks: {
+  endpointMocks: Partial<{
     [EndpointName in keyof EndpointSchemasToFunctions<T>]: MockAPIImplementation<EndpointSchemasToFunctions<T>[EndpointName]>
-  }
+  }>
 ) => 
   Object.entries(endpointMocks).forEach(([endpointName, endpointMock]) =>
     mswBuilder(testUrl, endpointName, endpointSchema[endpointName], endpointMock)
@@ -51,4 +53,9 @@ export const mockTiFServer = (
     [EndpointName in keyof TiFAPIClient]: MockAPIImplementation<TiFAPIClient[EndpointName]>
   }>
 ) =>
-  mockAPIServer(TEST_API_URL, TiFAPISchema, endpointMocks as any)
+  mockAPIServer(TEST_API_URL, TiFAPISchema, endpointMocks)
+
+type APIResponse<T, U extends StatusCodes> = T extends { status: U } ? T : never;
+
+export const mockTiFEndpoint = <EndpointName extends keyof TiFAPIClient, Status extends StatusCodes>(endpointName: EndpointName, status: Status, data?: APIResponse<Awaited<ReturnType<TiFAPI[EndpointName]>>, Status>["data"]) =>
+  mockAPIServer(TEST_API_URL, TiFAPISchema, {[endpointName]: {mockResponse: ({status, data})}} as any) // NB: typescript not inferring key name properly

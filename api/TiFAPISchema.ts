@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { EventAttendeesPageSchema, EventIDSchema, EventRegionSchema, EventWhenBlockedByHostSchema, TrackableEventArrivalRegionsSchema } from "../domain-models/Event";
 import { LocationCoordinate2DSchema } from "../domain-models/LocationCoordinate2D";
-import { BlockedYouStatusSchema, UserHandleSchema, UserIDSchema, UserNameSchema } from "../domain-models/User";
+import { BlockedYouStatusSchema, UserHandleSchema, UserIDSchema } from "../domain-models/User";
 import { APISchema, EndpointSchemasToFunctions, assertEndpointSchemaType } from "./TransportTypes";
 import { tifAPIErrorSchema } from "./models/Error";
 import { CreateEventSchema, EventNotFoundErrorSchema, EventResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
@@ -63,7 +63,7 @@ export const TiFAPISchema = {
         users: z.array(
           z.object({
             id: UserIDSchema,
-            name: UserNameSchema,
+            name: z.string().min(1).max(300),
             handle: UserHandleSchema
           })
         )
@@ -488,35 +488,3 @@ export const TiFAPISchema = {
 } satisfies APISchema
 
 export type TiFAPIClient<InputExtension = {}> = EndpointSchemasToFunctions<typeof TiFAPISchema, InputExtension>
-
-/**
- * Implement the functions described in the endpoint schema, given TiFAPIMiddleware or direct implementation functions. 
- *
- * ```ts
- * const EndpointSchema = {
- *  createCurrentUserProfile: assertEndpointSchemaType({
- *    input: {},
- *      outputs: {
- *         status201: z.object({
- *            id: z.string(),
- *          })
- *      },
- *      httpRequest: {
- *        method: "POST",
- *        endpoint: "/user"
- *      }
- *  }),
- * }
- *
- * const api = await implementTiFAPI(
- *  (endpointName, { httpRequest: { endpoint, method } }) => 
- *    async ({ body } = {}) =>
- *      fetchFunction(endpoint, method, body),
- * )
- *
- * const response = await api.createCurrentUserProfile()
- * //response is inferred to be {status: 201, data: {id: string}}
- * ```
- */
-
-//everything is in the form of middleware already, so I can wrap each individual implementation in implementTiFAPIMiddleware, then probably combine them all together in the backend repo as another middleware

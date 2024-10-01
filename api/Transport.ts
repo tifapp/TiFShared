@@ -1,6 +1,6 @@
 import { urlString } from "../lib/URL"
 import { logger } from "../logging"
-import { APIMiddleware, StatusCodes } from "./TransportTypes"
+import { APIHandler, StatusCodes } from "./TransportTypes"
 
 export function resp<StatusCode extends StatusCodes, const T>(status: StatusCode, data: T): { status: StatusCode, data: T };
 export function resp<StatusCode extends StatusCodes>(status: StatusCode): { status: StatusCode, data?: undefined };
@@ -15,7 +15,7 @@ const NoContentStatusCode = 204
 
 const log = logger("tif.api.client")
 
-export type ClientExtensions = {signal: AbortSignal, headers: HeadersInit}
+export type ClientExtensions = {signal?: AbortSignal, headers?: HeadersInit}
 
 /**
  * TiFAPIMiddleware that fetches data from a given url for clients of TiFAPI.
@@ -24,7 +24,7 @@ export type ClientExtensions = {signal: AbortSignal, headers: HeadersInit}
  * @param middleware a function to modify the fetch call.
  * @returns TiFAPIMiddleware to construct an instance of a TiFAPIClient.
  */
-export const tifAPITransport = (baseURL: URL): APIMiddleware<ClientExtensions> =>
+export const tifAPITransport = (baseURL: URL): APIHandler<ClientExtensions> =>
   async ({headers, endpointName, endpointSchema: {httpRequest: { endpoint, method } }, body, query, params, signal}) => 
     {
       try {
@@ -69,9 +69,6 @@ export const tifAPITransport = (baseURL: URL): APIMiddleware<ClientExtensions> =
 const tryResponseBody = async (resp: Response) => {
   try {
     const body = await resp.json()
-
-    console.log("resp is ")
-    console.log(body)
     return body
   } catch {
     if (resp.status !== NoContentStatusCode) {

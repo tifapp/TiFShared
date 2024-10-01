@@ -15,9 +15,9 @@ export const validateAPIClientCall = validateAPICall((status, value) => {
 })
 
 type _StaticTiFAPI = typeof _TiFAPIClass
-export interface TiFAPIConstructor extends _StaticTiFAPI, TiFAPIClient {}
+export interface TiFAPIConstructor extends _StaticTiFAPI {}
 
-export interface TiFAPI extends InstanceType<TiFAPIConstructor> {}
+export interface TiFAPI extends InstanceType<TiFAPIConstructor>, TiFAPIClient<ClientExtensions> {}
 
 class _TiFAPIClass {
   /**

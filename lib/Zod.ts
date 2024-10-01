@@ -4,7 +4,7 @@ import { ZodError, ZodIssue, ZodSchema, z } from "zod"
  * An interface which defines a method of parsing that returns either an output type or `undefined`.
  */
 export interface OptionalParseable<Input, Output> {
-  parse(input: Input): Output | Error
+  parse(input: Input): Output | ZodError | Error
 }
 
 const optionalParse = <Input, Output>(

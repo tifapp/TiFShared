@@ -178,23 +178,23 @@ The available log levels are `info`, `warn`, `trace`, `debug`, and `error`. Each
 
 Our API Schema is codified in `api\TiFAPISchema.ts` and details the shape of inputs and outputs for all endpoints.
 
-Endpoints can be described like this:
+Endpoints conform to this pattern:
 
 ```
 {
-  [endpointName as string]: {
+  [endpointName]: {
     input: {
       body?: ZodSchema,
       query?: ZodSchema,
       params?: ZodSchema
     },
-    outputs (needs at least one): {
+    outputs: { //needs at least 1 output
       status200?: ZodSchema,
       status201?: ZodSchema,
       status204?: "no-content",
       ...etc
     },
-    constraints: (input, output) => boolean, //throws an error if the function returns false (eg. checking if a value from the input matches a value from the output)
+    constraints: (input, output) => boolean, //throws a validation error if the function returns false (eg. checking if the input value matches the output value)
     httpRequest: {
       method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE",
       endpoint: "/{string}"
@@ -218,7 +218,6 @@ const TiFAPISchema = {
       }
     },
     outputs: {
-      // Each status code has a corresponding zod schema for the response body.
       status200: z.object({ value: z.string() }),
       status400: z.object({ other: z.number() })
     },
@@ -232,11 +231,11 @@ const TiFAPISchema = {
 }
 ```
 
-The new endpoint gets added to the `TiFAPIClient` type, allowing it to be used like:
+This is how they can be used, using the example endpoint we just added:
 
 ```ts
-const foo = async (api: TiFAPIClient) => {
-  const resp = await api.myNewEndpoint(1)
+const foo = async (api: TiFAPI) => {
+  const resp = await api.myNewEndpoint({params: {id: 1}})
   if (resp.status === 200) {
     // Type inferred to be the converted type of the schema for status200
     console.log(resp.data.value)
@@ -247,17 +246,19 @@ const foo = async (api: TiFAPIClient) => {
 }
 ```
 
+The endpoints described in the schema are converted to function types in the `TiFAPI` type. 
+
 #### API Clients
 
-API clients can be created using the `TiFAPIClientCreator()` method or reducing the `TiFAPISchema`.
+API clients can be created using the `TiFAPIClientCreator()` function or by reducing the `TiFAPISchema`.
 
 1. `TiFAPIClientCreator()`
 
-- Creates a typesafe TiFAPI client with methods that map to each endpoint on the `TiFAPISchema`.
+- Creates a typesafe TiFAPI client with methods whose signatures match the endpoints described by the `TiFAPISchema`.
 
 1a. `APIMiddleware`
 
-- Can be passed to `TiFAPIClientCreator()` to consume or transform the high-level requests or responses of the `TiFAPIClient`. By default, validation middleware is used in `implementTiFAPI()`.
+- Can be passed to `TiFAPIClientCreator()` to handle or transform the high-level requests and responses of the `TiFAPIClient`.
 
 2. `TiFAPITransport`
 
@@ -267,7 +268,8 @@ An example API client can be constructed as follows:
 
 ```ts
 // jwtMiddleware comes with this library, you can also write your own middleware functions.
-const apiClient = implementTiFAPI(
+const apiClient = TiFAPIClientCreator(
+  validateAPIClientCall,
   jwtMiddleware(async () => "My JWT token"),
   tifAPITransport(new URL("https://api.production.com"))
 )

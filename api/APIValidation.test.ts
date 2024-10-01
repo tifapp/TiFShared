@@ -144,6 +144,32 @@ describe("validateAPICall", () => {
     expect(logHandler).toHaveBeenNthCalledWith(2, "tif.api.validation", "error", "Response from TiF API endpoint MOCK_ENDPOINT does not match the expected schema", {"data": {"name": "Johnny"}, "status": 200})
   });
   
+  it("should coerce request and response", async () => {
+    const inputDateTime ='2024-10-02T02:03:22.447Z'
+    const outputDateTime = '2023-10-02T02:03:22.447Z'
+
+    const apiCall = apiValidator({
+      endpointSchema: {
+        input: {
+          body: z.object({
+            createdDateTime: z.coerce.date(),
+          })
+        },
+        outputs: {
+          status200: z.object({
+            createdDateTime: z.coerce.date(),
+          })
+        },
+        constraints: (input: any) => { expect(input).toEqual({body: {createdDateTime: new Date(inputDateTime)}}); return true }
+      },
+      mockRequest: { body: { createdDateTime: inputDateTime } },
+      mockResponse: { status: 200, data: { createdDateTime: outputDateTime } }
+    })
+
+    await expect(apiCall).resolves.toMatchObject({data: {createdDateTime: new Date(outputDateTime)}});
+    expect(logHandler).not.toHaveBeenCalled()
+  });
+  
   it("should return response if request and response are valid", async () => {
     const apiCall = apiValidator({
       endpointSchema: {

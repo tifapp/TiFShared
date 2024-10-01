@@ -6,11 +6,6 @@ import {
 } from "../lib/LinkifyIt"
 import { Tagged } from "../lib/Types/HelperTypes"
 
-export const UserNameSchema = z
-  .string()
-  .min(1)
-  .max(300)
-
 export type UserID = Tagged<string, "userId">
 
 export const UserIDSchema = z
@@ -48,6 +43,7 @@ export const UserToProfileRelationStatusSchema = z.enum([
 export type UserToProfileRelationStatus = z.rInfer<
   typeof UserToProfileRelationStatusSchema
 >
+
 
 /**
  * A 2-way relationship from a user to another profile where at least one party
@@ -153,8 +149,8 @@ export class UserHandle {
   /**
    * Attempts to parse this handle and returns `undefined` if the handle can't be parsed.
    */
-  static optionalParse(value: string) {
-    return UserHandle.parse(value).handle
+  static optionalParse(rawValue: string) {
+    return UserHandle.parse(rawValue).handle
   }
 
   /**
