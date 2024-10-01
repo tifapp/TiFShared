@@ -1,7 +1,7 @@
 import { ColorString } from "../../domain-models/ColorString"
-import { EventResponse, EventResponseSchema } from "./Event"
 import { dateRange } from "../../domain-models/FixedDateRange"
 import { UserHandle } from "../../domain-models/User"
+import { EventResponse, EventResponseSchema } from "./Event"
 
 describe("EventAPIModels tests", () => {
   test("event response schema", () => {
@@ -21,8 +21,7 @@ describe("EventAPIModels tests", () => {
       },
       previewAttendees: [
         {
-          id: "2fd22e4a-147c-4189-889e-15469b80eaf7",
-          profileImageURL: null
+          id: "2fd22e4a-147c-4189-889e-15469b80eaf7"
         }
       ],
       location: {
@@ -40,20 +39,17 @@ describe("EventAPIModels tests", () => {
         isInArrivalTrackingPeriod: true
       },
       host: {
-        relations: { themToYou: "not-friends", youToThem: "not-friends" },
+        relationStatus: "not-friends",
         id: "2fd22e4a-147c-4189-889e-15469b80eaf7",
-        username: "Caroline Parisian",
-        handle: "carolinepar0103",
-        profileImageURL: null
+        name: "Caroline Parisian",
+        handle: "carolinepar0103"
       },
       settings: { shouldHideAfterStartDate: true, isChatEnabled: true },
       userAttendeeStatus: "not-participating",
-      joinDate: null,
       isChatExpired: false,
       hasArrived: false,
-      updatedAt: "2024-03-25T07:54:28.000Z",
-      createdAt: "2024-03-25T07:54:28.000Z",
-      endedAt: null
+      updatedDateTime: "2024-03-25T07:54:28.000Z",
+      createdDateTime: "2024-03-25T07:54:28.000Z",
     }
     const result = EventResponseSchema.safeParse(json) as {
       data: EventResponse
@@ -74,8 +70,7 @@ describe("EventAPIModels tests", () => {
       },
       previewAttendees: [
         {
-          id: "2fd22e4a-147c-4189-889e-15469b80eaf7",
-          profileImageURL: null
+          id: "2fd22e4a-147c-4189-889e-15469b80eaf7"
         }
       ],
       location: {
@@ -93,20 +88,17 @@ describe("EventAPIModels tests", () => {
         isInArrivalTrackingPeriod: true
       },
       host: {
-        relations: { themToYou: "not-friends", youToThem: "not-friends" },
+        relationStatus: "not-friends",
         id: "2fd22e4a-147c-4189-889e-15469b80eaf7",
-        username: "Caroline Parisian",
-        handle: UserHandle.optionalParse("carolinepar0103")!,
-        profileImageURL: null
+        name: "Caroline Parisian",
+        handle: UserHandle.optionalParse("carolinepar0103")!
       },
       settings: { shouldHideAfterStartDate: true, isChatEnabled: true },
       userAttendeeStatus: "not-participating",
-      joinDate: null,
       isChatExpired: false,
       hasArrived: false,
-      updatedAt: new Date("2024-03-25T07:54:28.000Z"),
-      createdAt: new Date("2024-03-25T07:54:28.000Z"),
-      endedAt: null
+      updatedDateTime: new Date("2024-03-25T07:54:28.000Z"),
+      createdDateTime: new Date("2024-03-25T07:54:28.000Z"),
     })
   })
 })

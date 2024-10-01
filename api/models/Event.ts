@@ -1,24 +1,26 @@
-import { TodayOrTomorrowSchema } from "../../domain-models/TodayOrTomorrow"
+import { z } from "zod"
 import { ColorStringSchema } from "../../domain-models/ColorString"
 import {
-  EventAttendeeSchema,
+  EventDescriptionSchema,
+  EventHostSchema,
   EventIDSchema,
   EventLocationSchema,
   EventPreviewAttendeeSchema,
   EventSettingsSchema,
+  EventTitleSchema,
   EventUserAttendeeStatusSchema,
   EventWhenBlockedByHostSchema,
   TrackableEventArrivalRegionsSchema
 } from "../../domain-models/Event"
-import { z } from "zod"
-import { StringDateSchema } from "../../lib/Date"
-import { tifAPIErrorSchema } from "./Error"
+import { TodayOrTomorrowSchema } from "../../domain-models/TodayOrTomorrow"
+import { BlockedYouStatusSchema } from "../../domain-models/User"
 import { ChatTokenRequestSchema } from "./Chat"
+import { tifAPIErrorSchema } from "./Error"
 import { FixedDateRangeSchema } from "./FixedDateRange"
 
 export const EventTimeResponseSchema = z.object({
   secondsToStart: z.number(),
-  todayOrTomorrow: TodayOrTomorrowSchema.nullable(),
+  todayOrTomorrow: TodayOrTomorrowSchema.optional(),
   dateRange: FixedDateRangeSchema
 })
 
@@ -34,13 +36,13 @@ export type EventTimeResponse = z.rInfer<typeof EventTimeResponseSchema>
 
 export const EventResponseSchema = z.object({
   id: EventIDSchema,
-  title: z.string(), // TODO: - Decide max length.
-  description: z.string(),
-  color: ColorStringSchema,
+  title: EventTitleSchema,
+  description: EventDescriptionSchema,
+  color: ColorStringSchema.optional(),
   attendeeCount: z.number().nonnegative(),
-  joinDate: StringDateSchema.nullable(),
-  createdAt: StringDateSchema,
-  updatedAt: StringDateSchema,
+  joinedDateTime: z.coerce.date().optional(),
+  createdDateTime: z.coerce.date(),
+  updatedDateTime: z.coerce.date(),
   hasArrived: z.boolean(),
   isChatExpired: z.boolean(),
   userAttendeeStatus: EventUserAttendeeStatusSchema,
@@ -48,8 +50,8 @@ export const EventResponseSchema = z.object({
   time: EventTimeResponseSchema,
   location: EventLocationSchema,
   previewAttendees: z.array(EventPreviewAttendeeSchema),
-  host: EventAttendeeSchema,
-  endedAt: StringDateSchema.nullable()
+  host: EventHostSchema,
+  endedDateTime: z.coerce.date().optional()
 })
 
 export type EventResponse = z.rInfer<typeof EventResponseSchema>
@@ -57,7 +59,7 @@ export type EventResponse = z.rInfer<typeof EventResponseSchema>
 export const JoinEventResponseSchema =
   TrackableEventArrivalRegionsSchema.extend({
     id: EventIDSchema,
-    chatToken: ChatTokenRequestSchema,
+    chatToken: ChatTokenRequestSchema.optional(),
     hasArrived: z.boolean()
   })
 
@@ -72,7 +74,4 @@ export const EventsInAreaResponseSchema = z.object({
 export type EventsInAreaResponse = z.rInfer<typeof EventsInAreaResponseSchema>
 
 export const EventWhenBlockedByHostResponseSchema =
-  EventWhenBlockedByHostSchema.omit({
-    createdAt: true,
-    updatedAt: true
-  }).extend({ createdAt: StringDateSchema, updatedAt: StringDateSchema })
+  EventWhenBlockedByHostSchema.merge(tifAPIErrorSchema(BlockedYouStatusSchema.value))

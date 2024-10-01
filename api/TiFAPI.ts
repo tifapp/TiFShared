@@ -1,18 +1,12 @@
-import { UserHandleSchema, UserID, UserIDSchema } from "../domain-models/User"
+import { z } from "zod"
 import {
   EventAttendeesPageSchema,
   EventRegion,
   TrackableEventArrivalRegionsSchema
 } from "../domain-models/Event"
-import { z } from "zod"
+import { LocationCoordinate2D } from "../domain-models/LocationCoordinate2D"
+import { BlockedYouStatusSchema, UserHandleSchema, UserID, UserIDSchema } from "../domain-models/User"
 import { TiFAPIEndpoint, TiFAPITransport, tifAPITransport } from "./Transport"
-import {
-  UpdateCurrentUserProfileRequest,
-  UpdateUserSettingsRequest,
-  UserNotFoundResponseSchema,
-  UserSettingsResponseSchema,
-  userTiFAPIErrorSchema
-} from "./models/User"
 import { jwtMiddleware } from "./TransportMiddleware"
 import { tifAPIErrorSchema } from "./models/Error"
 import {
@@ -22,7 +16,13 @@ import {
   EventsInAreaResponseSchema,
   JoinEventResponseSchema
 } from "./models/Event"
-import { LocationCoordinate2D } from "domain-models/LocationCoordinate2D"
+import {
+  UpdateCurrentUserProfileRequest,
+  UpdateUserSettingsRequest,
+  UserNotFoundResponseSchema,
+  UserSettingsResponseSchema,
+  userTiFAPIErrorSchema
+} from "./models/User"
 
 export const TEST_API_URL = new URL("http://localhost:8080")
 
@@ -186,7 +186,7 @@ class _TiFAPIClass {
         status200: EventAttendeesPageSchema,
         status204: "no-content",
         status404: EventNotFoundErrorSchema,
-        status403: tifAPIErrorSchema("blocked-by-host")
+        status403: tifAPIErrorSchema(BlockedYouStatusSchema.value)
       }
     )
   }
