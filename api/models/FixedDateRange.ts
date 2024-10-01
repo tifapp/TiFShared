@@ -28,7 +28,7 @@ export const FixedDateRangeSchema = z.optionalParseable(
   },
 )
 
-const MIN_EVENT_DURATION = 60
+export const MIN_EVENT_DURATION = 60
 
 /**
  * A Zod schema for creating a FixedDateRange with additional constraints for new Events:
@@ -36,24 +36,16 @@ const MIN_EVENT_DURATION = 60
  * - The end date cannot be in the past.
  */
 export const CreateFixedDateRangeSchema = FixedDateRangeSchema.superRefine((dateRange, ctx) => {
-  if (!dateRange) return;
-
   const { startDateTime, endDateTime } = dateRange;
 
-  const sDate = new Date(startDateTime);
-  const eDate = new Date(endDateTime);
-
-  const secondDiff = (eDate.getTime() - sDate.getTime()) / 1000;
-  const isEndDatePast = eDate < new Date();
+  const secondDiff = (endDateTime.getTime() - startDateTime.getTime()) / 1000;
+  const isEndDatePast = endDateTime < new Date();
 
   if (secondDiff < MIN_EVENT_DURATION) {
     ctx.addIssue({
-      code: z.ZodIssueCode.too_small,
-      minimum: MIN_EVENT_DURATION,
-      type: "number",
-      inclusive: true,
+      code: z.ZodIssueCode.custom,
       message: "The duration must be at least 60 seconds.",
-      path: ["endDateTime"],
+      fatal: true
     });
   }
 
@@ -61,7 +53,7 @@ export const CreateFixedDateRangeSchema = FixedDateRangeSchema.superRefine((date
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "The end date cannot be in the past.",
-      path: ["endDateTime"],
+      fatal: true
     });
   }
 });
