@@ -61,7 +61,6 @@ export class ColorString {
 /**
  * A zod schema for {@link ColorString}.
  */
-export const ColorStringSchema = z.optionalParseable(
-  ColorString,
-  () => `Invalid hex color string.`
-)
+export const ColorStringSchema = z.optionalParseable({
+  parse: (rawValue: ColorString | string) => (rawValue instanceof ColorString) ? rawValue : ColorString.parse(rawValue) ?? new Error("Invalid hex color string.")
+})
