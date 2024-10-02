@@ -141,6 +141,10 @@ export class UserHandle {
     return this.rawValue
   }
 
+  toURLParameter() {
+    return this.rawValue
+  }
+
   isEqualTo(other: UserHandle) {
     return this.rawValue === other.rawValue
   }
