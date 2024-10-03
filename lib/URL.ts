@@ -1,7 +1,7 @@
-import { ToStringable } from "./String"
+import { ToStringable, URLParameterConstructable } from "./String"
 
 export type URLParameters = {
-  [key: string]: ToStringable | undefined
+  [key: string]: ToStringable | URLParameterConstructable | undefined
 }
 
 export type URLEndpoint = `/${string}`
@@ -14,32 +14,38 @@ export const urlString = ({baseURL, endpoint, params, query}: {baseURL?: URL, en
 }
 
 export const queryFromSearchParams = (url: URL) => {
-  return Array.from(url.searchParams.entries()).reduce((acc, [key, value]) => {
+  return Array.from(url.searchParams.entries()).reduce<URLParameters>((acc, [key, value]) => {
     acc[key] = value;
     return acc;
-  }, {} as URLParameters);
+  }, {});
 }
 
-const queryToSearchParams = (query: URLParameters) => {
-  const params = new URLSearchParams()
-  for (const [key, value] of Object.entries(query)) {
-    if (!value) continue
-    params.set(key, value.toString())
-  }
-  return params
-}
+export const queryToSearchParams = (query: URLParameters) => {
+  return Object.entries(query).reduce<URLSearchParams>((params, [key, value]) => {
+    if (!value) { return params }
 
-const parameterizeEndpoint = (endpoint: URLEndpoint, params: URLParameters) => {
-  const paramKeys: string[] = (endpoint.match(/:\w+/g) || []).map(key => key.substring(1));
+    const urlParam = 
+      typeof value === 'object' && 'toURLParameter' in value 
+        ? value.toURLParameter() 
+        : value.toString();
 
-  let parameterizedEndpoint = endpoint;
-  paramKeys.forEach(paramName => {
-    if (!params[paramName]) {
-      throw new Error(`Missing parameter value for ${paramName}`);
-    } else {
-      parameterizedEndpoint = parameterizedEndpoint.replace(`:${paramName}`, params[paramName] as string) as URLEndpoint;
+    params.set(key, urlParam);
+
+    return params;
+  }, new URLSearchParams());
+};
+
+export const parameterizeEndpoint = (endpoint: URLEndpoint, params: URLParameters) => {
+  return endpoint.replace(/:(\w+)/g, (_, paramName) => {
+    const urlParam = params[paramName]
+
+    if (urlParam == null) {
+      throw new Error(`Missing parameter value for ${paramName}`)
     }
-  });
 
-  return parameterizedEndpoint
-}
+    return typeof urlParam === 'object' && 'toURLParameter' in urlParam
+      ? urlParam.toURLParameter()
+      : urlParam.toString()
+
+  }) as URLEndpoint
+};
