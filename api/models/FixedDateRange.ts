@@ -28,7 +28,7 @@ export const CreateFixedDateRangeSchema = FixedDateRangeSchema.superRefine((date
   const { startDateTime, endDateTime } = dateRange;
 
   const secondDiff = (endDateTime.getTime() - startDateTime.getTime()) / 1000;
-  const isEndDatePast = endDateTime < new Date();
+  const isEndDatePast = endDateTime < new Date(); // TODO: Compare with server's timezone
 
   if (secondDiff < MIN_EVENT_DURATION) {
     ctx.addIssue({
