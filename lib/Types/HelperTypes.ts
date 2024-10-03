@@ -87,3 +87,7 @@ export type Reassign<Obj, Key extends keyof Obj, Type> = {
  */
 export type Tagged<T, Tag extends string> = T & { _tag?: Tag }
 
+/**
+ * Represents any class or object with a constructor method
+ */
+export type Constructor = new (...args: any) => any;
