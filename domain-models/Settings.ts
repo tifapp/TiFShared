@@ -1,26 +1,26 @@
 import { z } from "zod"
-import { PlacemarkSchema } from "./Placemark"
+import { EventEditLocationSchema } from "./Event"
 
 export const UserSettingsVersionSchema = z.number().nonnegative()
 
 export type UserSettingsVersion = z.infer<typeof UserSettingsVersionSchema>
 
-export const EventCalendarWeekdaySchema = z.union([
-  z.literal("sunday"),
-  z.literal("monday"),
-  z.literal("tuesday"),
-  z.literal("wednesday"),
-  z.literal("thursday"),
-  z.literal("friday"),
-  z.literal("saturday")
+export const EventCalendarWeekdaySchema = z.enum([
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday"
 ])
 
 export type EventCalendarWeekdayID = z.infer<typeof EventCalendarWeekdaySchema>
 
-export const EventCalendarLayoutIDSchema = z.union([
-  z.literal("single-day-layout"),
-  z.literal("week-layout"),
-  z.literal("month-layout")
+export const EventCalendarLayoutIDSchema = z.enum([
+  "single-day-layout",
+  "week-layout",
+  "month-layout"
 ])
 
 export type EventCalendarLayoutID = z.infer<typeof EventCalendarLayoutIDSchema>
@@ -28,20 +28,20 @@ export type EventCalendarLayoutID = z.infer<typeof EventCalendarLayoutIDSchema>
 /**
  * A zod schema for {@link PushNotificationTriggerID}.
  */
-export const PushNotificationTriggerIDSchema = z.union([
-  z.literal("friend-request-received"),
-  z.literal("friend-request-accepted"),
-  z.literal("user-entered-region"),
-  z.literal("event-attendance-headcount"),
-  z.literal("event-periodic-arrivals"),
-  z.literal("event-starting-soon"),
-  z.literal("event-started"),
-  z.literal("event-ended"),
-  z.literal("event-name-changed"),
-  z.literal("event-description-changed"),
-  z.literal("event-time-changed"),
-  z.literal("event-location-changed"),
-  z.literal("event-cancelled")
+export const PushNotificationTriggerIDSchema = z.enum([
+  "friend-request-received",
+  "friend-request-accepted",
+  "user-entered-region",
+  "event-attendance-headcount",
+  "event-periodic-arrivals",
+  "event-starting-soon",
+  "event-started",
+  "event-ended",
+  "event-name-changed",
+  "event-description-changed",
+  "event-time-changed",
+  "event-location-changed",
+  "event-cancelled"
 ])
 
 /**
@@ -121,7 +121,7 @@ export const UserSettingsSchema = z.object({
   eventCalendarStartOfWeekDay: EventCalendarWeekdaySchema,
   eventCalendarDefaultLayout: EventCalendarLayoutIDSchema,
   eventPresetShouldHideAfterStartDate: z.boolean(),
-  eventPresetPlacemark: PlacemarkSchema.nullable(),
+  eventPresetLocation: EventEditLocationSchema.optional(),
   eventPresetDurations: z.array(z.number()),
   version: UserSettingsVersionSchema
 })
@@ -165,7 +165,7 @@ export const DEFAULT_USER_SETTINGS = {
   eventCalendarStartOfWeekDay: "monday",
   eventCalendarDefaultLayout: "week-layout",
   eventPresetDurations: [900, 1800, 2700, 3600, 5400],
-  eventPresetPlacemark: null,
+  eventPresetLocation: undefined,
   eventPresetShouldHideAfterStartDate: false,
   version: 0
 } satisfies Readonly<UserSettings>
