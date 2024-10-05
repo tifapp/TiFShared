@@ -3,7 +3,7 @@ import { UserSettings, UserSettingsSchema } from "../../domain-models/Settings"
 import { FriendRequestSentStatusSchema, FriendsStatusSchema, UserHandleSchema, UserIDSchema, UserToProfileRelationStatusSchema } from "../../domain-models/User"
 import { tifAPIErrorSchema } from "./Error"
 
-export const userTiFAPIErrorSchema = <T extends z.Primitive>(literal: T) => {
+export const userTiFAPIErrorSchema = <T extends string>(literal: T) => {
   return tifAPIErrorSchema(literal).extend({
     userId: UserIDSchema
   })

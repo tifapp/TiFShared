@@ -235,7 +235,7 @@ This is how they can be used, using the example endpoint we just added:
 
 ```ts
 const foo = async (api: TiFAPI) => {
-  const resp = await api.myNewEndpoint({params: {id: 1}})
+  const resp = await api.myNewEndpoint({params: {id: 1}}) // Typescript will confirm the shape of the request
   if (resp.status === 200) {
     // Type inferred to be the converted type of the schema for status200
     console.log(resp.data.value)
@@ -246,9 +246,9 @@ const foo = async (api: TiFAPI) => {
 }
 ```
 
-The endpoints described in the schema are converted to function types in the `TiFAPI` type. 
-
 #### API Clients
+
+The TiFAPISchema endpoints are converted to function types and stored in the `TiFAPI` type. 
 
 API clients can be created using the `TiFAPIClientCreator()` function or by reducing the `TiFAPISchema`.
 
@@ -256,23 +256,65 @@ API clients can be created using the `TiFAPIClientCreator()` function or by redu
 
 - Creates a typesafe TiFAPI client with methods whose signatures match the endpoints described by the `TiFAPISchema`.
 
-1a. `APIMiddleware`
+2. `APIMiddleware`
 
 - Can be passed to `TiFAPIClientCreator()` to handle or transform the high-level requests and responses of the `TiFAPIClient`.
 
-2. `TiFAPITransport`
+2a. `TiFAPITransport`
 
 - An instance of `APIMiddleware` responsible for sending and retrieving data across the network via `fetch`.
+
+3. API Extensions
+
+- By default the API endpoint functions created using `TiFAPIClientCreator()` take in the requests described by the TiFAPISchema and can access additional contextual information like the endpoint name and endpoint schema itself. Additional contextual information can be inserted through `APIMiddleware` or requested by adding a type parameter to `TiFAPIClientCreator()`.
 
 An example API client can be constructed as follows:
 
 ```ts
-// jwtMiddleware comes with this library, you can also write your own middleware functions.
-const apiClient = TiFAPIClientCreator(
+
+const apiClient = TiFAPIClientCreator<{signal?: AbortSignal}>(
   validateAPIClientCall,
-  jwtMiddleware(async () => "My JWT token"),
+  jwtMiddleware(async () => "My JWT token"), // inserts "{headers}" into the context, which can be accessed by subsequent middlewares.
   tifAPITransport(new URL("https://api.production.com"))
 )
+
+const controller = new AbortController()
+apiClient.myNewEndpoint({params: {id: 1}, signal: controller.signal}) // apiClient now allows an AbortSignal to be passed for all endpoints in addition to the standard input.
+
+```
+
+#### API Testing
+
+The `mockTiFServer()` and `mockTiFEndpoint()` test helpers can be used to quickly mock the TiF API and assert expected requests.
+
+An example API mock can be constructed as follows:
+
+```ts
+
+test("endpoint", async () => {
+  mockTiFServer({
+    myNewEndpoint: {
+      expectedRequest: { params: { id: 2 } },
+      mockResponse: {
+        status: 200,
+        data: { trackableRegions: EXPECTED_ARRIVAL_REGIONS }
+      }
+    }
+  })
+
+  testAPI.myNewEndpoint({ params: { id: 1 } }) // will throw an expect error
+})
+
+```
+
+```ts
+
+test("endpoint", async () => {
+  mockTiFEndpoint("myNewEndpoint", 404, { error: "event-not-found" })
+
+  const response = await testAPI.myNewEndpoint({ params: { id: 1 } }) // response = { status: 404, { error: "event-not-found" } }
+})
+
 ```
 
 ## Local Development Setup

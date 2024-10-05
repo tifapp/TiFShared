@@ -61,7 +61,7 @@ declare module "zod" {
     function optionalParseable<Input, Output extends Constructor>(
       constructor: Output,
       parseable: (input: Input) => InstanceType<Output>
-    ): ReturnType<typeof optionalParse<Input, InstanceType<Output>>>
+    ): z.ZodType<InstanceType<Output>, z.ZodTypeDef, Input> 
 
     /**
      * Infers a zod schema as a "Readonly" type.

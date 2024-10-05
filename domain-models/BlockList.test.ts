@@ -10,13 +10,13 @@ describe("BlockList tests", () => {
           users: [
             {
               id: randomUUID(),
-              username: "bob",
+              name: "bob",
               handle: UserHandle.zed,
               profileImageURL: null
             },
             {
               id: randomUUID(),
-              username: "joe",
+              name: "joe",
               handle: UserHandle.sillyBitchell,
               profileImageURL: null
             }
@@ -27,13 +27,13 @@ describe("BlockList tests", () => {
           users: [
             {
               id: randomUUID(),
-              username: "billy",
+              name: "billy",
               handle: UserHandle.alvis,
               profileImageURL: null
             },
             {
               id: randomUUID(),
-              username: "anna",
+              name: "anna",
               handle: UserHandle.bitchellDickle,
               profileImageURL: null
             }

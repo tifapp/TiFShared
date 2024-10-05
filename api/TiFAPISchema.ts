@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { EventAttendeesPageSchema, EventIDSchema, EventRegionSchema, EventWhenBlockedByHostSchema, TrackableEventArrivalRegionsSchema } from "../domain-models/Event";
+import { CreateEventSchema, EventAttendeesPageSchema, EventIDSchema, EventRegionSchema, EventWhenBlockedByHostSchema, TrackableEventArrivalRegionsSchema } from "../domain-models/Event";
 import { LocationCoordinate2DSchema } from "../domain-models/LocationCoordinate2D";
 import { BlockedYouStatusSchema, UserHandleSchema, UserIDSchema } from "../domain-models/User";
 import { APISchema, EndpointSchemasToFunctions, assertEndpointSchemaType } from "./TransportTypes";
 import { tifAPIErrorSchema } from "./models/Error";
-import { CreateEventSchema, EventNotFoundErrorSchema, EventResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
+import { EventNotFoundErrorSchema, EventResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
 import { RegisterPushTokenRequestSchema, SelfProfileSchema, UpdateCurrentUserProfileRequestSchema, UpdateUserSettingsRequestSchema, UserFriendRequestResponseSchema, UserNotFoundResponseSchema, UserProfileSchema, UserSettingsResponseSchema, userTiFAPIErrorSchema } from "./models/User";
 
 export const TiFAPISchema = {
@@ -252,7 +252,8 @@ export const TiFAPISchema = {
       ),
       status403: tifAPIErrorSchema(
         "event-has-ended",
-        "user-is-blocked"
+        "user-is-blocked",
+        "event-was-cancelled"
       ),
       status201: JoinEventResponseSchema,
       status200: JoinEventResponseSchema

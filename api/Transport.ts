@@ -33,7 +33,7 @@ export const tifAPITransport = (baseURL: URL): APIHandler<ClientExtensions> =>
           {
             method,
             headers: {"Content-Type": "application/json", ...headers},
-            body: JSON.stringify(body),
+            body: body ? JSON.stringify(body) : undefined,
             signal
           }
         )

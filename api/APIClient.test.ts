@@ -23,7 +23,7 @@ const apiClient = <T extends APISchema>(endpointSchema: T) =>
     tifAPITransport(TEST_API_URL)
   )
 
-describe("MockAPI tests", () => {  
+describe("MockAPIServer tests", () => {  
   it("should throw an error when performing an unexpected request", async () => {
     const endpointSchema = {
       checkUser: {
@@ -80,6 +80,48 @@ describe("MockAPI tests", () => {
     )
   }),
 
+  it("should perform a valid POST request with an undefined body", async () => {
+    const endpointSchema = {
+      checkUser: {
+        input: {
+          body: z.undefined()
+        },
+        outputs: {
+          status200: z.object({
+            name: z.string()
+          })
+        },
+        httpRequest: {
+          method: "POST" as HTTPMethod,
+          endpoint: TEST_ENDPOINT
+        }
+      }
+    } as APISchema
+
+    mockAPI(
+      {
+        endpointSchema,
+        endpointMocks: {
+          checkUser: {
+            expectedRequest: {
+              body: undefined
+            } as any,
+            mockResponse: { 
+              status: 200,
+              data: { name: 'John Doe' }
+            } as unknown as never
+          }
+        }
+      }
+    )
+
+    await expect(
+      apiClient(endpointSchema).checkUser({ body: undefined } as any)
+    ).resolves.toStrictEqual({
+      status: 200,
+      data: { name: 'John Doe' }
+    })
+  })
   
   it("should perform a valid GET request", async () => {
     const endpointSchema = {

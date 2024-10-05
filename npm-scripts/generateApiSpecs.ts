@@ -10,6 +10,8 @@ import path from "path"
 import { z } from "zod"
 import { APISchema, TiFAPISchema } from "../api"
 
+process.env.API_GENERATION_ENVIRONMENT = 'true';
+
 extendZodWithOpenApi(z)
 
 const registry = new OpenAPIRegistry()
@@ -68,7 +70,7 @@ const specs = generator.generateDocument({
   info: {
     title: "tifRestAPI",
     description: "API used for the TiF mobile app",
-    version: `${new Date()}`
+    version: `0.1` // TODO: Generate new version numbers
   },
   servers: [{
     url: `{apiEndpoint}/{environment}`,

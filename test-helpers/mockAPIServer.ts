@@ -13,7 +13,11 @@ const mswBuilder = (testUrl: URL, endpointName: string, endpointSchema: GenericE
       if (method === "GET") {
         body = undefined
       } else {
-        body = await request.json()
+        try {
+          body = await request.json();
+        } catch {
+          body = undefined;
+        }
       }
 
       const input = {body, params, query: queryFromSearchParams(new URL(request.url))}

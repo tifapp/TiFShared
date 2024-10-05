@@ -4,7 +4,8 @@
   "description": "Shared utilities for the TiF app.",
   "main": "index.js",
   "scripts": {
-    "genapispecs": "npx ts-node --transpile-only npm-scripts/generateApiSpecs && npx lint-openapi specs.json",
+    "lintapispecs": "npx lint-openapi specs.json",
+    "genapispecs": "npx ts-node --transpile-only npm-scripts/generateApiSpecs",
     "test": "jest --collectCoverage",
     "test:ci": "jest --ci --collectCoverage",
     "prepare": "node --loader ts-node/esm npm-scripts/prepare.ts",

@@ -59,8 +59,26 @@ describe("TiFAPITransport tests", () => {
       data: { a: 1 }
     })
   })
+  
+  test("api client fetch, undefined body", async () => {
+    mswServer.use(
+      http.post(`${TEST_BASE_URL}${TEST_ENDPOINT}`, async () => {
+        return successResponse()
+      })
+    )
 
-  test("api client fetch, undefined query", async () => {
+    const resp = await apiFetch({
+      method: "POST",
+      body: undefined
+    })
+
+    expect(resp).toMatchObject({
+      status: 200,
+      data: { a: 1 }
+    })
+  })
+
+  test("api client fetch, undefined query param", async () => {
     mswServer.use(
       http.get(`${TEST_BASE_URL}${TEST_ENDPOINT}`, async ({ request }) => {
         if (new URLSearchParams(request.url).has("hello")) {

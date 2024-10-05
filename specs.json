@@ -3,7 +3,7 @@
   "info": {
     "title": "tifRestAPI",
     "description": "API used for the TiF mobile app",
-    "version": "Mon Sep 23 2024 22:58:00 GMT-0700 (Pacific Daylight Time)"
+    "version": "0.1"
   },
   "servers": [
     {
@@ -42,9 +42,7 @@
                       "type": "string",
                       "format": "uuid"
                     },
-                    "handle": {
-                      "nullable": true
-                    }
+                    "handle": {}
                   },
                   "required": [
                     "id"
@@ -70,9 +68,7 @@
                   "bio": {
                     "type": "string"
                   },
-                  "handle": {
-                    "nullable": true
-                  }
+                  "handle": {}
                 }
               }
             }
@@ -103,9 +99,7 @@
                     "bio": {
                       "type": "string"
                     },
-                    "handle": {
-                      "nullable": true
-                    },
+                    "handle": {},
                     "createdDateTime": {
                       "type": "string",
                       "nullable": true
@@ -142,9 +136,7 @@
       "get": {
         "parameters": [
           {
-            "schema": {
-              "nullable": true
-            },
+            "schema": {},
             "required": false,
             "name": "handle",
             "in": "query"
@@ -182,9 +174,7 @@
                             "minLength": 1,
                             "maxLength": 300
                           },
-                          "handle": {
-                            "nullable": true
-                          }
+                          "handle": {}
                         },
                         "required": [
                           "id",
@@ -504,15 +494,15 @@
                       "nullable": true
                     },
                     "title": {
-                      "type": "string"
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 75
                     },
                     "description": {
                       "type": "string",
                       "maxLength": 500
                     },
-                    "color": {
-                      "nullable": true
-                    },
+                    "color": {},
                     "attendeeCount": {
                       "type": "number",
                       "minimum": 0
@@ -571,9 +561,7 @@
                             "tomorrow"
                           ]
                         },
-                        "dateRange": {
-                          "nullable": true
-                        }
+                        "dateRange": {}
                       },
                       "required": [
                         "secondsToStart"
@@ -676,46 +664,27 @@
                         "name": {
                           "type": "string"
                         },
-                        "handle": {
-                          "nullable": true
-                        },
+                        "handle": {},
                         "profileImageURL": {
                           "type": "string",
                           "format": "uri"
                         },
-                        "relations": {
-                          "type": "object",
-                          "properties": {
-                            "fromThemToYou": {
-                              "type": "string",
-                              "enum": [
-                                "not-friends",
-                                "friend-request-pending",
-                                "friends",
-                                "current-user"
-                              ]
-                            },
-                            "fromYouToThem": {
-                              "type": "string",
-                              "enum": [
-                                "not-friends",
-                                "blocked",
-                                "friend-request-pending",
-                                "friends",
-                                "current-user"
-                              ]
-                            }
-                          },
-                          "required": [
-                            "fromThemToYou",
-                            "fromYouToThem"
+                        "relationStatus": {
+                          "type": "string",
+                          "enum": [
+                            "blocked-them",
+                            "not-friends",
+                            "friend-request-sent",
+                            "friend-request-received",
+                            "friends",
+                            "current-user"
                           ]
                         }
                       },
                       "required": [
                         "id",
                         "name",
-                        "relations"
+                        "relationStatus"
                       ]
                     },
                     "endedDateTime": {
@@ -749,12 +718,20 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "blocked-you"
+                      ]
+                    },
                     "id": {
                       "type": "number",
                       "nullable": true
                     },
                     "title": {
-                      "type": "string"
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 75
                     },
                     "createdDateTime": {
                       "type": "string",
@@ -763,13 +740,43 @@
                     "updatedDateTime": {
                       "type": "string",
                       "nullable": true
+                    },
+                    "host": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "handle": {},
+                        "profileImageURL": {
+                          "type": "string",
+                          "format": "uri"
+                        },
+                        "relationStatus": {
+                          "type": "string",
+                          "enum": [
+                            "blocked-you"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "relationStatus"
+                      ]
                     }
                   },
                   "required": [
+                    "error",
                     "id",
                     "title",
                     "createdDateTime",
-                    "updatedDateTime"
+                    "updatedDateTime",
+                    "host"
                   ]
                 }
               }
@@ -850,39 +857,20 @@
                           "name": {
                             "type": "string"
                           },
-                          "handle": {
-                            "nullable": true
-                          },
+                          "handle": {},
                           "profileImageURL": {
                             "type": "string",
                             "format": "uri"
                           },
-                          "relations": {
-                            "type": "object",
-                            "properties": {
-                              "fromThemToYou": {
-                                "type": "string",
-                                "enum": [
-                                  "not-friends",
-                                  "friend-request-pending",
-                                  "friends",
-                                  "current-user"
-                                ]
-                              },
-                              "fromYouToThem": {
-                                "type": "string",
-                                "enum": [
-                                  "not-friends",
-                                  "blocked",
-                                  "friend-request-pending",
-                                  "friends",
-                                  "current-user"
-                                ]
-                              }
-                            },
-                            "required": [
-                              "fromThemToYou",
-                              "fromYouToThem"
+                          "relationStatus": {
+                            "type": "string",
+                            "enum": [
+                              "blocked-them",
+                              "not-friends",
+                              "friend-request-sent",
+                              "friend-request-received",
+                              "friends",
+                              "current-user"
                             ]
                           },
                           "joinedDateTime": {
@@ -897,7 +885,7 @@
                         "required": [
                           "id",
                           "name",
-                          "relations",
+                          "relationStatus",
                           "joinedDateTime"
                         ]
                       }
@@ -929,7 +917,7 @@
                     "error": {
                       "type": "string",
                       "enum": [
-                        "blocked-by-host"
+                        "blocked-you"
                       ]
                     }
                   },
@@ -1040,15 +1028,11 @@
                     "type": "string",
                     "maxLength": 500
                   },
-                  "dateRange": {
-                    "nullable": true
-                  },
-                  "color": {
-                    "nullable": true
-                  },
+                  "dateRange": {},
                   "title": {
                     "type": "string",
-                    "maxLength": 50
+                    "minLength": 1,
+                    "maxLength": 75
                   },
                   "shouldHideAfterStartDate": {
                     "type": "boolean"
@@ -1251,6 +1235,7 @@
                       },
                       "required": [
                         "capability",
+                        "clientId",
                         "keyName",
                         "mac",
                         "timestamp",
@@ -1264,7 +1249,6 @@
                   "required": [
                     "trackableRegions",
                     "id",
-                    "chatToken",
                     "hasArrived"
                   ]
                 }
@@ -1354,6 +1338,7 @@
                       },
                       "required": [
                         "capability",
+                        "clientId",
                         "keyName",
                         "mac",
                         "timestamp",
@@ -1367,7 +1352,6 @@
                   "required": [
                     "trackableRegions",
                     "id",
-                    "chatToken",
                     "hasArrived"
                   ]
                 }
@@ -1385,7 +1369,8 @@
                       "type": "string",
                       "enum": [
                         "event-has-ended",
-                        "user-is-blocked"
+                        "user-is-blocked",
+                        "event-was-cancelled"
                       ]
                     }
                   },
@@ -1610,9 +1595,7 @@
                     "bio": {
                       "type": "string"
                     },
-                    "handle": {
-                      "nullable": true
-                    },
+                    "handle": {},
                     "createdDateTime": {
                       "type": "string",
                       "nullable": true
@@ -1625,33 +1608,15 @@
                       "type": "string",
                       "nullable": true
                     },
-                    "relations": {
-                      "type": "object",
-                      "properties": {
-                        "fromThemToYou": {
-                          "type": "string",
-                          "enum": [
-                            "not-friends",
-                            "friend-request-pending",
-                            "friends",
-                            "blocked",
-                            "current-user"
-                          ]
-                        },
-                        "fromYouToThem": {
-                          "type": "string",
-                          "enum": [
-                            "not-friends",
-                            "friend-request-pending",
-                            "friends",
-                            "blocked",
-                            "current-user"
-                          ]
-                        }
-                      },
-                      "required": [
-                        "fromThemToYou",
-                        "fromYouToThem"
+                    "relationStatus": {
+                      "type": "string",
+                      "enum": [
+                        "not-friends",
+                        "friend-request-received",
+                        "friend-request-sent",
+                        "friends",
+                        "blocked-them",
+                        "current-user"
                       ]
                     }
                   },
@@ -1659,7 +1624,7 @@
                     "id",
                     "createdDateTime",
                     "updatedDateTime",
-                    "relations"
+                    "relationStatus"
                   ]
                 }
               }
@@ -1860,7 +1825,7 @@
                     "status": {
                       "type": "string",
                       "enum": [
-                        "friend-request-pending",
+                        "friend-request-sent",
                         "friends"
                       ]
                     }
@@ -1882,7 +1847,7 @@
                     "status": {
                       "type": "string",
                       "enum": [
-                        "friend-request-pending",
+                        "friend-request-sent",
                         "friends"
                       ]
                     }
@@ -2006,15 +1971,15 @@
                             "nullable": true
                           },
                           "title": {
-                            "type": "string"
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 75
                           },
                           "description": {
                             "type": "string",
                             "maxLength": 500
                           },
-                          "color": {
-                            "nullable": true
-                          },
+                          "color": {},
                           "attendeeCount": {
                             "type": "number",
                             "minimum": 0
@@ -2073,9 +2038,7 @@
                                   "tomorrow"
                                 ]
                               },
-                              "dateRange": {
-                                "nullable": true
-                              }
+                              "dateRange": {}
                             },
                             "required": [
                               "secondsToStart"
@@ -2178,46 +2141,27 @@
                               "name": {
                                 "type": "string"
                               },
-                              "handle": {
-                                "nullable": true
-                              },
+                              "handle": {},
                               "profileImageURL": {
                                 "type": "string",
                                 "format": "uri"
                               },
-                              "relations": {
-                                "type": "object",
-                                "properties": {
-                                  "fromThemToYou": {
-                                    "type": "string",
-                                    "enum": [
-                                      "not-friends",
-                                      "friend-request-pending",
-                                      "friends",
-                                      "current-user"
-                                    ]
-                                  },
-                                  "fromYouToThem": {
-                                    "type": "string",
-                                    "enum": [
-                                      "not-friends",
-                                      "blocked",
-                                      "friend-request-pending",
-                                      "friends",
-                                      "current-user"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "fromThemToYou",
-                                  "fromYouToThem"
+                              "relationStatus": {
+                                "type": "string",
+                                "enum": [
+                                  "blocked-them",
+                                  "not-friends",
+                                  "friend-request-sent",
+                                  "friend-request-received",
+                                  "friends",
+                                  "current-user"
                                 ]
                               }
                             },
                             "required": [
                               "id",
                               "name",
-                              "relations"
+                              "relationStatus"
                             ]
                           },
                           "endedDateTime": {
@@ -2316,7 +2260,7 @@
                     "eventPresetShouldHideAfterStartDate": {
                       "type": "boolean"
                     },
-                    "eventPresetPlacemark": {
+                    "eventPresetLocation": {
                       "oneOf": [
                         {
                           "type": "object",
@@ -2486,7 +2430,7 @@
                   "eventPresetShouldHideAfterStartDate": {
                     "type": "boolean"
                   },
-                  "eventPresetPlacemark": {
+                  "eventPresetLocation": {
                     "oneOf": [
                       {
                         "type": "object",
@@ -2640,7 +2584,7 @@
                     "eventPresetShouldHideAfterStartDate": {
                       "type": "boolean"
                     },
-                    "eventPresetPlacemark": {
+                    "eventPresetLocation": {
                       "oneOf": [
                         {
                           "type": "object",
