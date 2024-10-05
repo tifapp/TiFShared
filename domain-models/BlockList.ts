@@ -2,7 +2,7 @@ import { UserHandle, UserID } from "./User"
 
 export type BlockListUser = {
   id: UserID
-  username: string
+  name: string
   handle: UserHandle
   profileImageURL: string | null
 }
