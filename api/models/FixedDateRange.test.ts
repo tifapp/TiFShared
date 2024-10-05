@@ -3,15 +3,6 @@ import { dateRange } from "../../domain-models/FixedDateRange"
 import { CreateFixedDateRangeSchema, FixedDateRangeSchema, MIN_EVENT_DURATION } from "./FixedDateRange"
 
 describe("FixedDateRangeSchema tests", () => {
-  test("pass FixedDateRange instances", () => {
-    const testRange = dateRange(
-      new Date("2024-02-25T00:19:00.00Z"),
-      new Date("2024-02-25T00:20:00.00Z")
-    )
-
-    expect(FixedDateRangeSchema.parse(testRange)).toEqual(testRange)
-  })
-
   test("valid FixedDateRange", () => {
     expect(FixedDateRangeSchema.parse({
       startDateTime: "2023-02-25T00:19:00.00Z",

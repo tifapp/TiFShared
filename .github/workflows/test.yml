@@ -36,10 +36,20 @@ jobs:
         run: |
           npm run test:ci
 
-      # TODO
-      # - name: Validate openapi specs
-      #   run: |
-      #     npm run genapispecs
+      - name: Sync TiFAPISchema with OpenAPI specs.json
+        run: |
+          cp specs.json OriginalSpecs.json
+          npm run genapispecs
+          if ! diff specs.json OriginalSpecs.json; then
+            echo "specs.json is not up to date. Please re-run 'npm run genapispecs' and commit the updated version to this branch."
+            exit 1
+          fi
+
+      - name: Validate openapi specs
+        run: |
+          npm run genapispecs
+      
+      # TODO - run openapi specs linter from ibm-openapi-validator
 
       - name: Build
         run: |

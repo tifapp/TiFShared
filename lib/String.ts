@@ -36,5 +36,12 @@ export const extractNumbers = (str: string) => {
  * An interface reprsenting types that have a callable `toString` method.
  */
 export interface ToStringable {
-  toString(): string
+  toString(): string;
+}
+
+/**
+ * An interface reprsenting types that can be interpolated to url params.
+ */
+export interface URLParameterConstructable {
+  toURLParameter(): string
 }

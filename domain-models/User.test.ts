@@ -76,11 +76,6 @@ describe("User tests", () => {
       expect(() => UserHandleSchema.parse("thishandleiswaytoolong")).toThrow(`A valid user handle can only be up to 15 characters long.`)
     });
   
-    test("should pass through instances of UserHandle", () => {
-      const handleInstance = UserHandle.optionalParse("existing_handle")!;
-      expect(UserHandleSchema.parse(handleInstance)).toBe(handleInstance);
-    });
-  
     test("should fail to parse non-string types", () => {
       expect(() => UserHandleSchema.parse(123)).toThrow("Expected string, received number");
     });

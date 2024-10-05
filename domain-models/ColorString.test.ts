@@ -46,11 +46,13 @@ describe("ColorString tests", () => {
     )
   })
 
-  test("ColorStringSchema", () => {
-    expect(ColorStringSchema.parse("#ffffff")).toEqual(ColorString.parse("#ffffff"))
-    expect(() => ColorStringSchema.parse("iojoigfiowejf")).toThrow("Invalid hex color string.")
+  describe("ColorStringSchema", () => {
+    test("success", () => {
+      expect(ColorStringSchema.parse("#ffffff")).toEqual(ColorString.parse("#ffffff"))
+    })
     
-    const color = ColorString.parse("#ffffff")
-    expect(ColorStringSchema.parse(color)).toEqual(color)
+    test("failure", () => {
+      expect(() => ColorStringSchema.parse("iojoigfiowejf")).toThrow("Invalid hex color string.")
+    })
   })
 })

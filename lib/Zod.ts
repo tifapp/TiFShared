@@ -1,33 +1,34 @@
 import { ZodError, ZodIssue, ZodSchema, z } from "zod"
+import { Constructor } from "./Types/HelperTypes"
 
-/**
- * An interface which defines a method of parsing that returns either an output type or `undefined`.
- */
-export interface OptionalParseable<Input, Output> {
-  parse(input: Input): Output | ZodError | Error
-}
-
-const optionalParse = <Input, Output>(
-  parseable: OptionalParseable<Input, Output>
+const optionalParse = <Input, Output extends Constructor>(
+  constructor: Output,
+  parse: (input: Input) => InstanceType<Output>
 ) => {
-  let parsedValue: Output
+  let parsedValue: InstanceType<Output>
   return z
     .custom<Input>()
     .superRefine((arg, ctx) => {
-      const result = parseable.parse(arg)
-      if (result instanceof ZodError) {
-        result.issues.forEach((issue: ZodIssue) => {
-          ctx.addIssue(issue);
-        });
-      } else if (result instanceof Error) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: result.message,
-          params: { arg },
-          fatal: true
-        })
-      } else {
-        parsedValue = result
+      if (arg instanceof constructor) {
+        parsedValue = arg as InstanceType<Output>
+        return
+      }
+
+      try {
+        parsedValue = parse(arg)
+      } catch (e) {
+        if (e instanceof ZodError) {
+          e.issues.forEach((issue: ZodIssue) => {
+            ctx.addIssue(issue);
+          });
+        } else {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: e.message,
+            params: { arg },
+            fatal: true
+          })
+        }
       }
     })
     .transform(() => parsedValue) // NB: Needed to return the parsed value
@@ -57,9 +58,10 @@ declare module "zod" {
      * @param errorMessage a function that gets the error message when parsing fails.
      * @returns a zod schema that wraps the parseable.
      */
-    function optionalParseable<Input, Output>(
-      parseable: OptionalParseable<Input, Output>
-    ): ReturnType<typeof optionalParse<Input, Output>>
+    function optionalParseable<Input, Output extends Constructor>(
+      constructor: Output,
+      parseable: (input: Input) => InstanceType<Output>
+    ): ReturnType<typeof optionalParse<Input, InstanceType<Output>>>
 
     /**
      * Infers a zod schema as a "Readonly" type.

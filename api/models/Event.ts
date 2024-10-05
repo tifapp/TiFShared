@@ -7,6 +7,7 @@ import {
   EventLocationSchema,
   EventPreviewAttendeeSchema,
   EventSettingsSchema,
+  EventTitleSchema,
   EventUserAttendeeStatusSchema,
   EventWhenBlockedByHostSchema,
   TrackableEventArrivalRegionsSchema
