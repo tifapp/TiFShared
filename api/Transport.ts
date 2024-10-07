@@ -2,9 +2,9 @@ import { urlString } from "../lib/URL"
 import { logger } from "../logging"
 import { APIHandler, StatusCodes } from "./TransportTypes"
 
-export function resp<StatusCode extends StatusCodes, const T>(status: StatusCode, data: T): { status: StatusCode, data: T };
+export function resp<StatusCode extends StatusCodes, const T extends object>(status: StatusCode, data: T): { status: StatusCode, data: T };
 export function resp<StatusCode extends StatusCodes>(status: StatusCode): { status: StatusCode, data?: undefined };
-export function resp<StatusCode extends StatusCodes, const T>(status: StatusCode, data?: T) {
+export function resp<StatusCode extends StatusCodes, const T extends object>(status: StatusCode, data?: T) {
   return ({
     status,
     data

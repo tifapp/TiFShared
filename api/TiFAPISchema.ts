@@ -284,13 +284,14 @@ export const TiFAPISchema = {
     },
     outputs: {
       status403: tifAPIErrorSchema(
-        "event-has-been-cancelled",
+        "event-was-cancelled",
         "event-has-ended"
       ),
       status404: tifAPIErrorSchema(
         "event-not-found"
       ),
-      status400: tifAPIErrorSchema("co-host-not-found", "already-left-event"),
+      status400: tifAPIErrorSchema("co-host-not-found"),
+      status200: z.undefined(),
       status204: "no-content"
     },
     httpRequest: {

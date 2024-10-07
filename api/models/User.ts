@@ -43,7 +43,7 @@ const DevicePlatformSchema = z.enum(["apple", "android"])
 
 export const SelfProfileSchema = z.object({
   id: UserIDSchema,
-  name: z.string().optional(),
+  name: z.string(),
   bio: z.string().optional(),
   handle: UserHandleSchema,
   createdDateTime: z.coerce.date(),
