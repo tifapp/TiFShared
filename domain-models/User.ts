@@ -178,21 +178,21 @@ export class UserHandle {
  * A zod schema that converts a string to an {@link UserHandle}.
  */
 export const UserHandleSchema = z.optionalParseable(
-  // @ts-ignore Typescript error - Constructor is private
   UserHandle,
-  (arg: UserHandle | string) => {
-    const parseResult = UserHandle.parse(z.string().parse(arg))
+  z.string()
+    .transform(rawValue => {
+      const {error, handle} = UserHandle.parse(rawValue)
 
-    if (parseResult.error === "bad-format") {
-      throw new Error("A valid user handle only contains letters, numbers, and underscores.")
-    } else if (parseResult.error === "empty") {
-      throw new Error("A valid user handle must have at least 1 character.")
-    } else if (parseResult.error === "too-long") {
-      throw new Error("A valid user handle can only be up to 15 characters long.")
-    } else {
-      return parseResult.handle
-    }
-  }
+      if (handle) {
+        return handle
+      } else if (error === "empty") {
+        throw new Error("A valid user handle must have at least 1 character.")
+      } else if (error === "too-long") {
+        throw new Error("A valid user handle can only be up to 15 characters long.")
+      } else {        
+        throw new Error("A valid user handle only contains letters, numbers, and underscores.")
+      }
+    })
 )
 
 export type UserHandleLinkifyMatch = Match & { userHandle: UserHandle }

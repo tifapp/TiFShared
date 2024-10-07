@@ -65,15 +65,15 @@ export class ColorString {
  * A zod schema for {@link ColorString}.
  */
 export const ColorStringSchema = z.optionalParseable(
-  // @ts-ignore Typescript error - Constructor is private
   ColorString,
-  (rawValue: string) => {
-    const parsedValue = ColorString.parse(z.string().parse(rawValue));
+  z.string()
+    .transform(rawValue => {
+      const parsedValue = ColorString.parse(rawValue);
 
-    if (!parsedValue) {
-      throw new Error("Invalid hex color string.")
-    }
-    
-    return parsedValue
-  }
+      if (!parsedValue) {
+        throw new Error("Invalid hex color string.")
+      }
+      
+      return parsedValue
+    })
 )

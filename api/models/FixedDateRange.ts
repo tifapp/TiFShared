@@ -7,14 +7,11 @@ import { FixedDateRange } from "../../domain-models/FixedDateRange"
  */
 export const FixedDateRangeSchema = z.optionalParseable(
   FixedDateRange,
-  (arg: {startDateTime: string, endDateTime: string}) => {
-    const parsedArg = z.object({
+  z.object({
       startDateTime: z.coerce.date(),
       endDateTime: z.coerce.date()
-    }).parse(arg)
-    
-    return new FixedDateRange(parsedArg.startDateTime, parsedArg.endDateTime)
-  }
+    })
+    .transform(({startDateTime, endDateTime}) => new FixedDateRange(startDateTime, endDateTime))
 )
 
 export const MIN_EVENT_DURATION = 60
