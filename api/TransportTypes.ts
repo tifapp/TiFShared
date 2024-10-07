@@ -6,8 +6,6 @@ import { URLEndpoint, URLParameters } from "../lib/URL";
 
 export type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
-export type APIRequestBody = { [key: string]: JSONSerializableValue }
-
 export type StatusCodeMap = {
   status200: 200
   status201: 201
@@ -22,40 +20,27 @@ export type StatusCodeMap = {
 
 export type StatusCodes = StatusCodeMap[keyof StatusCodeMap]
 
-type APINoContentSchema = "no-content"
-
 type APIResponseSchemas = NonEmptyPartial<{
   [key in keyof StatusCodeMap]: key extends "status204"
-    ? APINoContentSchema
+    ? "no-content"
     : ZodType
 }>
 
-const EmptyObjectSchema = z.object({})
-
-type SchemaFor<
-  Key extends keyof StatusCodeMap,
-  Schemas extends APIResponseSchemas
-> = Key extends "status204"
-  ? Schemas[Key] extends APINoContentSchema
-    ? typeof EmptyObjectSchema
-    : undefined
-  : Schemas[Key]
-
 export type TiFAPIResponse<Schemas extends APIResponseSchemas> = {
-  [key in keyof StatusCodeMap]: Schemas[key] extends APINoContentSchema
+  [key in keyof Schemas]: key extends "status204"
     ? {
       status: 204,
       data?: undefined
     }
-    : SchemaFor<key, Schemas> extends ZodType ? {
-        status: StatusCodeMap[key]
-        data: z.infer<SchemaFor<key, Schemas>>
+    : Schemas[key] extends ZodType ? {
+        status: StatusCodeMap[key & keyof StatusCodeMap]
+        data: z.infer<Schemas[key]>
       }
     : never
-}[keyof StatusCodeMap]
+}[keyof Schemas]
 
 type TiFAPIInput = {
-  body?: APIRequestBody;
+  body?: { [key: string]: JSONSerializableValue };
   query?: URLParameters;
   params?: URLParameters;
 };

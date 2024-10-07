@@ -27,18 +27,19 @@ type z = Match<x, y>;
 // z will detail the missing type ('c' in this case).
 
 /**
- * Asserts that a given function matches an expected function definition, including parameter and return types.
+ * Asserts that a function matches an expected function definition.
  * 
- * @typeParam ExpectedFn - The expected function signature.
- * @returns The function itself if it matches the ExpectedFn type, throwing a compile error if not.
+ * @typeParam ExpectedFn - An expected function signature.
+ * @returns The function that should conform to ExpectedFn.
  */
-export const assertFnType = <ExpectedFn extends (...args: any[]) => any>() => 
-  <F extends ExpectedFn>(
-    fn: F & Match<ReturnType<ExpectedFn>, ReturnType<F>, F>
-  ) =>
-    fn
+export type MatchFn<ExpectedFn extends (...args: any[]) => any, TFn extends ExpectedFn>
+  = Match<Awaited<ReturnType<ExpectedFn>>, Awaited<ReturnType<TFn>>, TFn>
 
 // Example Usage:
+const assertFnType = <ExpectedFn extends (...args: any[]) => any>() => {
+  return <Fn extends ExpectedFn>(fns: MatchFn<ExpectedFn, Fn>) => fns;
+}
+
 type ExampleFnType = (param: string, param2: string) => {
   status: 204,
   data: "no-content"
@@ -52,17 +53,30 @@ const fn = assertFnType<ExampleFnType>()((param, param2) => { // Params are corr
   if (param) {
     return { status: 201, data: 3 };
   }
-  return { status: 204, data: "no-content" }; // No need to specify "as const"
+  return { status: 204, data: "no-content" };
 });
 
-/**
- * Asserts that a function matches an expected function definition.
- * 
- * @typeParam ExpectedFn - An expected function signature.
- * @returns The function that should conform to ExpectedFn.
- */
-export type MatchFn<ExpectedFn extends (...args: any[]) => any, TFn extends ExpectedFn>
-  = Match<ReturnType<ExpectedFn>, ReturnType<TFn>, TFn> & TFn
+// Warning:
+//
+// type ExpectedFn = () => {data: {status: "friends" | "blocked"}}
+// export const testfn = <Fns extends ExpectedFn>(_: MatchFn<ExpectedFn, Fns>) => {}
+// testfn(() => {
+//   if (Math.random()) {
+//     return {data: {status: "friends"}}
+//   } else {
+//     return {data: {status: "blocked"}}
+//   }
+// })
+//
+// In this example, the expected return type is { data: { status: "friends" | "blocked" } }
+// However, the actual function returns a union of separate objects:
+//   { data: { status: "friends" } } | { data: { status: "blocked" } }
+// 
+// TypeScript treats these two types as distinct because:
+// - { data: { status: "friends" | "blocked" } } 
+//   is a single object where 'status' can be either "friends" or "blocked".
+// - { data: { status: "friends" } } | { data: { status: "blocked" } } 
+//   is a union of two separate objects, each with a specific 'status'.
 
 /**
  * Asserts that a collection of functions matches an expected set of function definitions.

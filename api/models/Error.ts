@@ -2,7 +2,7 @@ import { NonEmptyArray } from "lib/Types/HelperTypes";
 import { z } from "zod";
 
 export const tifAPIErrorSchema = <
-  T extends NonEmptyArray<string>
+  const T extends NonEmptyArray<string>
 >(
   ...literals: T
 ) => {
