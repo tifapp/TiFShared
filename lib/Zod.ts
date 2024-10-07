@@ -1,21 +1,29 @@
-import { ZodError, ZodIssue, ZodSchema, z } from "zod"
-import { Constructor } from "./Types/HelperTypes"
+import { ZodError, ZodIssue, ZodSchema, ZodType, ZodTypeDef, z } from "zod"
+import { Prototype } from "./Types/HelperTypes"
 
-const optionalParse = <Input, Output extends Constructor>(
-  constructor: Output,
-  parse: (input: Input) => InstanceType<Output>
+/**
+ * optionalParse creates a Zod schema that accepts either an instance of a class
+ * or raw input that can be transformed into an instance of that class.
+ *
+ * @param clazz - The class (can have public or private constructor).
+ * @param schema - A Zod schema that validates and transforms raw input into the desired Output type.
+ * @returns A Zod schema that accepts either an instance of the class or raw input.
+ */
+const optionalParse = <Output extends Prototype, Input>(
+  clazz: Output,
+  schema: ZodType<Output, ZodTypeDef, Input>
 ) => {
-  let parsedValue: InstanceType<Output>
+  let parsedValue: Output
   return z
     .custom<Input>()
     .superRefine((arg, ctx) => {
-      if (arg instanceof constructor) {
-        parsedValue = arg as InstanceType<Output>
+      if (arg instanceof clazz) {
+        parsedValue = arg as unknown as Output
         return
       }
 
       try {
-        parsedValue = parse(arg)
+        parsedValue = schema.parse(arg)
       } catch (e) {
         if (e instanceof ZodError) {
           e.issues.forEach((issue: ZodIssue) => {
@@ -58,10 +66,10 @@ declare module "zod" {
      * @param errorMessage a function that gets the error message when parsing fails.
      * @returns a zod schema that wraps the parseable.
      */
-    function optionalParseable<Input, Output extends Constructor>(
+    function optionalParseable<Output extends Prototype, Input>(
       constructor: Output,
-      parseable: (input: Input) => InstanceType<Output>
-    ): ReturnType<typeof optionalParse<Input, InstanceType<Output>>>
+      schema: ZodType<Output["prototype"], ZodTypeDef, Input>
+    ): ZodType<Output["prototype"], ZodTypeDef, Input>
 
     /**
      * Infers a zod schema as a "Readonly" type.
