@@ -10,9 +10,7 @@ describe("ExtendedZod tests", () => {
     }
   }
   
-  const PositiveSchema = z.optionalParseable(Positive, (rawValue: number) => {
-    return new Positive(z.number().parse(rawValue))
-  })
+  const PositiveSchema = z.optionalParseable(Positive, z.number().transform(rawValue => new Positive(rawValue)))
 
   test("optional parseable, basic", () => {
     let result = PositiveSchema.safeParse(-1)
