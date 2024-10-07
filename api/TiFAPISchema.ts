@@ -252,7 +252,7 @@ export const TiFAPISchema = {
       ),
       status403: tifAPIErrorSchema(
         "event-has-ended",
-        "user-is-blocked",
+        "blocked-you",
         "event-was-cancelled"
       ),
       status201: JoinEventResponseSchema,

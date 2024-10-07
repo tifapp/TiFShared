@@ -1,4 +1,4 @@
-import { ZodEffects, ZodError, ZodIssue, ZodSchema, ZodType, z } from "zod"
+import { ZodError, ZodIssue, ZodSchema, ZodType, ZodTypeDef, z } from "zod"
 import { Prototype } from "./Types/HelperTypes"
 
 /**
@@ -9,9 +9,9 @@ import { Prototype } from "./Types/HelperTypes"
  * @param schema - A Zod schema that validates and transforms raw input into the desired Output type.
  * @returns A Zod schema that accepts either an instance of the class or raw input.
  */
-const optionalParse = <Input, Output extends Prototype>(
+const optionalParse = <Output extends Prototype, Input>(
   clazz: Output,
-  schema: ZodEffects<ZodType<Input>, Output>
+  schema: ZodType<Output, ZodTypeDef, Input>
 ) => {
   let parsedValue: Output
   return z
@@ -66,10 +66,10 @@ declare module "zod" {
      * @param errorMessage a function that gets the error message when parsing fails.
      * @returns a zod schema that wraps the parseable.
      */
-    function optionalParseable<Input, Output extends Prototype>(
+    function optionalParseable<Output extends Prototype, Input>(
       constructor: Output,
-      schema: ZodEffects<ZodType<Input>, Output["prototype"]>
-    ): ZodEffects<ZodType<Input>, Output["prototype"]>
+      schema: ZodType<Output["prototype"], ZodTypeDef, Input>
+    ): ZodType<Output["prototype"], ZodTypeDef, Input>
 
     /**
      * Infers a zod schema as a "Readonly" type.

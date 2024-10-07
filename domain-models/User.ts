@@ -184,14 +184,14 @@ export const UserHandleSchema = z.optionalParseable(
     .transform(rawValue => {
       const {error, handle} = UserHandle.parse(rawValue)
 
-      if (error === "bad-format") {
-        throw new Error("A valid user handle only contains letters, numbers, and underscores.")
+      if (handle) {
+        return handle
       } else if (error === "empty") {
         throw new Error("A valid user handle must have at least 1 character.")
       } else if (error === "too-long") {
         throw new Error("A valid user handle can only be up to 15 characters long.")
-      } else {
-        return handle! // NB: Typescript not inferring that handle should exist
+      } else {        
+        throw new Error("A valid user handle only contains letters, numbers, and underscores.")
       }
     })
 )
