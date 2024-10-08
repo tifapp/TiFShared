@@ -291,7 +291,7 @@ export const TiFAPISchema = {
         "event-not-found"
       ),
       status400: tifAPIErrorSchema("co-host-not-found"),
-      status200: z.undefined(),
+      status200: z.object({}).optional(),
       status204: "no-content"
     },
     httpRequest: {

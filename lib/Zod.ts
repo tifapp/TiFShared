@@ -13,8 +13,12 @@ const optionalParse = <Output extends Prototype, Input>(
   clazz: Output,
   schema: ZodType<Output, ZodTypeDef, Input>
 ) => {
-  let issues: IssueData[] = [];
+  if (process.env.API_GENERATION_ENVIRONMENT) { // NB: dateRange is null when generating openapi schema
+    return schema;
+  }
 
+  let issues: IssueData[] = [];
+  
   return z
     .custom<Input>()
     .transform((arg) => {

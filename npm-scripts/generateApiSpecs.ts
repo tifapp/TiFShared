@@ -1,16 +1,16 @@
-import "../index"
+process.env.API_GENERATION_ENVIRONMENT = 'true';
+
+import "../index";
 
 import {
   OpenAPIRegistry,
   OpenApiGeneratorV3,
   extendZodWithOpenApi
-} from "@asteasolutions/zod-to-openapi"
-import fs from "fs"
-import path from "path"
-import { z } from "zod"
-import { APISchema, TiFAPISchema } from "../api"
-
-process.env.API_GENERATION_ENVIRONMENT = 'true';
+} from "@asteasolutions/zod-to-openapi";
+import fs from "fs";
+import path from "path";
+import { z } from "zod";
+import { APISchema, TiFAPISchema } from "../api";
 
 extendZodWithOpenApi(z)
 
@@ -24,9 +24,8 @@ Object.entries(TiFAPISchema as APISchema).forEach(
       method: method.toLowerCase() as Lowercase<typeof method>,
       path: `${endpoint.replace(/:(\w+)/g, "{$1}")}`,
       request: {
-        // needs patch so "coerce" doesnt give isnullable=true
-        // need to make sure domain models get properly referenced in the specs
-        // TODO conditional headers
+        // TODO patch so "coerce" doesnt give isnullable=true
+        // TODO Add headers
         // headers: z.object({
         //   Authorization: z.string().openapi({ example: "1212121" })
         // }),
@@ -35,7 +34,7 @@ Object.entries(TiFAPISchema as APISchema).forEach(
         body: body
           // eslint-disable-next-line multiline-ternary
           ? {
-            // description: "Object with user data.", TODO: Add descriptions
+            // TODO: Add descriptions
             content: {
               "application/json": {
                 schema: body
@@ -49,7 +48,7 @@ Object.entries(TiFAPISchema as APISchema).forEach(
         acc[statusCode] = statusCode === "204"
           // eslint-disable-next-line multiline-ternary
           ? { description: "No Content" } : {
-            description: "Object with user data.", // TODO: require description
+            description: "Object with user data.", // TODO: Add descriptions
             content: {
               "application/json": {
                 schema: outputs[key]
