@@ -1,5 +1,5 @@
-import { ZodError, ZodIssue, ZodSchema, ZodType, ZodTypeDef, z } from "zod"
-import { Prototype } from "./Types/HelperTypes"
+import { IssueData, ZodError, ZodIssueCode, ZodSchema, ZodType, ZodTypeDef, z } from "zod";
+import { Prototype } from "./Types/HelperTypes";
 
 /**
  * optionalParse creates a Zod schema that accepts either an instance of a class
@@ -13,34 +13,34 @@ const optionalParse = <Output extends Prototype, Input>(
   clazz: Output,
   schema: ZodType<Output, ZodTypeDef, Input>
 ) => {
-  let parsedValue: Output
+  let issues: IssueData[] = [];
+
   return z
     .custom<Input>()
-    .superRefine((arg, ctx) => {
+    .transform((arg) => {
       if (arg instanceof clazz) {
-        parsedValue = arg as unknown as Output
-        return
+        return arg as unknown as Output;
       }
 
       try {
-        parsedValue = schema.parse(arg)
+        return schema.parse(arg);
       } catch (e) {
-        if (e instanceof ZodError) {
-          e.issues.forEach((issue: ZodIssue) => {
-            ctx.addIssue(issue);
-          });
-        } else {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: e.message,
-            params: { arg },
-            fatal: true
-          })
-        }
+        issues = e instanceof ZodError
+          ? e.issues
+          : [{
+              message: e.message,
+              code: ZodIssueCode.custom,
+              params: { arg },
+              fatal: true,
+            }];
+        return arg;
       }
     })
-    .transform(() => parsedValue) // NB: Needed to return the parsed value
-}
+    .superRefine((_, ctx) => {
+      issues.forEach(ctx.addIssue);
+      issues.length = 0; // NB: Clear issues between calls
+    });
+};
 
 declare module "zod" {
   export namespace z {
