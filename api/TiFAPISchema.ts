@@ -358,7 +358,7 @@ export const TiFAPISchema = {
     },
     outputs: {
       status200: UserProfileSchema,
-      status403: userTiFAPIErrorSchema("blocked"),
+      status403: userTiFAPIErrorSchema("blocked-you"),
       status404: UserNotFoundResponseSchema,
     },
     httpRequest: {
@@ -429,7 +429,7 @@ export const TiFAPISchema = {
     outputs: {
       status200: UserFriendRequestResponseSchema,
       status201: UserFriendRequestResponseSchema,
-      status403: userTiFAPIErrorSchema("blocked"),
+      status403: userTiFAPIErrorSchema("blocked-you"),
       status404: UserNotFoundResponseSchema,
     },
     httpRequest: {

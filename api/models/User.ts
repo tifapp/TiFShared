@@ -37,7 +37,7 @@ export type UserSettingsResponse = UserSettings
 
 export const UserSettingsResponseSchema = UserSettingsSchema
 
-export const UserFriendRequestResponseSchema = z.object({status: z.enum([FriendRequestSentStatusSchema.value, FriendsStatusSchema.value])})
+export const UserFriendRequestResponseSchema = z.object({relationStatus: z.enum([FriendRequestSentStatusSchema.value, FriendsStatusSchema.value])})
 
 const DevicePlatformSchema = z.enum(["apple", "android"])
 
