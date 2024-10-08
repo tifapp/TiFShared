@@ -16,7 +16,10 @@ describe("ExtendedZod tests", () => {
     let result = PositiveSchema.safeParse(-1)
     expect(result.success).toEqual(false)
     result = PositiveSchema.safeParse(1)
-    expect(result.success).toEqual(true)
+    expect(result).toEqual({
+      success: true,
+      data: new Positive(1)
+    })
   })
   
   test("optional parseable, pass instances of the constructor", () => {
@@ -50,4 +53,15 @@ describe("ExtendedZod tests", () => {
       }
     ])
   })
+  
+  test("optional parseable should not overwrite previous values in an async context", async () => {
+    const testInput = [new Positive(1), new Positive(2), new Positive(3)]
+
+    const result = await z.array(PositiveSchema).parseAsync(testInput)
+
+    expect(result).toStrictEqual(testInput)
+  })
+
+  // NB: Issues are duplicated in an async context
+  // Ex. await z.array(PositiveSchema).parseAsync([1, -2, -3])
 })
