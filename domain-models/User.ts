@@ -21,12 +21,13 @@ export const FriendRequestReceivedStatusSchema = z.literal("friend-request-recei
 export const FriendsStatusSchema = z.literal("friends")
 export const CurrentUserStatusSchema = z.literal("current-user")
 
-export const UserToProfileRelationStatusSchema = z.union([
-  NotFriendsStatusSchema,
-  FriendRequestSentStatusSchema,
-  FriendsStatusSchema,
-  BlockedThemStatusSchema,
-  CurrentUserStatusSchema
+export const UserToProfileRelationStatusSchema = z.enum([
+  NotFriendsStatusSchema.value,
+  FriendRequestReceivedStatusSchema.value,
+  FriendRequestSentStatusSchema.value,
+  FriendsStatusSchema.value,
+  BlockedThemStatusSchema.value,
+  CurrentUserStatusSchema.value
 ])
 
 /**

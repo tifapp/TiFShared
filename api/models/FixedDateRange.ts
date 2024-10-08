@@ -22,6 +22,10 @@ export const MIN_EVENT_DURATION = 60
  * - The end date cannot be in the past.
  */
 export const CreateFixedDateRangeSchema = FixedDateRangeSchema.superRefine((dateRange, ctx) => {
+  if (process.env.API_GENERATION_ENVIRONMENT) { // NB: dateRange is null when generating openapi schema
+    return;
+  }
+
   const { startDateTime, endDateTime } = dateRange;
 
   const secondDiff = (endDateTime.getTime() - startDateTime.getTime()) / 1000;

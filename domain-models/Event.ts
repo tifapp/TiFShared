@@ -51,6 +51,8 @@ export const areEventRegionsEqual = (r1: EventRegion, r2: EventRegion) => {
 
 export const EventAttendeeSchema = z.object({
   id: UserIDSchema,
+  role: z.enum(['hosting', 'attending']),
+  hasArrived: z.boolean(),
   name: z.string(),
   handle: UserHandleSchema,
   profileImageURL: z.string().url().optional(),
@@ -59,7 +61,7 @@ export const EventAttendeeSchema = z.object({
   arrivedDateTime: z.coerce.date().optional(),
 })
 
-export const EventHostSchema = EventAttendeeSchema.omit({joinedDateTime: true, arrivedDateTime: true})
+export const EventHostSchema = EventAttendeeSchema.omit({joinedDateTime: true, arrivedDateTime: true, hasArrived: true, role: true})
 
 /**
  * User information given for an attendee of an event.
