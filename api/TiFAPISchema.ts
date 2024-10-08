@@ -2,7 +2,7 @@ import { z } from "zod";
 import { CreateEventSchema, EventAttendeesPageSchema, EventIDSchema, EventRegionSchema, EventWhenBlockedByHostSchema, TrackableEventArrivalRegionsSchema } from "../domain-models/Event";
 import { LocationCoordinate2DSchema } from "../domain-models/LocationCoordinate2D";
 import { BlockedYouStatusSchema, UserHandleSchema, UserIDSchema } from "../domain-models/User";
-import { APISchema, EndpointSchemasToFunctions, assertEndpointSchemaType } from "./TransportTypes";
+import { APISchema, EndpointSchemasToFunctions, StatusCodes, assertEndpointSchemaType } from "./TransportTypes";
 import { tifAPIErrorSchema } from "./models/Error";
 import { EventNotFoundErrorSchema, EventResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
 import { RegisterPushTokenRequestSchema, SelfProfileSchema, UpdateCurrentUserProfileRequestSchema, UpdateUserSettingsRequestSchema, UserFriendRequestResponseSchema, UserNotFoundResponseSchema, UserProfileSchema, UserSettingsResponseSchema, userTiFAPIErrorSchema } from "./models/User";
@@ -291,7 +291,7 @@ export const TiFAPISchema = {
         "event-not-found"
       ),
       status400: tifAPIErrorSchema("co-host-not-found"),
-      status200: z.object({}).optional(),
+      status200: z.object({ message: z.literal("not-attending") }),
       status204: "no-content"
     },
     httpRequest: {
@@ -490,3 +490,7 @@ export const TiFAPISchema = {
 } satisfies APISchema
 
 export type TiFAPIClient<InputExtension = {}> = EndpointSchemasToFunctions<typeof TiFAPISchema, InputExtension>
+
+type APIResponse<T, U extends StatusCodes> = T extends { status: U } ? T : never;
+
+export type TiFEndpointResponse<EndpointName extends keyof TiFAPIClient, Status extends StatusCodes> = APIResponse<Awaited<ReturnType<TiFAPIClient[EndpointName]>>, Status>["data"]

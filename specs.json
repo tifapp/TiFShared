@@ -1496,7 +1496,17 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {}
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "enum": [
+                        "not-attending"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
