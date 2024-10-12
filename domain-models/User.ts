@@ -122,7 +122,7 @@ export class UserHandle {
     return this.rawValue === other.rawValue
   }
 
-  private static REGEX = /^[A-Za-z0-9_]{1,15}/
+  static REGEX = /^[A-Za-z0-9_]{1,15}/
 
   /**
    * Validates a raw user handle string and returns an instance of this
@@ -193,7 +193,8 @@ export const UserHandleSchema = z.optionalParseable(
       } else {        
         throw new Error("A valid user handle only contains letters, numbers, and underscores.")
       }
-    })
+    }),
+  z.string().regex(UserHandle.REGEX) // NB: Cannot combine with above schema since we can't catch the regex failure
 )
 
 export type UserHandleLinkifyMatch = Match & { userHandle: UserHandle }

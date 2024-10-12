@@ -11,10 +11,11 @@ import { Prototype } from "./Types/HelperTypes";
  */
 const optionalParse = <Output extends Prototype, Input>(
   clazz: Output,
-  schema: ZodType<Output, ZodTypeDef, Input>
+  schema: ZodType<Output, ZodTypeDef, Input>,
+  openapiSchema?: ZodType<Input>
 ) => {
   if (process.env.API_GENERATION_ENVIRONMENT) { // NB: dateRange is null when generating openapi schema
-    return schema;
+    return openapiSchema ?? schema;
   }
 
   let issues: IssueData[] = [];
@@ -72,7 +73,8 @@ declare module "zod" {
      */
     function optionalParseable<Output extends Prototype, Input>(
       constructor: Output,
-      schema: ZodType<Output["prototype"], ZodTypeDef, Input>
+      schema: ZodType<Output["prototype"], ZodTypeDef, Input>,
+      openapiSchema?: ZodType<Input>
     ): ZodType<Output["prototype"], ZodTypeDef, Input>
 
     /**

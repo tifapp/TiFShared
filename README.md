@@ -211,7 +211,7 @@ Support for new endpoints can be added to `TiFAPISchema` like so:
 const TiFAPISchema = {
   // Other endpoints...
 
-  myNewEndpoint: assertEndpointSchemaType({
+  myNewEndpoint: endpointSchema({
     input: {
       params: {
         id: z.number()

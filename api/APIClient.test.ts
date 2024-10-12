@@ -1,67 +1,35 @@
 import { z } from "zod";
-import { MockAPIImplementation, mockAPIServer } from "../test-helpers/mockAPIServer";
+import { mockAPIServer, mockEndpointSchema } from "../test-helpers/mockAPIServer";
 import { APIClientCreator } from "./APIClient";
 import { TEST_API_URL, validateAPIClientCall } from "./TiFAPI";
 import { tifAPITransport } from "./Transport";
-import { APISchema, EndpointSchemasToFunctions, HTTPMethod } from "./TransportTypes";
+import { APISchema } from "./TransportTypes";
 
 const TEST_BASE_URL = "http://localhost:8080"
-const TEST_ENDPOINT = "/test"
 
-const mockAPI = <T extends APISchema>({endpointSchema, endpointMocks}: {
-  endpointSchema: T,
-  endpointMocks: {
-    [EndpointName in keyof EndpointSchemasToFunctions<T>]: MockAPIImplementation<EndpointSchemasToFunctions<T>[EndpointName]>
-  }
-}) => 
-  mockAPIServer(new URL(TEST_BASE_URL), endpointSchema, endpointMocks)
+const mockAPI = <T extends APISchema>(endpointSchema: T, expectedRequest?: any, mockResponse?: any, handler?: any) => {
+  mockAPIServer(new URL(TEST_BASE_URL), endpointSchema, {checkUser: {expectedRequest, mockResponse, handler}} as any)
 
-const apiClient = <T extends APISchema>(endpointSchema: T) => 
-  APIClientCreator(    
+  return APIClientCreator(    
     endpointSchema,
     validateAPIClientCall,
     tifAPITransport(TEST_API_URL)
   )
+}
 
 describe("MockAPIServer tests", () => {  
   it("should throw an error when performing an unexpected request", async () => {
-    const endpointSchema = {
-      checkUser: {
-        input: {
-          query: z.object({
-            name: z.string(),
-          })
-        },
-        outputs: {
-          status204: "no-content"
-        },
-        httpRequest: {
-          method: "GET" as HTTPMethod,
-          endpoint: TEST_ENDPOINT
-        }
-      }
-    } as APISchema
-
-    mockAPI(
-      {
-        endpointSchema,
-        endpointMocks: {
-          checkUser: {
-            expectedRequest: {query: {name: "John"}} as any,
-            mockResponse: { 
-              status: 200,
-              data: undefined
-            } as unknown as never
-          }
-        }
-      }
+    const apiClient = mockAPI(
+      mockEndpointSchema("GET", { query: z.object({ name: z.string(), }) }),
+      { query: { name: "John" } } as any
     )
 
     let error = undefined;
 
     try {
-      await apiClient(endpointSchema).checkUser({query: {name: "Johnny"}} as any)
+      await apiClient.checkUser({query: {name: "Johnny"}} as any)
     } catch (e) {
+      // NB: error occurs in the mock api server so it can't be caught normally
       error = e.cause.matcherResult.message.replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, '');
     }
 
@@ -79,176 +47,63 @@ describe("MockAPIServer tests", () => {
   }`
     )
   }),
-
-  it("should perform a valid POST request with an undefined body", async () => {
-    const endpointSchema = {
-      checkUser: {
-        input: {
-          body: z.undefined()
-        },
-        outputs: {
-          status200: z.object({
-            name: z.string()
-          })
-        },
-        httpRequest: {
-          method: "POST" as HTTPMethod,
-          endpoint: TEST_ENDPOINT
-        }
-      }
-    } as APISchema
-
-    mockAPI(
-      {
-        endpointSchema,
-        endpointMocks: {
-          checkUser: {
-            expectedRequest: {
-              body: undefined
-            } as any,
-            mockResponse: { 
-              status: 200,
-              data: { name: 'John Doe' }
-            } as unknown as never
-          }
-        }
-      }
-    )
-
-    await expect(
-      apiClient(endpointSchema).checkUser({ body: undefined } as any)
-    ).resolves.toStrictEqual({
-      status: 200,
-      data: { name: 'John Doe' }
-    })
-  })
+  
   
   it("should perform a valid GET request", async () => {
-    const endpointSchema = {
-      checkUser: {
-        input: {
-          query: z.object({
-            name: z.string(),
-          })
-        },
-        outputs: {
-          status200: z.object({
-            name: z.string(),
-            age: z.number()
-          })
-        },
-        httpRequest: {
-          method: "GET" as HTTPMethod,
-          endpoint: TEST_ENDPOINT
-        }
-      }
-    } as APISchema
+    const mockResponse = { 
+      status: 200,
+      data: { name: 'John Doe' }
+    }
 
-    mockAPI(
-      {
-        endpointSchema,
-        endpointMocks: {
-          checkUser: {
-            expectedRequest: {
-              query: { name: "John" }
-            } as any,
-            mockResponse: { 
-              status: 200,
-              data: { name: 'John Doe', age: 30 }
-            } as unknown as never
-          }
-        }
-      }
+    const apiClient = mockAPI(
+      mockEndpointSchema("GET", { query: z.object({ name: z.string(), }) }, { status200: z.object({ name: z.string() }) }),
+      undefined,
+      mockResponse
     )
 
     await expect(
-      apiClient(endpointSchema).checkUser({ query: { name: "John" } } as any)
-    ).resolves.toStrictEqual({
+      apiClient.checkUser({ query: { name: "John" } } as any)
+    ).resolves.toStrictEqual(mockResponse)
+  })
+
+  it("should perform a valid POST request with an undefined body", async () => {
+    const mockResponse = { 
       status: 200,
-      data: { name: 'John Doe', age: 30 }
-    })
+      data: { name: 'John Doe' }
+    }
+
+    const apiClient = mockAPI(
+      mockEndpointSchema("POST", { body: z.undefined() }, { status200: z.object({ name: z.string() })}),
+      { body: undefined },
+      mockResponse
+    )
+
+    await expect(
+      apiClient.checkUser({ body: undefined } as any)
+    ).resolves.toStrictEqual(mockResponse)
   })
 })
 
 describe("APIClient tests", () => {
   it("should throw an error when performing an invalid request", async () => {
-    const endpointSchema = {
-      checkUser: {
-        input: {
-          query: z.object({
-            name: z.string(),
-          })
-        },
-        outputs: {
-          status204: "no-content"
-        },
-        httpRequest: {
-          method: "GET" as HTTPMethod,
-          endpoint: TEST_ENDPOINT
-        }
-      }
-    } as APISchema
-
-    mockAPI(
-      {
-        endpointSchema,
-        endpointMocks: {
-          checkUser: {
-            mockResponse: { 
-              status: 200,
-              data: undefined
-            } as unknown as never
-          }
-        }
-      }
+    const apiClient = mockAPI(
+      mockEndpointSchema("GET", { query: z.object({ name: z.string(), }) }),
     )
 
     await expect(
-      apiClient(endpointSchema).checkUser()
+      apiClient.checkUser()
     ).rejects.toThrow(
       new Error("invalid-request")
     )
   })
 
   it("should throw an error when performing GET request with a body", async () => {
-    const endpointSchema = {
-      checkUser: {
-        input: {
-          body: z.object({
-            name: z.string(),
-          })
-        },
-        outputs: {
-          status200: z.object({
-            name: z.string()
-          })
-        },
-        httpRequest: {
-          method: "GET" as HTTPMethod,
-          endpoint: TEST_ENDPOINT
-        }
-      }
-    } as APISchema
-
-    mockAPI(
-      {
-        endpointSchema,
-        endpointMocks: {
-          checkUser: {
-            expectedRequest: {
-              body: { name: "John" }
-            } as any,
-            mockResponse: { 
-              status: 200,
-              data: { name: 'John Doe' }
-            } as unknown as never
-          }
-        }
-      }
+    const apiClient = mockAPI(
+      mockEndpointSchema("GET", { body: z.object({ name: z.string(), }) }),
     )
 
     await expect(
-      apiClient(endpointSchema).checkUser({body: {name: "Johnny"}} as any)
+      apiClient.checkUser({body: {name: "Johnny"}} as any)
     ).rejects.toEqual(
       new Error(
         "Request with GET/HEAD method cannot have body"
@@ -257,159 +112,74 @@ describe("APIClient tests", () => {
   })
   
   it("should throw an error when server returns unexpected data", async () => {
-    const endpointSchema = {
-      checkUser: {
-        input: {},
-        outputs: {
-          status204: "no-content"
-        },
-        httpRequest: {
-          method: "GET" as HTTPMethod,
-          endpoint: TEST_ENDPOINT
-        }
-      }
-    } as APISchema
-
-    mockAPI(
-      {
-        endpointSchema,
-        endpointMocks: {
-          checkUser: {
-            expectedRequest: undefined,
-            mockResponse: { 
-              status: 200,
-              data: { name: 'John Doe' }
-            } as unknown as never
-          }
-        }
-      }
+    const apiClient = mockAPI(
+      mockEndpointSchema("GET", {}, { status204: "no-content" }),
+      undefined,
+      { status: 200, data: { name: 'John Doe' } }
     )
 
     await expect(
-      apiClient(endpointSchema).checkUser()
+      apiClient.checkUser()
     ).rejects.toEqual(
       new Error("unexpected-response")
     )
   })
   
   it("should throw an error when server returns invalid data", async () => {
-    const endpointSchema = {
-      checkUser: {
-        input: {},
-        outputs: {
-          status200: z.object({
-            age: z.number()
-          })
-        },
-        httpRequest: {
-          method: "GET" as HTTPMethod,
-          endpoint: TEST_ENDPOINT
-        }
-      }
-    } as APISchema
-
-    mockAPI(
-      {
-        endpointSchema,
-        endpointMocks: {
-          checkUser: {
-            expectedRequest: undefined,
-            mockResponse: { 
-              status: 200,
-              data: { name: 'John Doe' }
-            } as unknown as never
-          }
-        }
-      }
+    const apiClient = mockAPI(
+      mockEndpointSchema("GET", {}, { status200: z.object({ age: z.number() }) }),
+      undefined,
+      { status: 200, data: { name: 'John Doe' } }
     )
 
     await expect(
-      apiClient(endpointSchema).checkUser()
+      apiClient.checkUser()
     ).rejects.toEqual(
       new Error("invalid-response")
     )
   })
   
   it("should perform a valid POST request", async () => {
-    const endpointSchema = {
-      checkUser: {
-        input: {
-          body: z.object({
-            name: z.string(),
-          })
-        },
-        outputs: {
-          status200: z.object({
-            name: z.string(),
-            age: z.number()
-          })
-        },
-        httpRequest: {
-          method: "POST" as HTTPMethod,
-          endpoint: TEST_ENDPOINT
-        }
-      }
-    } as APISchema
-
     let savedRequest = undefined;
 
-    mockAPI(
-      {
-        endpointSchema,
-        endpointMocks: {
-          checkUser: {
-            expectedRequest: {
-              body: { name: "John" }
-            } as any,
-            handler: (request) => savedRequest = request ?? undefined,
-            mockResponse: { 
-              status: 200,
-              data: { name: 'John Doe', age: 30 }
-            } as unknown as never
-          }
+    const apiClient = mockAPI(
+      mockEndpointSchema(
+        "POST", 
+        { body: z.object({ name: z.string() }) }, 
+        {
+          status200: z.object({
+            age: z.number()
+          })
         }
-      }
+      ),
+      undefined,
+      { 
+        status: 200,
+        data: { age: 30 }
+      },
+      (request) => savedRequest = request ?? undefined
     )
 
     await expect(
-      apiClient(endpointSchema).checkUser({ body: { name: "John" } } as any)
-    ).resolves.toStrictEqual({
-      status: 200,
-      data: { name: 'John Doe', age: 30 }
-    })
+      apiClient.checkUser({ body: { name: "John" } } as any)
+    ).resolves.toStrictEqual(
+      {
+        status: 200,
+        data: { age: 30 }
+      }
+    )
     expect(savedRequest).toMatchObject({ body: { name: "John" } })
   })
   
   it("should allow no-content responses", async () => {
-    const endpointSchema = {
-      checkUser: {
-        input: {},
-        outputs: {
-          status204: "no-content"
-        },
-        httpRequest: {
-          method: "GET" as HTTPMethod,
-          endpoint: TEST_ENDPOINT
-        }
-      }
-    } as APISchema
-
-    mockAPI(
-      {
-        endpointSchema,
-        endpointMocks: {
-          checkUser: {
-            mockResponse: { 
-              status: 204,
-              data: undefined
-            } as unknown as never
-          }
-        }
-      }
+    const apiClient = mockAPI(
+      mockEndpointSchema("GET", {}, { status204: "no-content" }),
+      undefined,
+      { status: 204, data: undefined }
     )
 
     await expect(
-      apiClient(endpointSchema).checkUser()
+      apiClient.checkUser()
     ).resolves.toStrictEqual({
       status: 204,
       data: undefined

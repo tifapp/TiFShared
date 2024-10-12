@@ -2,7 +2,7 @@ import { z } from "zod";
 import { CreateEventSchema, EventAttendeesPageSchema, EventIDSchema, EventRegionSchema, EventWhenBlockedByHostSchema, TrackableEventArrivalRegionsSchema } from "../domain-models/Event";
 import { LocationCoordinate2DSchema } from "../domain-models/LocationCoordinate2D";
 import { BlockedYouStatusSchema, UserHandleSchema, UserIDSchema } from "../domain-models/User";
-import { APISchema, EndpointSchemasToFunctions, StatusCodes, assertEndpointSchemaType } from "./TransportTypes";
+import { APISchema, EndpointSchemasToFunctions, StatusCodes, endpointSchema } from "./TransportTypes";
 import { tifAPIErrorSchema } from "./models/Error";
 import { EventNotFoundErrorSchema, EventResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
 import { RegisterPushTokenRequestSchema, SelfProfileSchema, UpdateCurrentUserProfileRequestSchema, UpdateUserSettingsRequestSchema, UserFriendRequestResponseSchema, UserNotFoundResponseSchema, UserProfileSchema, UserSettingsResponseSchema, userTiFAPIErrorSchema } from "./models/User";
@@ -13,7 +13,7 @@ export const TiFAPISchema = {
    *
    * @returns an object containing the user's id and generated user handle.
    */
-  createCurrentUserProfile: assertEndpointSchemaType({
+  createCurrentUserProfile: endpointSchema({
     input: {},
     outputs: {
       status201: z.object({
@@ -30,7 +30,7 @@ export const TiFAPISchema = {
   /**
    * Updates the current user's profile attributes.
    */
-  updateCurrentUserProfile: assertEndpointSchemaType({
+  updateCurrentUserProfile: endpointSchema({
     input: {
       body: UpdateCurrentUserProfileRequestSchema
     },
@@ -51,7 +51,7 @@ export const TiFAPISchema = {
    * @param signal an {@link AbortSignal} to cancel the query.
    * @returns an object with a list of users containing their name, handle, and id.
    */
-  autocompleteUsers: assertEndpointSchemaType({
+  autocompleteUsers: endpointSchema({
     input: {
       query: z.object({
         handle: UserHandleSchema,
@@ -80,7 +80,7 @@ export const TiFAPISchema = {
    *
    * @returns a list of regions of the user's upcoming events.
    */
-  arriveAtRegion: assertEndpointSchemaType({
+  arriveAtRegion: endpointSchema({
     input: {
       body: EventRegionSchema
     },
@@ -98,7 +98,7 @@ export const TiFAPISchema = {
    *
    * @returns a list of regions of the user's upcoming events.
    */
-  departFromRegion: assertEndpointSchemaType({
+  departFromRegion: endpointSchema({
     input: {
       body: EventRegionSchema
     },
@@ -119,7 +119,7 @@ export const TiFAPISchema = {
    *
    * @returns a list of regions of the user's upcoming events.
    */
-  upcomingEventArrivalRegions: assertEndpointSchemaType({
+  upcomingEventArrivalRegions: endpointSchema({
     input: {},
     outputs: {
       status200: TrackableEventArrivalRegionsSchema
@@ -133,7 +133,7 @@ export const TiFAPISchema = {
   /**
    * Loads an individual event by its id.
    */
-  eventDetails: assertEndpointSchemaType({
+  eventDetails: endpointSchema({
     input: {
       params: z.object({
         eventId: EventIDSchema
@@ -164,7 +164,7 @@ export const TiFAPISchema = {
    * @param limit the maximum amount of users to return.
    * @param nextPage points to a particular section in the attendees list
    */
-  attendeesList: assertEndpointSchemaType({
+  attendeesList: endpointSchema({
     input: {
       params: z.object({
         eventId: EventIDSchema
@@ -192,7 +192,7 @@ export const TiFAPISchema = {
    * @param arrivalRegion A region to pass for marking an initial arrival if the user has arrived in the area of the event.
    * @returns The upcoming event arrivals based on the user joining this event, and a token request for the event group chat.
    */
-  endEvent: assertEndpointSchemaType({
+  endEvent: endpointSchema({
     input: {
       params: z.object({
         eventId: EventIDSchema
@@ -217,7 +217,7 @@ export const TiFAPISchema = {
   /**
    * Creates an event.
    */
-  createEvent: assertEndpointSchemaType({
+  createEvent: endpointSchema({
     input: {
       body: CreateEventSchema
     },
@@ -237,7 +237,7 @@ export const TiFAPISchema = {
    * @param arrivalRegion A region to pass for marking an initial arrival if the user has arrived in the area of the event.
    * @returns The upcoming event arrivals based on the user joining this event, and a token request for the event group chat.
    */
-  joinEvent: assertEndpointSchemaType({
+  joinEvent: endpointSchema({
     input: {
       params: z.object({
         eventId: EventIDSchema
@@ -276,7 +276,7 @@ export const TiFAPISchema = {
    *
    * @param eventId The id of the event to leave.
    */
-  leaveEvent: assertEndpointSchemaType({
+  leaveEvent: endpointSchema({
     input: {
       params: z.object({
         eventId: EventIDSchema
@@ -304,7 +304,7 @@ export const TiFAPISchema = {
    * Registers for the user for push notifications given a push token and a
    * platform name.
    */
-  registerForPushNotifications: assertEndpointSchemaType({
+  registerForPushNotifications: endpointSchema({
     input: {
       body: RegisterPushTokenRequestSchema
     },
@@ -322,7 +322,7 @@ export const TiFAPISchema = {
   /**
    * Gets the user's details.
    */
-  getSelf: assertEndpointSchemaType({
+  getSelf: endpointSchema({
     input: {},
     outputs: {
       status200: SelfProfileSchema,
@@ -336,7 +336,7 @@ export const TiFAPISchema = {
   /**
    * Deletes the user's account.
    */
-  removeAccount: assertEndpointSchemaType({
+  removeAccount: endpointSchema({
     input: {},
     outputs: {
       status204: "no-content",
@@ -350,7 +350,7 @@ export const TiFAPISchema = {
   /**
    * Gets details of another user.
    */
-  getUser: assertEndpointSchemaType({
+  getUser: endpointSchema({
     input: {
       params: z.object({
         userId: UserIDSchema
@@ -374,7 +374,7 @@ export const TiFAPISchema = {
    * they have been blocked by the user they are trying to block), so this
    * endpoint only fails if the given user id does not exist.
    */
-  blockUser: assertEndpointSchemaType({
+  blockUser: endpointSchema({
     input: {
       params: z.object({
         userId: UserIDSchema
@@ -398,7 +398,7 @@ export const TiFAPISchema = {
    * endpoint only fails if the given user id does not exist or if the user
    * is not blocked in the first place.
    */
-  unblockUser: assertEndpointSchemaType({
+  unblockUser: endpointSchema({
     input: {
       params: z.object({
         userId: UserIDSchema
@@ -420,7 +420,7 @@ export const TiFAPISchema = {
    * prior relationship, then a `friend-request-pending` status will be returned, otherwise
    * a `friends` status will be returned if the receiver has sent a friend request to the sender.
    */
-  sendFriendRequest: assertEndpointSchemaType({
+  sendFriendRequest: endpointSchema({
     input: {
       params: z.object({
         userId: UserIDSchema
@@ -442,7 +442,7 @@ export const TiFAPISchema = {
    * Returns the events in the area of the center with the given radius in
    * meters.
    */
-  exploreEvents: assertEndpointSchemaType({
+  exploreEvents: endpointSchema({
     input: {
       body: z.object({
         userLocation: LocationCoordinate2DSchema,
@@ -461,7 +461,7 @@ export const TiFAPISchema = {
   /**
    * Returns the remote settings for the current user.
    */
-  userSettings: assertEndpointSchemaType({
+  userSettings: endpointSchema({
     input: {},
     outputs: { 
       status200: UserSettingsResponseSchema 
@@ -475,7 +475,7 @@ export const TiFAPISchema = {
   /**
    * Saves the specified user settings and returns the updated user settings.
    */
-  saveUserSettings: assertEndpointSchemaType({
+  saveUserSettings: endpointSchema({
     input: {
       body: UpdateUserSettingsRequestSchema
     },

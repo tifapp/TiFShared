@@ -1,8 +1,19 @@
 import { HttpResponse, http } from "msw";
 import { TEST_API_URL, TiFAPI, TiFAPIClient, TiFAPISchema } from "../api";
-import { APIHandler, APISchema, EndpointSchemasToFunctions, GenericEndpointSchema, StatusCodes } from "../api/TransportTypes";
+import { APIHandler, APIResponseSchemas, APISchema, EndpointSchemasToFunctions, GenericEndpointSchema, HTTPMethod, InputSchema, StatusCodes } from "../api/TransportTypes";
 import { queryFromSearchParams } from "../lib/URL";
 import { mswServer } from "./MSW";
+
+export const mockEndpointSchema = (method: HTTPMethod, input?: InputSchema, outputs?: APIResponseSchemas) => ({
+  checkUser: {
+    input,
+    outputs,
+    httpRequest: {
+      method,
+      endpoint: "/_"
+    }
+  }
+}) as APISchema
 
 const mswBuilder = (testUrl: URL, endpointName: string, endpointSchema: GenericEndpointSchema, {expectedRequest, handler, mockResponse}: MockAPIImplementation<APIHandler>) => {
   const {httpRequest: {method, endpoint}} = endpointSchema
@@ -35,8 +46,16 @@ const mswBuilder = (testUrl: URL, endpointName: string, endpointSchema: GenericE
   );
 }
 
+type StringURLParams<T extends { query: any; path: any }> = {
+  [K in keyof T]: K extends 'query' | 'path' ? StringFields<T[K]> : T[K];
+};
+
+type StringFields<T> = {
+  [K in keyof T]: string;
+};
+
 export type MockAPIImplementation<Fn extends (...args: any) => any> = {
-  expectedRequest?: Parameters<Fn>[0],
+  expectedRequest?: StringURLParams<Parameters<Fn>[0]>,
   handler?: (args: Parameters<Fn>[0]) => void,
   mockResponse: Awaited<ReturnType<Fn>>,
 }

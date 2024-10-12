@@ -43,7 +43,8 @@
                       "format": "uuid"
                     },
                     "handle": {
-                      "type": "string"
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_]{1,15}"
                     }
                   },
                   "required": [
@@ -72,7 +73,8 @@
                     "type": "string"
                   },
                   "handle": {
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_]{1,15}"
                   }
                 }
               }
@@ -105,7 +107,8 @@
                       "type": "string"
                     },
                     "handle": {
-                      "type": "string"
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_]{1,15}"
                     },
                     "createdDateTime": {
                       "type": "string",
@@ -146,7 +149,8 @@
         "parameters": [
           {
             "schema": {
-              "type": "string"
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_]{1,15}"
             },
             "required": true,
             "name": "handle",
@@ -186,7 +190,8 @@
                             "maxLength": 300
                           },
                           "handle": {
-                            "type": "string"
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,15}"
                           }
                         },
                         "required": [
@@ -698,7 +703,8 @@
                           "type": "string"
                         },
                         "handle": {
-                          "type": "string"
+                          "type": "string",
+                          "pattern": "^[A-Za-z0-9_]{1,15}"
                         },
                         "profileImageURL": {
                           "type": "string",
@@ -788,7 +794,8 @@
                           "type": "string"
                         },
                         "handle": {
-                          "type": "string"
+                          "type": "string",
+                          "pattern": "^[A-Za-z0-9_]{1,15}"
                         },
                         "profileImageURL": {
                           "type": "string",
@@ -907,7 +914,8 @@
                             "type": "string"
                           },
                           "handle": {
-                            "type": "string"
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_]{1,15}"
                           },
                           "profileImageURL": {
                             "type": "string",
@@ -1687,7 +1695,8 @@
                       "type": "string"
                     },
                     "handle": {
-                      "type": "string"
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_]{1,15}"
                     },
                     "createdDateTime": {
                       "type": "string",
@@ -2256,7 +2265,8 @@
                                 "type": "string"
                               },
                               "handle": {
-                                "type": "string"
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9_]{1,15}"
                               },
                               "profileImageURL": {
                                 "type": "string",

@@ -20,7 +20,7 @@ export type StatusCodeMap = {
 
 export type StatusCodes = StatusCodeMap[keyof StatusCodeMap]
 
-type APIResponseSchemas = NonEmptyPartial<{
+export type APIResponseSchemas = NonEmptyPartial<{
   [key in keyof StatusCodeMap]: key extends "status204"
     ? "no-content"
     : ZodType
@@ -70,7 +70,7 @@ export type APIHandler<T = {}> = Handler<TiFAPIInputContext<T>, TiFAPIResponse<a
 /**
  * Type asserts an endpoint schema.
  */
-export const assertEndpointSchemaType = <
+export const endpointSchema = <
   TInput extends InputSchema,
   TOutput extends APIResponseSchemas,
   StrictInput extends StrictExtends<InputSchema, TInput>,

@@ -6,12 +6,12 @@ import { jwtMiddleware } from "./TransportMiddleware"
 
 export const TEST_API_URL = new URL("http://localhost:8080")
 
-export const validateAPIClientCall = validateAPICall((status, value) => {
-  if (status !== "passed") {
-    throw new Error(status)
+export const validateAPIClientCall = validateAPICall(result => {
+  if (result.validationStatus !== "passed") {
+    throw new Error(result.validationStatus)
   }
 
-  return value
+  return result.response
 })
 
 type _StaticTiFAPI = typeof _TiFAPIClass

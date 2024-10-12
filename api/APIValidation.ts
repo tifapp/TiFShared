@@ -20,27 +20,36 @@ const zodValidation = async <T>(data: T, schema: ZodTypeAny): Promise<T | "failu
   }
 };
 
-type ValidationResult = "invalid-request" | "unexpected-response" | "invalid-response" | "passed"
+export type ValidationResult = "invalid-request" | "unexpected-response" | "invalid-response" | "passed"
 
-type ValidationResultParser = (status: ValidationResult, value: TiFAPIInputContext<any> | TiFAPIResponse<any>) => (TiFAPIResponse<any>)
+export type ValidationResultParser = 
+  ((_: {validationStatus: Extract<ValidationResult, "invalid-request">, request: TiFAPIInputContext<any>} 
+    | {validationStatus: Extract<ValidationResult, "unexpected-response" | "invalid-response">, response: TiFAPIResponse<any>} 
+    | {validationStatus: Extract<ValidationResult, "passed">, response: TiFAPIResponse<any>}
+  ) => (TiFAPIResponse<any>))
+
+export const VALIDATE_REQUEST = 1 << 0
+export const VALIDATE_RESPONSE = 1 << 1
+export const VALIDATE_NONE = 0
+export type APICallValidateOptions = number
 
 // NB: Currently needs to be annotated with "any" in order for typescript to mark it compatible with more specific middleware like TiFAPITransport
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const validateAPICall = (resultParser: ValidationResultParser, validate: "requestOnly" | "responseOnly" | "both" = "both"): APIMiddleware<any> => 
+export const validateAPICall = (resultParser: ValidationResultParser, validationOptions: APICallValidateOptions = VALIDATE_REQUEST | VALIDATE_RESPONSE): APIMiddleware<any> => 
   async (endpointInput, next) => {
     const {endpointName, endpointSchema: {input: inputSchema, outputs: outputSchemas, constraints}, body, query, params} = endpointInput
 
-    let result: ValidationResult = "passed"
+    let validationStatus: ValidationResult = "passed"
 
     let request = {body, query, params}
 
-    if (validate === "requestOnly" || validate === "both") {
+    if (validationOptions & VALIDATE_REQUEST) {
       const validatedRequest = await zodValidation(request, z.object(inputSchema))
       
       if (validatedRequest === "failure") {
-        result = "invalid-request"
+        validationStatus = "invalid-request" as const
         log.error(`Request to TiF API endpoint ${endpointName} is not valid`, request)
-        return resultParser(result, request)
+        return resultParser({validationStatus, request})
       } else {
         request = validatedRequest
       }
@@ -52,11 +61,11 @@ export const validateAPICall = (resultParser: ValidationResultParser, validate: 
     
     let responseData = response.data;
 
-    if (validate === "responseOnly" || validate === "both") {
+    if (validationOptions & VALIDATE_RESPONSE) {
       const responseSchema = outputSchemas[`status${response.status}` as keyof typeof outputSchemas] as ZodTypeAny | "no-content"
 
       if (!responseSchema) {
-        result = "unexpected-response"
+        validationStatus = "unexpected-response"
         log.error(`TiF API endpoint ${endpointName} responded unexpectedly`, response)
       } else if (responseSchema !== "no-content") {
         responseData = await zodValidation(
@@ -65,11 +74,11 @@ export const validateAPICall = (resultParser: ValidationResultParser, validate: 
         )
         
         if (responseData === "failure") {
-          result = "invalid-response"
+          validationStatus = "invalid-response"
           log.error(`Response from TiF API endpoint ${endpointName} does not match the expected schema`, response)
         }
       }
     }
 
-    return resultParser(result, {status: response.status, data: responseData})
+    return resultParser({validationStatus, response: {status: response.status, data: responseData}})
   }
