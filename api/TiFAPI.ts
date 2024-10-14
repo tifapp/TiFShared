@@ -1,3 +1,4 @@
+import { logger } from "../logging"
 import { TiFAPIClientCreator } from "./APIClient"
 import { validateAPICall } from "./APIValidation"
 import { TiFAPIClient } from "./TiFAPISchema"
@@ -6,12 +7,20 @@ import { jwtMiddleware } from "./TransportMiddleware"
 
 export const TEST_API_URL = new URL("http://localhost:8080")
 
-export const validateAPIClientCall = validateAPICall(result => {
-  if (result.validationStatus !== "passed") {
-    throw new Error(result.validationStatus)
-  }
+const log = logger("tif.apiClient.validation")
 
-  return result.response
+export const validateAPIClientCall = validateAPICall<ClientExtensions>(result => {
+  if (result.validationStatus === "passed") {
+    return result.response
+  } else if (result.validationStatus === "invalid-request") {
+    log.error(`Request to TiF API endpoint ${result.requestContext.endpointName} is not valid`, result.requestContext)
+  } else if (result.validationStatus === "unexpected-response") {
+    log.error(`TiF API endpoint ${result.requestContext.endpointName} responded unexpectedly`, result.response)
+  } else if (result.validationStatus === "invalid-response") {
+    log.error(`Response from TiF API endpoint ${result.requestContext.endpointName} does not match the expected schema`, result.response)
+  }
+  
+  throw new Error(result.validationStatus)
 })
 
 type _StaticTiFAPI = typeof _TiFAPIClass

@@ -1,21 +1,20 @@
 import { z } from "zod"
 import { middlewareRunner } from "../lib/Middleware"
 import { addLogHandler, resetLogHandlers } from "../logging"
-import { APICallValidateOptions, VALIDATE_REQUEST, VALIDATE_RESPONSE, validateAPICall } from "./APIValidation"
-import { GenericEndpointSchema, TiFAPIInputContext, TiFAPIResponse } from "./TransportTypes"
+import { APIValidationOptions, validateAPICall } from "./APIValidation"
+import { AnyTiFAPIResponse, GenericEndpointSchema, TiFAPIInputContext } from "./TransportTypes"
 
 const endpointName = "MOCK_ENDPOINT"
 
 const apiValidator = (
   schema: Pick<GenericEndpointSchema,"input"|"outputs"|"constraints">, 
   request: TiFAPIInputContext<any>, 
-  response: TiFAPIResponse<any>,
-  validate: APICallValidateOptions = VALIDATE_REQUEST | VALIDATE_RESPONSE,
+  response: AnyTiFAPIResponse,
+  validate: APIValidationOptions = APIValidationOptions.Request | APIValidationOptions.Response,
 ) =>
   middlewareRunner(
-    validateAPICall(result =>
-      result.validationStatus === "passed" ? result.response : result.validationStatus as any
-    , validate),
+    validateAPICall(result => result.validationStatus === "passed" ? result.response : result.validationStatus as any, 
+    validate),
     async () => response
   )({ 
     endpointName,
@@ -63,11 +62,6 @@ describe("validateAPICall", () => {
         "received": "undefined"
       }]
     })
-    expect(logHandler).toHaveBeenNthCalledWith(2, "tif.api.validation", "error", "Request to TiF API endpoint MOCK_ENDPOINT is not valid", {
-      "body": undefined,
-      "params": undefined,
-      "query": { "name": "John" }
-    })    
   });
   
   it("can ignore request validation", async () => {
@@ -75,14 +69,10 @@ describe("validateAPICall", () => {
       mockSchema,
       { query: { name: "John" } },
       { status: 404, data: { message: "Not Found" } },
-      VALIDATE_RESPONSE
+      APIValidationOptions.Response
     )
 
     await expect(apiCall).resolves.toEqual("unexpected-response")
-    expect(logHandler).toHaveBeenNthCalledWith(1, "tif.api.validation", "error", "TiF API endpoint MOCK_ENDPOINT responded unexpectedly", {
-      "data": { "message": "Not Found" },
-      "status": 404
-    })
   });
 
   it("should throw an error if the response status is unexpected", async () => {
@@ -93,10 +83,6 @@ describe("validateAPICall", () => {
     )
 
     await expect(apiCall).resolves.toEqual("unexpected-response")
-    expect(logHandler).toHaveBeenNthCalledWith(1, "tif.api.validation", "error", "TiF API endpoint MOCK_ENDPOINT responded unexpectedly", {
-      "data": { "message": "Not Found" },
-      "status": 404
-    })
   });
   
   it("should throw an error if response is not valid", async () => {
@@ -116,10 +102,6 @@ describe("validateAPICall", () => {
         "received": "number"
       }]
     })
-    expect(logHandler).toHaveBeenNthCalledWith(2, "tif.api.validation", "error", "Response from TiF API endpoint MOCK_ENDPOINT does not match the expected schema", {
-      "data": { "name": 123 },
-      "status": 200
-    })
   });
   
   it("should throw an error if response does not match constraints", async () => {
@@ -135,14 +117,12 @@ describe("validateAPICall", () => {
             name: z.string(),
           })
         },
-        // Assuming constraints are part of the schema; adjust accordingly if different
         constraints: (input: any, output: any) => { 
           return input.body.name === output.data.name 
         }
       },
       { body: { name: "John" } },
-      { status: 200, data: { name: "Johnny" } },
-      VALIDATE_REQUEST | VALIDATE_RESPONSE
+      { status: 200, data: { name: "Johnny" } }
     )
 
     await expect(apiCall).resolves.toEqual("invalid-response")
@@ -152,10 +132,6 @@ describe("validateAPICall", () => {
         "message": "Invalid input",
         "path": []
       }]
-    })
-    expect(logHandler).toHaveBeenNthCalledWith(2, "tif.api.validation", "error", "Response from TiF API endpoint MOCK_ENDPOINT does not match the expected schema", {
-      "data": { "name": "Johnny" },
-      "status": 200
     })
   });
   
@@ -195,14 +171,12 @@ describe("validateAPICall", () => {
             name: z.string(),
           })
         },
-        // Assuming constraints are part of the schema; adjust accordingly if different
         constraints: (input: any, output: any) => { 
           return input.body.name === output.data.name 
         }
       },
       { body: { name: "John" } },
-      { status: 200, data: { name: "John" } },
-      VALIDATE_REQUEST | VALIDATE_RESPONSE
+      { status: 200, data: { name: "John" } }
     )
 
     await expect(apiCall).resolves.toStrictEqual({
@@ -217,7 +191,7 @@ describe("validateAPICall", () => {
       mockSchema,
       { body: { name: "John" } },
       { status: 200, data: { name: 123 } },      
-      VALIDATE_REQUEST
+      APIValidationOptions.Request
     )
 
     await expect(apiCall).resolves.toEqual({

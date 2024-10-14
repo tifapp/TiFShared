@@ -26,7 +26,9 @@ export type APIResponseSchemas = NonEmptyPartial<{
     : ZodType
 }>
 
-export type TiFAPIResponse<Schemas extends APIResponseSchemas> = {
+export type AnyTiFAPIResponse = TiFAPIResponse<any>
+
+type TiFAPIResponse<Schemas extends APIResponseSchemas> = {
   [key in keyof Schemas]: key extends "status204"
     ? {
       status: 204,
@@ -60,12 +62,12 @@ export type GenericEndpointSchema = {
 /**
  * Generic API endpoint middleware
  */
-export type APIMiddleware<T = {}> = Middleware<TiFAPIInputContext<T>, TiFAPIResponse<any>>
+export type APIMiddleware<T = {}> = Middleware<TiFAPIInputContext<T>, AnyTiFAPIResponse>
 
 /**
  * Generic API endpoint function
  */
-export type APIHandler<T = {}> = Handler<TiFAPIInputContext<T>, TiFAPIResponse<any>>;
+export type APIHandler<T = {}> = Handler<TiFAPIInputContext<T>, AnyTiFAPIResponse>;
 
 /**
  * Type asserts an endpoint schema.
