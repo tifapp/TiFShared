@@ -1,9 +1,9 @@
 import { z } from "zod"
 import { UserSettings, UserSettingsSchema } from "../../domain-models/Settings"
-import { UserHandleSchema, UserIDSchema, UserToProfileRelationStatusSchema } from "../../domain-models/User"
+import { FriendRequestSentStatusSchema, FriendsStatusSchema, UserHandleSchema, UserIDSchema, UserToProfileRelationStatusSchema } from "../../domain-models/User"
 import { tifAPIErrorSchema } from "./Error"
 
-export const userTiFAPIErrorSchema = <T extends z.Primitive>(literal: T) => {
+export const userTiFAPIErrorSchema = <const T extends string>(literal: T) => {
   return tifAPIErrorSchema(literal).extend({
     userId: UserIDSchema
   })
@@ -37,11 +37,13 @@ export type UserSettingsResponse = UserSettings
 
 export const UserSettingsResponseSchema = UserSettingsSchema
 
+export const UserFriendRequestResponseSchema = z.object({relationStatus: z.enum([FriendRequestSentStatusSchema.value, FriendsStatusSchema.value])})
+
 const DevicePlatformSchema = z.enum(["apple", "android"])
 
 export const SelfProfileSchema = z.object({
   id: UserIDSchema,
-  name: z.string().optional(),
+  name: z.string(),
   bio: z.string().optional(),
   handle: UserHandleSchema,
   createdDateTime: z.coerce.date(),
@@ -51,7 +53,7 @@ export const SelfProfileSchema = z.object({
 
 export const UserProfileSchema = z.object({
   id: UserIDSchema,
-  name: z.string().optional(),
+  name: z.string(),
   bio: z.string().optional(),
   handle: UserHandleSchema,
   createdDateTime: z.coerce.date(),

@@ -1,105 +1,76 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { HttpResponse, http } from "msw"
-import { z } from "zod"
+import { URLEndpoint } from "../lib/URL"
 import { addLogHandler, consoleLogHandler, resetLogHandlers } from "../logging"
 import { mswServer, noContentResponse } from "../test-helpers/MSW"
 import { tifAPITransport } from "./Transport"
-import { jwtMiddleware } from "./TransportMiddleware"
+import { GenericEndpointSchema, HTTPMethod } from "./TransportTypes"
 
-const TEST_BASE_URL = new URL("http://localhost:8080")
+const TEST_BASE_URL = "http://localhost:8080"
+const TEST_ENDPOINT = "/test"
 
-const TEST_JWT = "this is a totally a JWT"
-
-const apiFetch = tifAPITransport(
-  TEST_BASE_URL,
-  jwtMiddleware(async () => TEST_JWT)
-)
+const apiFetch = ({method, body, query, params, signal, endpoint}: 
+  {method: HTTPMethod, body?: any, query?: any, params?: any, signal?: AbortSignal, endpoint?: URLEndpoint}
+) => 
+  tifAPITransport(
+    new URL(TEST_BASE_URL)
+  )({
+    endpointName: "TEST",
+    endpointSchema: ({httpRequest: {method, endpoint: endpoint ?? TEST_ENDPOINT}} as GenericEndpointSchema),
+    body,
+    query,
+    params,
+    signal
+  })
 
 const successResponse = () => HttpResponse.json({ a: 1 })
 
-const badResponse = (status: number) => {
-  return HttpResponse.json({ b: "bad" }, { status })
-}
-
-const TestResponseSchema = {
-  status400: z.object({ b: z.string() }),
-  status200: z.object({ a: z.number() })
-}
-
 describe("TiFAPITransport tests", () => {
-  beforeEach(() => {
-    mswServer.use(
-      http.post("http://localhost:8080/test", async ({ request }) => {
-        // TODO: Use helper method for creating httpresponses
-        // https://mswjs.io/docs/migrations/1.x-to-2.x#response-declaration
-        const errorResp = badResponse(400) as any
-        const body: any = await request.json()
-        const searchParams = new URL(request.url).searchParams
-
-        if (request.headers.get("Authorization") !== `Bearer ${TEST_JWT}`) {
-          return errorResp
-        }
-        if (
-          searchParams.get("hello") !== "world" ||
-          searchParams.get("a") !== "1"
-        ) {
-          return errorResp
-        }
-
-        if (body?.a !== 1 || body?.b !== "hello") {
-          return errorResp
-        }
-        return successResponse()
-      }),
-      http.get("http://localhost:8080/test2", async ({ request }) => {
-        try {
-          await request.json()
-          return badResponse(400) as any
-        } catch {
-          return successResponse()
-        }
-      }),
-      http.get("http://localhost:8080/test3", async () => {
-        return badResponse(500)
-      }),
-      http.get("http://localhost:8080/test4", async () => {
-        return new HttpResponse("LMAO", { status: 200 })
-      }),
-      http.get("http://localhost:8080/test5", async () => {
-        return badResponse(200)
-      }),
-      http.get("http://localhost:8080/test6", async () => {
-        return noContentResponse()
-      }),
-      http.get("http://localhost:8080/test7", async () => {
-        await new Promise<void>(() => {})
-        return new HttpResponse(null, { status: 500 })
-      }),
-      http.get("http://localhost:8080/test8", async ({ request }) => {
-        if (new URLSearchParams(request.url).has("hello")) {
-          return new HttpResponse(null, { status: 500 })
-        }
-        return successResponse()
-      }),
-      http.get("http://localhost:8080/test9", async () => {
-        return HttpResponse.json({ hello: "world" }, { status: 204 })
-      })
-    )
-  })
-
   beforeAll(() => addLogHandler(consoleLogHandler()))
   afterAll(() => resetLogHandlers())
 
   test("api client fetch", async () => {
-    const resp = await apiFetch(
-      {
-        method: "POST",
-        endpoint: "/test",
-        query: { hello: "world", a: 1 },
-        body: { a: 1, b: "hello" }
-      },
-      TestResponseSchema
+    mswServer.use(
+      http.post(`${TEST_BASE_URL}${TEST_ENDPOINT}/:id`, async ({ request, params }) => {
+        const body: any = await request.json()
+        const searchParams = new URL(request.url).searchParams
+
+        expect(request.headers.get("Content-Type")).toBe("application/json")
+        expect(params.id).toBe("abc")
+        expect(searchParams.get("hello")).toBe("world")
+        expect(searchParams.get("a")).toBe("1")
+        expect(body?.a).toBe(1)
+        expect(body?.b).toBe("hello")
+
+        return successResponse()
+      })
     )
+
+    const resp = await apiFetch({
+      method: "POST", 
+      endpoint: `${TEST_ENDPOINT}/:id`, 
+      params: { id: "abc" },
+      query: { hello: "world", a: 1 },
+      body: { a: 1, b: "hello" }
+    })
+
+    expect(resp).toMatchObject({
+      status: 200,  
+      data: { a: 1 }
+    })
+  })
+  
+  test("api client fetch, undefined body", async () => {
+    mswServer.use(
+      http.post(`${TEST_BASE_URL}${TEST_ENDPOINT}`, async () => {
+        return successResponse()
+      })
+    )
+
+    const resp = await apiFetch({
+      method: "POST",
+      body: undefined
+    })
 
     expect(resp).toMatchObject({
       status: 200,
@@ -107,15 +78,20 @@ describe("TiFAPITransport tests", () => {
     })
   })
 
-  test("api client fetch, undefined query", async () => {
-    const resp = await apiFetch(
-      {
-        method: "GET",
-        endpoint: "/test8",
-        query: { hello: undefined }
-      },
-      TestResponseSchema
+  test("api client fetch, undefined query param", async () => {
+    mswServer.use(
+      http.get(`${TEST_BASE_URL}${TEST_ENDPOINT}`, async ({ request }) => {
+        if (new URLSearchParams(request.url).has("hello")) {
+          return new HttpResponse(null, { status: 500 })
+        }
+        return successResponse()
+      })
     )
+
+    const resp = await apiFetch({
+      method: "GET",
+      query: { hello: undefined }
+    })
 
     expect(resp).toMatchObject({
       status: 200,
@@ -124,13 +100,15 @@ describe("TiFAPITransport tests", () => {
   })
 
   test("api client fetch, no body", async () => {
-    const resp = await apiFetch(
-      {
-        method: "GET",
-        endpoint: "/test2"
-      },
-      TestResponseSchema
+    mswServer.use(
+      http.get(`${TEST_BASE_URL}${TEST_ENDPOINT}`, async ({ request }) => {
+        expect(async () => request.json()).rejects.toThrow()
+
+        return successResponse()
+      })
     )
+
+    const resp = await apiFetch({method: "GET"})
 
     expect(resp).toMatchObject({
       status: 200,
@@ -138,89 +116,39 @@ describe("TiFAPITransport tests", () => {
     })
   })
 
-  test("api client fetch, response code not in schema", async () => {
-    await expect(
-      apiFetch(
-        {
-          method: "GET",
-          endpoint: "/test3"
-        },
-        TestResponseSchema
-      )
-    ).rejects.toEqual(
-      new Error(
-        'TiF API responded with an unexpected status code 500 and body {"b":"bad"}'
-      )
-    )
-  })
-
   test("api client fetch, json not returned from API", async () => {
-    await expect(
-      apiFetch(
-        {
-          method: "GET",
-          endpoint: "/test4"
-        },
-        TestResponseSchema
-      )
-    ).rejects.toEqual(
+    mswServer.use(
+      http.get(`${TEST_BASE_URL}${TEST_ENDPOINT}`, async () => {
+        return new HttpResponse("LMAO", { status: 200 })
+      })
+    )
+
+    await expect(apiFetch({method: "GET"})).rejects.toEqual(
       new Error("TiF API responded with non-JSON body and status 200.")
     )
   })
 
-  test("api client fetch, invalid json returned from API", async () => {
-    await expect(
-      apiFetch(
-        {
-          method: "GET",
-          endpoint: "/test5"
-        },
-        TestResponseSchema
-      )
-    ).rejects.toEqual(
-      new Error(
-        'TiF API responded with an invalid JSON body {"b":"bad"} and status 200.'
-      )
-    )
-  })
-
-  test("api client fetch, empty body on 204, response schema doesn't list a 204 response", async () => {
-    await expect(
-      apiFetch(
-        {
-          method: "GET",
-          endpoint: "/test6"
-        },
-        TestResponseSchema
-      )
-    ).rejects.toEqual(
-      new Error(
-        'TiF API responded with an unexpected status code 204 and body ""'
-      )
-    )
-  })
-
-  test("api client fetch, empty body on 204, response schema lists a 204 response", async () => {
-    const resp = await apiFetch(
-      {
-        method: "GET",
-        endpoint: "/test6"
-      },
-      { ...TestResponseSchema, status204: "no-content" }
+  test("api client fetch, empty body on 204", async () => {
+    mswServer.use(
+      http.get(`${TEST_BASE_URL}${TEST_ENDPOINT}`, async () => {
+        return noContentResponse()
+      })
     )
 
-    expect(resp.data).toMatchObject({})
+    const resp = await apiFetch({method: "GET"})
+
+    expect(resp.data).toEqual(undefined)
   })
 
-  test("api client fetch, non-empty body on 204, response schema lists a 204 response", async () => {
+  test("api client fetch, non-empty body on 204", async () => {
+    mswServer.use(
+      http.get(`${TEST_BASE_URL}${TEST_ENDPOINT}`, async () => {
+        return HttpResponse.json({ hello: "world" }, { status: 204 })
+      })
+    )
+
     await expect(
-      apiFetch(
-        {
-          method: "GET",
-          endpoint: "/test9"
-        },
-        { ...TestResponseSchema, status204: "no-content" }
-      )
+      apiFetch({method: "GET"})
     ).rejects.toEqual(
       new Error(
         'TiFAPI responded with a 204 status code and body {"hello":"world"}. A 204 status code should not produce a body.'
@@ -228,39 +156,50 @@ describe("TiFAPITransport tests", () => {
     )
   })
 
-  test("cancellation", async () => {
-    const controller = new AbortController()
-    const respPromise = apiFetch(
+  test("logs error", async () => {
+    mswServer.use(
+      http.get(`${TEST_BASE_URL}${TEST_ENDPOINT}`, async () => {
+        throw new Error()
+      })
+    )
+
+    const logHandler = jest.fn()
+    addLogHandler(logHandler)
+    const respPromise = apiFetch({
+      method: "GET"
+    })
+
+    await expect(respPromise).rejects.toThrow("Failed to fetch")
+    expect(logHandler).toHaveBeenCalledWith(
+      "tif.api.client", 
+      "error", 
+      "Failed to make tif API request.", 
       {
-        method: "GET",
-        endpoint: "/test7"
-      },
-      TestResponseSchema,
-      controller.signal
+        "endpointName": "TEST",
+        "error": new Error("Failed to fetch"), 
+        "errorMessage": "Failed to fetch"
+      }
     )
-
-    process.nextTick(() => controller.abort())
-
-    await expect(respPromise).rejects.toThrow(
-      new DOMException("This operation was aborted")
-    )
+    resetLogHandlers()
   })
 
   test("cancellation, does not log error", async () => {
+    mswServer.use(
+      http.get(`${TEST_BASE_URL}${TEST_ENDPOINT}`, async () => {
+        await new Promise<void>(() => {})
+      }),
+    )
+
     const logHandler = jest.fn()
     addLogHandler(logHandler)
     const controller = new AbortController()
-    const respPromise = apiFetch(
-      {
-        method: "GET",
-        endpoint: "/test7"
-      },
-      TestResponseSchema,
-      controller.signal
-    )
+    const respPromise = apiFetch({
+      method: "GET",
+      signal: controller.signal
+    })
 
     process.nextTick(() => controller.abort())
-    await expect(respPromise).rejects.toThrow()
+    await expect(respPromise).rejects.toThrow("This operation was aborted")
     expect(logHandler).not.toHaveBeenCalled()
     resetLogHandlers()
   })

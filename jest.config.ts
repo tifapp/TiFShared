@@ -7,8 +7,8 @@ export default {
     "^.+\\.(t|j)s?$": "@swc/jest"
   },
   setupFiles: [
-    "<rootDir>/jest/setupExtensions.js",
-    "<rootDir>/jest/setupNodeFetch.js"
+    "<rootDir>/jest/setupExtensions.ts",
+    "<rootDir>/jest/setupNodeFetch.ts"
   ],
   transformIgnorePatterns: [
     "/node_modules/(?!(node-fetch|data-uri-to-buffer|fetch-blob|formdata-polyfill))"

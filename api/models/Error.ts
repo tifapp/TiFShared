@@ -1,12 +1,12 @@
-import { z } from "zod"
+import { z } from "zod";
+import { NonEmptyArray } from "../../lib/Types/HelperTypes";
 
 export const tifAPIErrorSchema = <
-  T extends z.Primitive,
-  V extends z.Primitive[]
+  const T extends NonEmptyArray<string>
 >(
-  literal: T,
-  ...literals: [...V]
+  ...literals: T
 ) => {
-  if (literals.length === 0) return z.object({ error: z.literal(literal) })
-  return z.object({ error: z.enum([String(literal), ...literals.map((l) => String(l))]) })
-}
+  return z.object({
+    error: z.enum(literals),
+  });
+};

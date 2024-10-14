@@ -174,64 +174,68 @@ addLogHandler(customLogHandler)
 
 The available log levels are `info`, `warn`, `trace`, `debug`, and `error`. Each of these levels are functions on the object returned from `logger`.
 
-### API Client
+### API
 
-This library houses our API client which is a class named `TiFAPI`. However, `TiFAPI` is merely a high-level wrapper class around the rest of the network stack. The lower level of the stack contains 2 primary components:
+Our API Schema is codified in `api\TiFAPISchema.ts` and details the shape of inputs and outputs for all endpoints.
 
-1. `TiFAPITransport`
+Endpoints conform to this pattern:
 
-- Responsible for sending data across the network via `fetch`, and validating responses against zod schemas.
-
-2. `TiFAPIMiddleware`
-
-- Responsible for transforming a network request (eg. adding a JWT to the Authorization header), and handling the low level response.
-
-An example `TiFAPI` instance can be constructed as follows:
-
-```ts
-// jwtMiddleware comes with this library, you can also write your own middleware functions.
-const middleware = jwtMiddleware(async () => "My JWT token")
-const transport = tifAPITransport(
-  new URL("https://api.production.com"),
-  middleware
-)
-const api = new TiFAPI(transport)
+```
+{
+  [endpointName]: {
+    input: {
+      body?: ZodSchema,
+      query?: ZodSchema,
+      params?: ZodSchema
+    },
+    outputs: { //needs at least 1 output
+      status200?: ZodSchema,
+      status201?: ZodSchema,
+      status204?: "no-content",
+      ...etc
+    },
+    constraints: (input, output) => boolean, //throws a validation error if the function returns false (eg. checking if the input value matches the output value)
+    httpRequest: {
+      method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE",
+      endpoint: "/{string}"
+    }
+  },
+}
 ```
 
-### Adding Support for a new Endpoint
+#### Adding Support for a new Endpoint
 
-Whenever adding support for a new endpoint, it can be added to `TiFAPI` like so:
+Support for new endpoints can be added to `TiFAPISchema` like so:
 
 ```ts
-class TiFAPI {
+const TiFAPISchema = {
   // Other endpoints...
 
-  async myNewEndpoint(id: number, signal?: AbortSignal) {
-    return await this.apiFetch(
-      {
-        method: "POST", // Also can be "POST", "PATCH", etc.
-        endpoint: `/my/new/endpoint/${id}`,
-        query: { query: "parameter" }, // All query paramaters are converted via their `toString` method.
-        body: { body: "parameter" } // "GET" requests don't support a request body.
-      },
-      {
-        // Each status code has a corresponding zod schema for the response body.
-        status200: z.object({ value: z.string() }),
-        status400: z.object({ other: z.number() })
-      },
-      signal // Optional, an AbortSignal to cancel the request.
-    )
-  }
+  myNewEndpoint: endpointSchema({
+    input: {
+      params: {
+        id: z.number()
+      }
+    },
+    outputs: {
+      status200: z.object({ value: z.string() }),
+      status400: z.object({ other: z.number() })
+    },
+    httpRequest: {
+      method: "POST",
+      endpoint: "/my/new/endpoint/:id"
+    }
+  })
 
   // Other endpoints...
 }
 ```
 
-You can then use the new endpoint like:
+This is how they can be used, using the example endpoint we just added:
 
 ```ts
 const foo = async (api: TiFAPI) => {
-  const resp = await api.myNewEndpoint(1)
+  const resp = await api.myNewEndpoint({params: {id: 1}}) // Typescript will confirm the shape of the request
   if (resp.status === 200) {
     // Type inferred to be the converted type of the schema for status200
     console.log(resp.data.value)
@@ -240,6 +244,77 @@ const foo = async (api: TiFAPI) => {
     console.log(resp.data.other)
   }
 }
+```
+
+#### API Clients
+
+The TiFAPISchema endpoints are converted to function types and stored in the `TiFAPI` type. 
+
+API clients can be created using the `TiFAPIClientCreator()` function or by reducing the `TiFAPISchema`.
+
+1. `TiFAPIClientCreator()`
+
+- Creates a typesafe TiFAPI client with methods whose signatures match the endpoints described by the `TiFAPISchema`.
+
+2. `APIMiddleware`
+
+- Can be passed to `TiFAPIClientCreator()` to handle or transform the high-level requests and responses of the `TiFAPIClient`.
+
+2a. `TiFAPITransport`
+
+- An instance of `APIMiddleware` responsible for sending and retrieving data across the network via `fetch`.
+
+3. API Extensions
+
+- By default the API endpoint functions created using `TiFAPIClientCreator()` take in the requests described by the TiFAPISchema and can access additional contextual information like the endpoint name and endpoint schema itself. Additional contextual information can be inserted through `APIMiddleware` or requested by adding a type parameter to `TiFAPIClientCreator()`.
+
+An example API client can be constructed as follows:
+
+```ts
+
+const apiClient = TiFAPIClientCreator<{signal?: AbortSignal}>(
+  validateAPIClientCall,
+  jwtMiddleware(async () => "My JWT token"), // inserts "{headers}" into the context, which can be accessed by subsequent middlewares.
+  tifAPITransport(new URL("https://api.production.com"))
+)
+
+const controller = new AbortController()
+apiClient.myNewEndpoint({params: {id: 1}, signal: controller.signal}) // apiClient now allows an AbortSignal to be passed for all endpoints in addition to the standard input.
+
+```
+
+#### API Testing
+
+The `mockTiFServer()` and `mockTiFEndpoint()` test helpers can be used to quickly mock the TiF API and assert expected requests.
+
+An example API mock can be constructed as follows:
+
+```ts
+
+test("endpoint", async () => {
+  mockTiFServer({
+    myNewEndpoint: {
+      expectedRequest: { params: { id: 2 } },
+      mockResponse: {
+        status: 200,
+        data: { trackableRegions: EXPECTED_ARRIVAL_REGIONS }
+      }
+    }
+  })
+
+  testAPI.myNewEndpoint({ params: { id: 1 } }) // will throw an expect error
+})
+
+```
+
+```ts
+
+test("endpoint", async () => {
+  mockTiFEndpoint("myNewEndpoint", 404, { error: "event-not-found" })
+
+  const response = await testAPI.myNewEndpoint({ params: { id: 1 } }) // response = { status: 404, { error: "event-not-found" } }
+})
+
 ```
 
 ## Local Development Setup

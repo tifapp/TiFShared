@@ -1,4 +1,9 @@
 /**
+ * Replace the property of a type
+ */
+export type Overwrite<T, U> = Omit<T, keyof U> & U;
+
+/**
  * Similar to Array, but it requires at least one element to exist
  */
 export type NonEmptyArray<T> = [T, ...T[]];
