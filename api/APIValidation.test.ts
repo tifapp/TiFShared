@@ -107,16 +107,7 @@ describe("validateAPICall", () => {
   it("should throw an error if response does not match constraints", async () => {
     const apiCall = apiValidator(
       {
-        input: {
-          body: z.object({
-            name: z.string(),
-          })
-        },
-        outputs: {
-          status200: z.object({
-            name: z.string(),
-          })
-        },
+        ...mockSchema,
         constraints: (input: any, output: any) => { 
           return input.body.name === output.data.name 
         }
@@ -161,16 +152,7 @@ describe("validateAPICall", () => {
   it("should return response if request and response are valid", async () => {
     const apiCall = apiValidator(
       {
-        input: {
-          body: z.object({
-            name: z.string(),
-          })
-        },
-        outputs: {
-          status200: z.object({
-            name: z.string(),
-          })
-        },
+        ...mockSchema,
         constraints: (input: any, output: any) => { 
           return input.body.name === output.data.name 
         }

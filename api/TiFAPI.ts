@@ -1,6 +1,6 @@
 import { logger } from "../logging"
 import { TiFAPIClientCreator } from "./APIClient"
-import { validateAPICall } from "./APIValidation"
+import { APIValidationError, validateAPICall } from "./APIValidation"
 import { TiFAPIClient } from "./TiFAPISchema"
 import { ClientExtensions, tifAPITransport } from "./Transport"
 import { jwtMiddleware } from "./TransportMiddleware"
@@ -20,7 +20,7 @@ export const validateAPIClientCall = validateAPICall<ClientExtensions>(result =>
     log.error(`Response from TiF API endpoint ${result.requestContext.endpointName} does not match the expected schema`, result.response)
   }
   
-  throw new Error(result.validationStatus)
+  throw new APIValidationError(result.validationStatus)
 })
 
 type _StaticTiFAPI = typeof _TiFAPIClass

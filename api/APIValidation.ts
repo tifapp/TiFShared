@@ -1,25 +1,35 @@
-import { ZodError, ZodTypeAny, z } from "zod";
-import { logger } from "../logging";
-import { APIMiddleware, AnyTiFAPIResponse, TiFAPIInputContext } from "./TransportTypes";
+import { ZodError, ZodTypeAny, z } from "zod"
+import { logger } from "../logging"
+import { APIMiddleware, AnyTiFAPIResponse, TiFAPIInputContext } from "./TransportTypes"
+
+export type ValidationResult = "invalid-request" | "unexpected-response" | "invalid-response" | "passed"
+
+export class APIValidationError extends Error {
+  validationResult: ValidationResult
+
+  constructor(validationResult: ValidationResult) {
+    super(validationResult)
+    this.name = this.constructor.name
+    Object.setPrototypeOf(this, APIValidationError.prototype)
+  }
+}
 
 const log = logger("tif.api.validation")
 
 const zodValidation = async <T>(data: T, schema: ZodTypeAny): Promise<T | "failure"> => {
   try {
-      return await schema.parseAsync(data);
+      return await schema.parseAsync(data)
   } catch (e) {
       if (e instanceof ZodError) {
           log.error("Zod Schema Error Message", {
               zodError: JSON.parse(e.message)
-          });
+          })
       } else {
-          log.error(e);
+          log.error(e)
       }
-      return "failure";
+      return "failure"
   }
-};
-
-export type ValidationResult = "invalid-request" | "unexpected-response" | "invalid-response" | "passed"
+}
 
 export type ValidationResultParser<T> = 
   (_: {
@@ -59,7 +69,7 @@ export const validateAPICall = <T>(resultParser: ValidationResultParser<T>, vali
     
     let validationStatus: ValidationResult = "passed"
 
-    let responseData = response.data;
+    let responseData = response.data
 
     if (validationOptions & APIValidationOptions.Response) {
       const responseSchema = outputSchemas[`status${response.status}` as keyof typeof outputSchemas] as ZodTypeAny | "no-content"
