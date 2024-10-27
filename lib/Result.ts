@@ -437,15 +437,11 @@ export const promiseResult = <Success, Failure>(
   if (promise instanceof PromiseResult) {
     return promise
   }
-
   if (promise instanceof Promise) {
     Object.setPrototypeOf(promise, PromiseResult.prototype)
-    return promise as PromiseResult<Success, Failure>
+    return promise
   }
-
-  return new PromiseResult<Success, Failure>((resolve) => {
-    resolve(promise)
-  })
+  return PromiseResult.resolve(promise)
 }
 
 /**

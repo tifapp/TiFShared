@@ -2,7 +2,7 @@ import { failure, promiseResult, success } from "./Result"
 
 describe("Result tests", () => {
   const successResult = { status: "success", value: "passed" } as const
-  const failureResult = { status: "failure", value: "failed"} as const
+  const failureResult = { status: "failure", value: "failed" } as const
 
   it("should construct a valid success result", () => {
     expect(success("passed" as const)).toMatchObject(successResult)
@@ -20,22 +20,22 @@ describe("Result tests", () => {
     )
     expect(await promiseSuccess).toMatchObject(failureResult)
   })
-  
+
   it("should allow success results to pass through a successful result", async () => {
-    const promiseSuccess = promiseResult(success("originalSuccess" as const)).passthroughSuccess(() =>
-      success("conditional" as const)
-    )
+    const promiseSuccess = promiseResult(
+      success("originalSuccess" as const)
+    ).passthroughSuccess(() => success("conditional" as const))
 
     expect(await promiseSuccess).toMatchObject({
       status: "success" as const,
       value: "originalSuccess" as const
     })
   })
-  
+
   it("should not allow success results to pass through a failing result", async () => {
-    const promiseSuccess = promiseResult(success("originalSuccess" as const)).passthroughSuccess(() =>
-      failure("conditional" as const)
-    )
+    const promiseSuccess = promiseResult(
+      success("originalSuccess" as const)
+    ).passthroughSuccess(() => failure("conditional" as const))
 
     expect(await promiseSuccess).toMatchObject({
       status: "failure" as const,
@@ -49,7 +49,9 @@ describe("Result tests", () => {
       status: "success",
       value: "newSuccess"
     })
-    expect(currentSuccess.mapSuccess(() => "mappedSuccess" as const)).toMatchObject({
+    expect(
+      currentSuccess.mapSuccess(() => "mappedSuccess" as const)
+    ).toMatchObject({
       status: "success",
       value: "mappedSuccess"
     })
@@ -88,22 +90,22 @@ describe("Result tests", () => {
     )
     expect(await promiseFailure).toMatchObject(successResult)
   })
-  
+
   it("should allow failure results to pass through a successful result", async () => {
-    const promiseFailure = promiseResult(failure("originalFailure" as const)).passthroughFailure(() =>
-      success("conditional" as const)
-    )
+    const promiseFailure = promiseResult(
+      failure("originalFailure" as const)
+    ).passthroughFailure(() => success("conditional" as const))
 
     expect(await promiseFailure).toMatchObject({
       status: "failure" as const,
       value: "originalFailure"
     })
   })
-  
-  it("should not allow failure results to pass through a failing result", async () => { 
-    const promiseFailure = promiseResult(failure("originalFailure" as const)).passthroughFailure(() =>
-      failure("conditional" as const)
-    )
+
+  it("should not allow failure results to pass through a failing result", async () => {
+    const promiseFailure = promiseResult(
+      failure("originalFailure" as const)
+    ).passthroughFailure(() => failure("conditional" as const))
 
     expect(await promiseFailure).toMatchObject({
       status: "failure" as const,
@@ -141,13 +143,21 @@ describe("Result tests", () => {
   })
 
   it("should construct a valid promise result", async () => {
-    expect(await promiseResult((async () => success("passed" as const))())).toMatchObject(successResult)
-    expect(await promiseResult((async () => failure("failed" as const))())).toMatchObject(failureResult)
+    expect(
+      await promiseResult((async () => success("passed" as const))())
+    ).toMatchObject(successResult)
+    expect(
+      await promiseResult((async () => failure("failed" as const))())
+    ).toMatchObject(failureResult)
   })
 
   it("should allow nested promise results", async () => {
-    expect(await promiseResult(promiseResult(success("passed" as const)))).toMatchObject(successResult)
-    expect(await promiseResult(promiseResult(failure("failed" as const)))).toMatchObject(failureResult)
+    expect(
+      await promiseResult(promiseResult(success("passed" as const)))
+    ).toMatchObject(successResult)
+    expect(
+      await promiseResult(promiseResult(failure("failed" as const)))
+    ).toMatchObject(failureResult)
   })
 
   it("should observe promise results without modifying them", async () => {
@@ -190,12 +200,20 @@ describe("Result tests", () => {
     expect(result1).toBe(result2)
     expect(observeFn).toHaveBeenCalledWith("passed" as const)
   })
-  
+
   it("should allow promise results to be unwrapped", async () => {
-    expect(await promiseResult(failure("failed" as const)).unwrap()).toBe("failed")
-    expect(await promiseResult(success("passed" as const)).unwrap()).toBe("passed")
-    expect(await promiseResult(Promise.resolve(failure("failed" as const))).unwrap()).toBe("failed")
-    expect(await promiseResult(Promise.resolve(success("passed" as const))).unwrap()).toBe("passed")
+    expect(await promiseResult(failure("failed" as const)).unwrap()).toBe(
+      "failed"
+    )
+    expect(await promiseResult(success("passed" as const)).unwrap()).toBe(
+      "passed"
+    )
+    expect(
+      await promiseResult(Promise.resolve(failure("failed" as const))).unwrap()
+    ).toBe("failed")
+    expect(
+      await promiseResult(Promise.resolve(success("passed" as const))).unwrap()
+    ).toBe("passed")
   })
 
   it("should allow promise results to be transformed", async () => {
@@ -217,7 +235,9 @@ describe("Result tests", () => {
       await currentResult.inverted().mapSuccess(() => "mappedSuccess")
     ).toMatchObject({ status: "success" as const, value: "mappedSuccess" })
     expect(
-      await currentResult.inverted().flatMapSuccess(() => failure("failed" as const))
+      await currentResult
+        .inverted()
+        .flatMapSuccess(() => failure("failed" as const))
     ).toMatchObject(failureResult)
   })
 })
