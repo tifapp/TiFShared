@@ -39,6 +39,7 @@ export const tifAPITransport = (baseURL: URL) => {
  * API Middleware that fetches data from a given url for clients of an HTTP API.
  *
  * @param baseURL the base url of the api to use.
+ * @param log A custom {@link Logger} to use.
  * @returns API Middleware to construct an instance of an API client.
  */
 export const apiTransport = (
