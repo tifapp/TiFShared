@@ -1,3 +1,4 @@
+import { colorWithOpacity } from "../lib/Color"
 import { z } from "zod"
 
 /**
@@ -25,10 +26,9 @@ export class ColorString {
    * Outputs this string in hex omitting the alpha if `opacity` is 1.
    */
   toString() {
-    const opacityHexString =
-      this.opacity === 1 ? "" : Math.ceil(255 * this.opacity).toString(16)
-    return this.rgbHexString + opacityHexString
+    return colorWithOpacity(this.rgbHexString, this.opacity)
   }
+
   toJSON() {
     return this.toString()
   }
@@ -66,14 +66,13 @@ export class ColorString {
  */
 export const ColorStringSchema = z.optionalParseable(
   ColorString,
-  z.string()
-    .transform(rawValue => {
-      const parsedValue = ColorString.parse(rawValue);
+  z.string().transform((rawValue) => {
+    const parsedValue = ColorString.parse(rawValue)
 
-      if (!parsedValue) {
-        throw new Error("Invalid hex color string.")
-      }
-      
-      return parsedValue
-    })
+    if (!parsedValue) {
+      throw new Error("Invalid hex color string.")
+    }
+
+    return parsedValue
+  })
 )
