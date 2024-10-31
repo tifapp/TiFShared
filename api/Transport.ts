@@ -32,7 +32,7 @@ export type ClientExtensions = { signal?: AbortSignal; headers?: HeadersInit }
  * @returns TiFAPIMiddleware to construct an instance of a TiFAPIClient.
  */
 export const tifAPITransport = (baseURL: URL) => {
-  return apiTransport(baseURL, log)
+  return apiTransport("TiF", baseURL, log)
 }
 
 /**
@@ -43,6 +43,7 @@ export const tifAPITransport = (baseURL: URL) => {
  * @returns API Middleware to construct an instance of an API client.
  */
 export const apiTransport = (
+  apiName: string,
   baseURL: URL,
   log: Logger
 ): APIHandler<ClientExtensions> => {
@@ -68,11 +69,11 @@ export const apiTransport = (
         }
       )
 
-      const data = await tryResponseBody(resp)
+      const data = await tryResponseBody(apiName, resp)
 
       if (data && resp.status === NoContentStatusCode) {
         throw new Error(
-          `TiFAPI responded with a 204 status code and body ${JSON.stringify(data)}. A 204 status code should not produce a body.`
+          `${apiName} API responded with a 204 status code and body ${JSON.stringify(data)}. A 204 status code should not produce a body.`
         )
       }
 
@@ -83,7 +84,7 @@ export const apiTransport = (
       }
     } catch (error) {
       if (!(error instanceof DOMException) || error.name !== "AbortError") {
-        log.error("Failed to make tif API request.", {
+        log.error(`Failed to make ${apiName} API request.`, {
           error,
           errorMessage: error.message,
           body,
@@ -97,14 +98,14 @@ export const apiTransport = (
   }
 }
 
-const tryResponseBody = async (resp: Response) => {
+const tryResponseBody = async (apiName: string, resp: Response) => {
   try {
     const body = await resp.json()
     return body
   } catch {
     if (resp.status !== NoContentStatusCode) {
       throw new Error(
-        `TiF API responded with non-JSON body and status ${resp.status}.`
+        `${apiName} API responded with non-JSON body and status ${resp.status}.`
       )
     }
     return undefined

@@ -1,10 +1,6 @@
 import { logger } from "../logging"
 import { TiFAPIClientCreator } from "./APIClient"
-import {
-  APIValidationError,
-  validateAPICall,
-  validateAPIClientCall
-} from "./APIValidation"
+import { validateAPIClientCall } from "./APIValidation"
 import { TiFAPIClient } from "./TiFAPISchema"
 import { ClientExtensions, tifAPITransport } from "./Transport"
 import { jwtMiddleware } from "./TransportMiddleware"
