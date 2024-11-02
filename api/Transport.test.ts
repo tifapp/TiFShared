@@ -9,14 +9,26 @@ import { GenericEndpointSchema, HTTPMethod } from "./TransportTypes"
 const TEST_BASE_URL = "http://localhost:8080"
 const TEST_ENDPOINT = "/test"
 
-const apiFetch = ({method, body, query, params, signal, endpoint}: 
-  {method: HTTPMethod, body?: any, query?: any, params?: any, signal?: AbortSignal, endpoint?: URLEndpoint}
-) => 
-  tifAPITransport(
-    new URL(TEST_BASE_URL)
-  )({
+const apiFetch = ({
+  method,
+  body,
+  query,
+  params,
+  signal,
+  endpoint
+}: {
+  method: HTTPMethod
+  body?: any
+  query?: any
+  params?: any
+  signal?: AbortSignal
+  endpoint?: URLEndpoint
+}) =>
+  tifAPITransport(new URL(TEST_BASE_URL))({
     endpointName: "TEST",
-    endpointSchema: ({httpRequest: {method, endpoint: endpoint ?? TEST_ENDPOINT}} as GenericEndpointSchema),
+    endpointSchema: {
+      httpRequest: { method, endpoint: endpoint ?? TEST_ENDPOINT }
+    } as GenericEndpointSchema,
     body,
     query,
     params,
@@ -31,35 +43,38 @@ describe("TiFAPITransport tests", () => {
 
   test("api client fetch", async () => {
     mswServer.use(
-      http.post(`${TEST_BASE_URL}${TEST_ENDPOINT}/:id`, async ({ request, params }) => {
-        const body: any = await request.json()
-        const searchParams = new URL(request.url).searchParams
+      http.post(
+        `${TEST_BASE_URL}${TEST_ENDPOINT}/:id`,
+        async ({ request, params }) => {
+          const body: any = await request.json()
+          const searchParams = new URL(request.url).searchParams
 
-        expect(request.headers.get("Content-Type")).toBe("application/json")
-        expect(params.id).toBe("abc")
-        expect(searchParams.get("hello")).toBe("world")
-        expect(searchParams.get("a")).toBe("1")
-        expect(body?.a).toBe(1)
-        expect(body?.b).toBe("hello")
+          expect(request.headers.get("Content-Type")).toBe("application/json")
+          expect(params.id).toBe("abc")
+          expect(searchParams.get("hello")).toBe("world")
+          expect(searchParams.get("a")).toBe("1")
+          expect(body?.a).toBe(1)
+          expect(body?.b).toBe("hello")
 
-        return successResponse()
-      })
+          return successResponse()
+        }
+      )
     )
 
     const resp = await apiFetch({
-      method: "POST", 
-      endpoint: `${TEST_ENDPOINT}/:id`, 
+      method: "POST",
+      endpoint: `${TEST_ENDPOINT}/:id`,
       params: { id: "abc" },
       query: { hello: "world", a: 1 },
       body: { a: 1, b: "hello" }
     })
 
     expect(resp).toMatchObject({
-      status: 200,  
+      status: 200,
       data: { a: 1 }
     })
   })
-  
+
   test("api client fetch, undefined body", async () => {
     mswServer.use(
       http.post(`${TEST_BASE_URL}${TEST_ENDPOINT}`, async () => {
@@ -108,7 +123,7 @@ describe("TiFAPITransport tests", () => {
       })
     )
 
-    const resp = await apiFetch({method: "GET"})
+    const resp = await apiFetch({ method: "GET" })
 
     expect(resp).toMatchObject({
       status: 200,
@@ -123,7 +138,7 @@ describe("TiFAPITransport tests", () => {
       })
     )
 
-    await expect(apiFetch({method: "GET"})).rejects.toEqual(
+    await expect(apiFetch({ method: "GET" })).rejects.toEqual(
       new Error("TiF API responded with non-JSON body and status 200.")
     )
   })
@@ -135,7 +150,7 @@ describe("TiFAPITransport tests", () => {
       })
     )
 
-    const resp = await apiFetch({method: "GET"})
+    const resp = await apiFetch({ method: "GET" })
 
     expect(resp.data).toEqual(undefined)
   })
@@ -147,11 +162,9 @@ describe("TiFAPITransport tests", () => {
       })
     )
 
-    await expect(
-      apiFetch({method: "GET"})
-    ).rejects.toEqual(
+    await expect(apiFetch({ method: "GET" })).rejects.toEqual(
       new Error(
-        'TiFAPI responded with a 204 status code and body {"hello":"world"}. A 204 status code should not produce a body.'
+        'TiF API responded with a 204 status code and body {"hello":"world"}. A 204 status code should not produce a body.'
       )
     )
   })
@@ -171,13 +184,13 @@ describe("TiFAPITransport tests", () => {
 
     await expect(respPromise).rejects.toThrow("Failed to fetch")
     expect(logHandler).toHaveBeenCalledWith(
-      "tif.api.client", 
-      "error", 
-      "Failed to make tif API request.", 
+      "tif.api.client",
+      "error",
+      "Failed to make TiF API request.",
       {
-        "endpointName": "TEST",
-        "error": new Error("Failed to fetch"), 
-        "errorMessage": "Failed to fetch"
+        endpointName: "TEST",
+        error: new Error("Failed to fetch"),
+        errorMessage: "Failed to fetch"
       }
     )
     resetLogHandlers()
@@ -187,7 +200,7 @@ describe("TiFAPITransport tests", () => {
     mswServer.use(
       http.get(`${TEST_BASE_URL}${TEST_ENDPOINT}`, async () => {
         await new Promise<void>(() => {})
-      }),
+      })
     )
 
     const logHandler = jest.fn()
