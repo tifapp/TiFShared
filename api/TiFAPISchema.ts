@@ -52,8 +52,10 @@ export const TiFAPISchema = {
       status201: z.object({
         id: UserIDSchema,
         handle: UserHandleSchema,
+        name: z.string(),
         token: z.string()
-      })
+      }),
+      status400: tifAPIErrorSchema("invalid-name")
     },
     httpRequest: {
       method: "POST",
