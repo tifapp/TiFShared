@@ -1,4 +1,5 @@
 import { pollyfillArray, repeatElements } from "./Array"
+import { shallowEquals } from "./ShallowEquals"
 
 describe("TiFArray tests", () => {
   describe("ArrayExtensions tests", () => {
@@ -60,6 +61,21 @@ describe("TiFArray tests", () => {
     test("repeat elements, based on index", () => {
       const array = repeatElements(5, (i) => i)
       expect(array).toEqual([0, 1, 2, 3, 4])
+    })
+
+    test("shuffle produces different combinations of arrays", () => {
+      const arrays = repeatElements(10, () => repeatElements(10, (i) => i)).map(
+        (arr) => arr.ext.shuffled()
+      )
+      let differencesCount = 0
+      for (const array in arrays) {
+        for (const comparison in arrays) {
+          if (!shallowEquals(array, comparison)) {
+            differencesCount++
+          }
+        }
+      }
+      expect(differencesCount).toBeGreaterThanOrEqual(70)
     })
   })
 
