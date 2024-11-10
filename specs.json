@@ -30,6 +30,23 @@
   "paths": {
     "/user": {
       "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Object with user data.",
@@ -45,11 +62,40 @@
                     "handle": {
                       "type": "string",
                       "pattern": "^[A-Za-z0-9_]{1,15}"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "token": {
+                      "type": "string"
                     }
                   },
                   "required": [
                     "id",
-                    "handle"
+                    "handle",
+                    "name",
+                    "token"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "invalid-name"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
                   ]
                 }
               }

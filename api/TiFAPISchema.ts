@@ -1,11 +1,42 @@
-import { z } from "zod";
-import { CreateEventSchema, EventAttendeesPageSchema, EventIDSchema, EventRegionSchema, EventWhenBlockedByHostSchema, TrackableEventArrivalRegionsSchema } from "../domain-models/Event";
-import { LocationCoordinate2DSchema } from "../domain-models/LocationCoordinate2D";
-import { BlockedYouStatusSchema, UserHandleSchema, UserIDSchema } from "../domain-models/User";
-import { APISchema, EndpointSchemasToFunctions, StatusCodes, endpointSchema } from "./TransportTypes";
-import { tifAPIErrorSchema } from "./models/Error";
-import { EventNotFoundErrorSchema, EventResponseSchema, EventsInAreaResponseSchema, JoinEventResponseSchema } from "./models/Event";
-import { RegisterPushTokenRequestSchema, SelfProfileSchema, UpdateCurrentUserProfileRequestSchema, UpdateUserSettingsRequestSchema, UserFriendRequestResponseSchema, UserNotFoundResponseSchema, UserProfileSchema, UserSettingsResponseSchema, userTiFAPIErrorSchema } from "./models/User";
+import { z } from "zod"
+import {
+  CreateEventSchema,
+  EventAttendeesPageSchema,
+  EventIDSchema,
+  EventRegionSchema,
+  EventWhenBlockedByHostSchema,
+  TrackableEventArrivalRegionsSchema
+} from "../domain-models/Event"
+import { LocationCoordinate2DSchema } from "../domain-models/LocationCoordinate2D"
+import {
+  BlockedYouStatusSchema,
+  UserHandleSchema,
+  UserIDSchema
+} from "../domain-models/User"
+import {
+  APISchema,
+  EndpointSchemasToFunctions,
+  StatusCodes,
+  endpointSchema
+} from "./TransportTypes"
+import { tifAPIErrorSchema } from "./models/Error"
+import {
+  EventNotFoundErrorSchema,
+  EventResponseSchema,
+  EventsInAreaResponseSchema,
+  JoinEventResponseSchema
+} from "./models/Event"
+import {
+  RegisterPushTokenRequestSchema,
+  SelfProfileSchema,
+  UpdateCurrentUserProfileRequestSchema,
+  UpdateUserSettingsRequestSchema,
+  UserFriendRequestResponseSchema,
+  UserNotFoundResponseSchema,
+  UserProfileSchema,
+  UserSettingsResponseSchema,
+  userTiFAPIErrorSchema
+} from "./models/User"
 
 export const TiFAPISchema = {
   /**
@@ -14,12 +45,17 @@ export const TiFAPISchema = {
    * @returns an object containing the user's id and generated user handle.
    */
   createCurrentUserProfile: endpointSchema({
-    input: {},
+    input: {
+      body: z.object({ name: z.string() })
+    },
     outputs: {
       status201: z.object({
         id: UserIDSchema,
-        handle: UserHandleSchema
-      })
+        handle: UserHandleSchema,
+        name: z.string(),
+        token: z.string()
+      }),
+      status400: tifAPIErrorSchema("invalid-name")
     },
     httpRequest: {
       method: "POST",
@@ -35,12 +71,12 @@ export const TiFAPISchema = {
       body: UpdateCurrentUserProfileRequestSchema
     },
     outputs: {
-      status204: "no-content",
+      status204: "no-content"
     },
     httpRequest: {
       method: "PATCH",
-      endpoint: "/user/self",
-    },
+      endpoint: "/user/self"
+    }
   }),
 
   /**
@@ -71,10 +107,10 @@ export const TiFAPISchema = {
     },
     httpRequest: {
       method: "GET",
-      endpoint: "/user/autocomplete",
+      endpoint: "/user/autocomplete"
     }
   }),
-  
+
   /**
    * Indicates that the user has arrived at the given region.
    *
@@ -89,10 +125,10 @@ export const TiFAPISchema = {
     },
     httpRequest: {
       method: "POST",
-      endpoint: "/event/arrived",
+      endpoint: "/event/arrived"
     }
   }),
-  
+
   /**
    * Indicates that the user has departed from the given region.
    *
@@ -107,10 +143,10 @@ export const TiFAPISchema = {
     },
     httpRequest: {
       method: "POST",
-      endpoint: "/event/departed",
+      endpoint: "/event/departed"
     }
   }),
-  
+
   /**
    * Fetches all upcoming event arrival regions.
    *
@@ -142,24 +178,24 @@ export const TiFAPISchema = {
     outputs: {
       status200: EventResponseSchema,
       status404: EventNotFoundErrorSchema,
-      status403: EventWhenBlockedByHostSchema,
+      status403: EventWhenBlockedByHostSchema
     },
     constraints: (input, output) => {
       if (output.status === 200 || output.status === 403) {
         return output.data.id === input.params.eventId
       }
 
-      return true;
+      return true
     },
     httpRequest: {
       method: "GET",
       endpoint: `/event/details/:eventId`
-    },
+    }
   }),
-  
+
   /**
    * Fetches a paginated list of attendees for a given event.
-   * 
+   *
    * @param eventId The id of the event to check.
    * @param limit the maximum amount of users to return.
    * @param nextPage points to a particular section in the attendees list
@@ -172,7 +208,7 @@ export const TiFAPISchema = {
       query: z.object({
         limit: z.coerce.number().min(1).max(50),
         nextPageCursor: z.string().optional()
-      }),
+      })
     },
     outputs: {
       status200: EventAttendeesPageSchema,
@@ -181,10 +217,10 @@ export const TiFAPISchema = {
     },
     httpRequest: {
       method: "GET",
-      endpoint: `/event/attendees/:eventId`,
-    },
+      endpoint: `/event/attendees/:eventId`
+    }
   }),
-  
+
   /**
    * Joins the event with the given id.
    *
@@ -196,24 +232,19 @@ export const TiFAPISchema = {
     input: {
       params: z.object({
         eventId: EventIDSchema
-      }),
+      })
     },
     outputs: {
-      status404: tifAPIErrorSchema(
-        "event-not-found"
-      ),
-      status403: tifAPIErrorSchema(
-        "event-has-ended",
-        "user-not-host"
-      ),
+      status404: tifAPIErrorSchema("event-not-found"),
+      status403: tifAPIErrorSchema("event-has-ended", "user-not-host"),
       status204: "no-content"
     },
     httpRequest: {
       method: "POST",
-      endpoint: `/event/end/:eventId`,
-    },
+      endpoint: `/event/end/:eventId`
+    }
   }),
-  
+
   /**
    * Creates an event.
    */
@@ -222,14 +253,14 @@ export const TiFAPISchema = {
       body: CreateEventSchema
     },
     outputs: {
-      status201: z.object({id: EventIDSchema}),
+      status201: z.object({ id: EventIDSchema })
     },
     httpRequest: {
       method: "POST",
-      endpoint: `/event`,
-    },
+      endpoint: `/event`
+    }
   }),
-  
+
   /**
    * Joins the event with the given id.
    *
@@ -242,14 +273,14 @@ export const TiFAPISchema = {
       params: z.object({
         eventId: EventIDSchema
       }),
-      body: z.object({
-        region: EventRegionSchema
-      }).optional(),
+      body: z
+        .object({
+          region: EventRegionSchema
+        })
+        .optional()
     },
     outputs: {
-      status404: tifAPIErrorSchema(
-        "event-not-found"
-      ),
+      status404: tifAPIErrorSchema("event-not-found"),
       status403: tifAPIErrorSchema(
         "event-has-ended",
         "blocked-you",
@@ -263,14 +294,14 @@ export const TiFAPISchema = {
         return output.data.id === input.params.eventId
       }
 
-      return true;
+      return true
     },
     httpRequest: {
       method: "POST",
-      endpoint: `/event/join/:eventId`,
-    },
+      endpoint: `/event/join/:eventId`
+    }
   }),
-  
+
   /**
    * Leaves the event with the given id.
    *
@@ -280,16 +311,11 @@ export const TiFAPISchema = {
     input: {
       params: z.object({
         eventId: EventIDSchema
-      }),
+      })
     },
     outputs: {
-      status403: tifAPIErrorSchema(
-        "event-was-cancelled",
-        "event-has-ended"
-      ),
-      status404: tifAPIErrorSchema(
-        "event-not-found"
-      ),
+      status403: tifAPIErrorSchema("event-was-cancelled", "event-has-ended"),
+      status404: tifAPIErrorSchema("event-not-found"),
       status400: tifAPIErrorSchema("co-host-not-found"),
       status200: z.object({ message: z.literal("not-attending") }),
       status204: "no-content"
@@ -297,7 +323,7 @@ export const TiFAPISchema = {
     httpRequest: {
       method: "POST",
       endpoint: `/event/leave/:eventId`
-    },
+    }
   }),
 
   /**
@@ -314,10 +340,10 @@ export const TiFAPISchema = {
     },
     httpRequest: {
       method: "POST",
-      endpoint: "/user/notifications/push/register",
+      endpoint: "/user/notifications/push/register"
     }
   }),
-  
+
   //TiFAPI section in wiki
   /**
    * Gets the user's details.
@@ -325,28 +351,28 @@ export const TiFAPISchema = {
   getSelf: endpointSchema({
     input: {},
     outputs: {
-      status200: SelfProfileSchema,
+      status200: SelfProfileSchema
     },
     httpRequest: {
       method: "GET",
       endpoint: `/user/self`
     }
   }),
-  
+
   /**
    * Deletes the user's account.
    */
   removeAccount: endpointSchema({
     input: {},
     outputs: {
-      status204: "no-content",
+      status204: "no-content"
     },
     httpRequest: {
       method: "DELETE",
       endpoint: `/user/self`
     }
   }),
-  
+
   /**
    * Gets details of another user.
    */
@@ -359,14 +385,14 @@ export const TiFAPISchema = {
     outputs: {
       status200: UserProfileSchema,
       status403: userTiFAPIErrorSchema("blocked-you"),
-      status404: UserNotFoundResponseSchema,
+      status404: UserNotFoundResponseSchema
     },
     httpRequest: {
       method: "GET",
       endpoint: `/user/:userId`
     }
   }),
-  
+
   /**
    * Blocks a user.
    *
@@ -389,7 +415,7 @@ export const TiFAPISchema = {
       endpoint: `/user/block/:userId`
     }
   }),
-  
+
   /**
    * Unblocks a user.
    *
@@ -412,9 +438,9 @@ export const TiFAPISchema = {
     httpRequest: {
       method: "DELETE",
       endpoint: `/user/block/:userId`
-    },
+    }
   }),
-  
+
   /**
    * Sends a friend request to the user represented by `receiverId`. If the 2 users have no
    * prior relationship, then a `friend-request-pending` status will be returned, otherwise
@@ -430,12 +456,12 @@ export const TiFAPISchema = {
       status200: UserFriendRequestResponseSchema,
       status201: UserFriendRequestResponseSchema,
       status403: userTiFAPIErrorSchema("blocked-you"),
-      status404: UserNotFoundResponseSchema,
+      status404: UserNotFoundResponseSchema
     },
     httpRequest: {
       method: "POST",
       endpoint: `/user/friend/:userId`
-    },
+    }
   }),
 
   /**
@@ -450,12 +476,12 @@ export const TiFAPISchema = {
       })
     },
     outputs: {
-      status200: EventsInAreaResponseSchema 
+      status200: EventsInAreaResponseSchema
     },
     httpRequest: {
       method: "POST",
-      endpoint: "/event/region",
-    },
+      endpoint: "/event/region"
+    }
   }),
 
   /**
@@ -463,15 +489,15 @@ export const TiFAPISchema = {
    */
   userSettings: endpointSchema({
     input: {},
-    outputs: { 
-      status200: UserSettingsResponseSchema 
+    outputs: {
+      status200: UserSettingsResponseSchema
     },
     httpRequest: {
       method: "GET",
       endpoint: "/user/self/settings"
-    },
+    }
   }),
-  
+
   /**
    * Saves the specified user settings and returns the updated user settings.
    */
@@ -479,18 +505,24 @@ export const TiFAPISchema = {
     input: {
       body: UpdateUserSettingsRequestSchema
     },
-    outputs: { 
-      status200: UserSettingsResponseSchema 
+    outputs: {
+      status200: UserSettingsResponseSchema
     },
     httpRequest: {
       method: "PATCH",
-      endpoint: "/user/self/settings",
-    },
-  }),
+      endpoint: "/user/self/settings"
+    }
+  })
 } satisfies APISchema
 
-export type TiFAPIClient<InputExtension = {}> = EndpointSchemasToFunctions<typeof TiFAPISchema, InputExtension>
+export type TiFAPIClient<InputExtension = {}> = EndpointSchemasToFunctions<
+  typeof TiFAPISchema,
+  InputExtension
+>
 
-type APIResponse<T, U extends StatusCodes> = T extends { status: U } ? T : never;
+type APIResponse<T, U extends StatusCodes> = T extends { status: U } ? T : never
 
-export type TiFEndpointResponse<EndpointName extends keyof TiFAPIClient, Status extends StatusCodes> = APIResponse<Awaited<ReturnType<TiFAPIClient[EndpointName]>>, Status>["data"]
+export type TiFEndpointResponse<
+  EndpointName extends keyof TiFAPIClient,
+  Status extends StatusCodes
+> = APIResponse<Awaited<ReturnType<TiFAPIClient[EndpointName]>>, Status>["data"]
