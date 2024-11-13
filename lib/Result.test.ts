@@ -1,4 +1,4 @@
-import { failure, promiseResult, success } from "./Result"
+import { ExtractFailure, ExtractSuccess, failure, promiseResult, success } from "./Result"
 
 describe("Result tests", () => {
   const successResult = { status: "success", value: "passed" } as const
@@ -44,25 +44,40 @@ describe("Result tests", () => {
   })
 
   it("should allow success results to be transformed", () => {
-    const currentSuccess = success("passed" as const)
-    expect(currentSuccess.withSuccess("newSuccess" as const)).toMatchObject({
+    const currentSuccess = success("passed" as const);
+    const newSuccess = currentSuccess.withSuccess("newSuccess" as const)
+
+    expect(newSuccess).toMatchObject({
       status: "success",
       value: "newSuccess"
-    })
-    expect(
-      currentSuccess.mapSuccess(() => "mappedSuccess" as const)
-    ).toMatchObject({
+    });
+    
+    const assertTransformedSuccess: ExtractSuccess<typeof newSuccess> = "newSuccess";
+
+    const mappedSuccess = currentSuccess.mapSuccess(() => "mappedSuccess" as const);
+    expect(mappedSuccess).toMatchObject({
       status: "success",
       value: "mappedSuccess"
-    })
-    expect(
-      currentSuccess.flatMapSuccess(() => failure("failed" as const))
-    ).toMatchObject(failureResult)
-    expect(currentSuccess.inverted()).toMatchObject({
+    });
+
+    const assertMappedSuccess: ExtractSuccess<typeof mappedSuccess> = "mappedSuccess";
+
+    const failureResult = currentSuccess.flatMapSuccess(() => failure("failed" as const));
+    expect(failureResult).toMatchObject({
+      status: "failure",
+      value: "failed"
+    });
+
+    const assertFailureValue: ExtractFailure<typeof failureResult> = "failed";
+
+    const invertedResult = currentSuccess.inverted();
+    expect(invertedResult).toMatchObject({
       status: "failure" as const,
       value: "passed" as const
-    })
-  })
+    });
+
+    const assertInvertedValue: ExtractFailure<typeof invertedResult> = "passedf";
+  });
 
   it("should not modify success result with failures", () => {
     expect(
