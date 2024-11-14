@@ -1,4 +1,4 @@
-import { DatabaseValue, DatabaseValueConvertible } from "lib/Database"
+import { DatabaseValueConvertible } from "../lib/Database"
 import { colorWithOpacity } from "../lib/Color"
 import { z } from "zod"
 

@@ -5,7 +5,7 @@ import {
   linkify
 } from "../lib/LinkifyIt"
 import { Tagged } from "../lib/Types/HelperTypes"
-import { DatabaseValueConvertible } from "lib/Database"
+import { DatabaseValueConvertible } from "../lib/Database"
 
 export type UserID = Tagged<string, "userId">
 
