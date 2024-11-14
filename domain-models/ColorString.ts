@@ -1,10 +1,11 @@
+import { DatabaseValueConvertible } from "../lib/Database"
 import { colorWithOpacity } from "../lib/Color"
 import { z } from "zod"
 
 /**
  * An easy way to manipulate characteristics of color strings (Alpha, RGB, etc.).
  */
-export class ColorString {
+export class ColorString implements DatabaseValueConvertible {
   private readonly rgbHexString: string
   readonly opacity: number
 
@@ -30,6 +31,10 @@ export class ColorString {
   }
 
   toJSON() {
+    return this.toString()
+  }
+
+  toDatabaseValue() {
     return this.toString()
   }
 
