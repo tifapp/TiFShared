@@ -5,6 +5,7 @@ import {
   linkify
 } from "../lib/LinkifyIt"
 import { Tagged } from "../lib/Types/HelperTypes"
+import { DatabaseValueConvertible } from "lib/Database"
 
 export type UserID = Tagged<string, "userId">
 
@@ -17,7 +18,9 @@ export const BlockedYouStatusSchema = z.literal("blocked-you")
 export const BlockedThemStatusSchema = z.literal("blocked-them")
 export const NotFriendsStatusSchema = z.literal("not-friends")
 export const FriendRequestSentStatusSchema = z.literal("friend-request-sent")
-export const FriendRequestReceivedStatusSchema = z.literal("friend-request-received")
+export const FriendRequestReceivedStatusSchema = z.literal(
+  "friend-request-received"
+)
 export const FriendsStatusSchema = z.literal("friends")
 export const CurrentUserStatusSchema = z.literal("current-user")
 
@@ -44,14 +47,11 @@ export type UserToProfileRelationStatus = z.rInfer<
   typeof UserToProfileRelationStatusSchema
 >
 
-
 /**
  * A 2-way relationship from a user to another profile where at least one party
  * involved is blocking the other.
  */
-export type BlockedUserRelationsStatus = z.rInfer<
-  typeof BlockedYouStatusSchema
->
+export type BlockedUserRelationsStatus = z.rInfer<typeof BlockedYouStatusSchema>
 
 export const UnblockedUserRelationsSchema = z.enum([
   BlockedThemStatusSchema.value,
@@ -94,7 +94,7 @@ export type UserHandleError = "already-taken" | UserHandleParsingError
 /**
  * A class representing a valid user handle string.
  */
-export class UserHandle {
+export class UserHandle implements DatabaseValueConvertible {
   static readonly LINKIFY_SCHEMA = "@"
 
   readonly rawValue: string
@@ -115,6 +115,10 @@ export class UserHandle {
   }
 
   toURLParameter() {
+    return this.rawValue
+  }
+
+  toDatabaseValue() {
     return this.rawValue
   }
 
@@ -180,20 +184,23 @@ export class UserHandle {
  */
 export const UserHandleSchema = z.optionalParseable(
   UserHandle,
-  z.string()
-    .transform(rawValue => {
-      const {error, handle} = UserHandle.parse(rawValue)
+  z.string().transform((rawValue) => {
+    const { error, handle } = UserHandle.parse(rawValue)
 
-      if (handle) {
-        return handle
-      } else if (error === "empty") {
-        throw new Error("A valid user handle must have at least 1 character.")
-      } else if (error === "too-long") {
-        throw new Error("A valid user handle can only be up to 15 characters long.")
-      } else {        
-        throw new Error("A valid user handle only contains letters, numbers, and underscores.")
-      }
-    }),
+    if (handle) {
+      return handle
+    } else if (error === "empty") {
+      throw new Error("A valid user handle must have at least 1 character.")
+    } else if (error === "too-long") {
+      throw new Error(
+        "A valid user handle can only be up to 15 characters long."
+      )
+    } else {
+      throw new Error(
+        "A valid user handle only contains letters, numbers, and underscores."
+      )
+    }
+  }),
   z.string().regex(UserHandle.REGEX) // NB: Cannot combine with above schema since we can't catch the regex failure
 )
 
