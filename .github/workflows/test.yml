@@ -30,7 +30,7 @@ jobs:
               
       - name: Run linter
         run: |
-          npx tsc --noEmit
+          npm run lint
 
       - name: Run tests
         run: |
