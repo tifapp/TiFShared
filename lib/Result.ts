@@ -382,7 +382,7 @@ export class PromiseResult<Success, Failure> extends Promise<
    */
   mapSuccess<NewSuccess>(
     mapper: (value: Success) => NewSuccess
-  ): PromiseResult<Success, NewFailre | Failure> {
+  ): PromiseResult<NewSuccess, NewFailre | Failure> {
     return this.then((result) => result.mapSuccess(mapper))
   }
 

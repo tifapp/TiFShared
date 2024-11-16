@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { ColorStringSchema } from "../../domain-models/ColorString"
 import {
+  EventAttendeeSchema,
   EventDescriptionSchema,
   EventHostSchema,
   EventIDSchema,
@@ -49,7 +50,7 @@ export const EventResponseSchema = z.object({
   settings: EventSettingsSchema,
   time: EventTimeResponseSchema,
   location: EventLocationSchema,
-  previewAttendees: z.array(EventPreviewAttendeeSchema),
+  previewAttendees: z.array(EventAttendeeSchema),
   host: EventHostSchema,
   endedDateTime: z.coerce.date().optional()
 })
@@ -74,4 +75,6 @@ export const EventsInAreaResponseSchema = z.object({
 export type EventsInAreaResponse = z.rInfer<typeof EventsInAreaResponseSchema>
 
 export const EventWhenBlockedByHostResponseSchema =
-  EventWhenBlockedByHostSchema.merge(tifAPIErrorSchema(BlockedYouStatusSchema.value))
+  EventWhenBlockedByHostSchema.merge(
+    tifAPIErrorSchema(BlockedYouStatusSchema.value)
+  )
