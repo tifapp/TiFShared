@@ -6,6 +6,7 @@
   "scripts": {
     "lintapispecs": "npx lint-openapi specs.json",
     "genapispecs": "npx ts-node --transpile-only npm-scripts/generateApiSpecs",
+    "lint": "npx tsc -p tsconfig.test.json",
     "test": "jest --collectCoverage",
     "test:ci": "jest --ci --collectCoverage",
     "prepare": "node --loader ts-node/esm npm-scripts/prepare.ts",

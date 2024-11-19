@@ -14,7 +14,7 @@ const mockAPI = <T extends APISchema>(
   endpointSchema: T,
   expectedRequest?: any,
   mockResponse?: any,
-  handler?: any
+  handler?: (_: any) => void
 ) => {
   mockAPIServer(new URL(TEST_BASE_URL), endpointSchema, {
     checkUser: { expectedRequest, mockResponse, handler }
