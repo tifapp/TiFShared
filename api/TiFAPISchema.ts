@@ -326,6 +326,23 @@ export const TiFAPISchema = {
   }),
 
   /**
+   * Returns the upcoming events of a user.
+   */
+  upcomingEvents: endpointSchema({
+    input: {
+
+    },
+    outputs: {
+      status200: EventsInAreaResponseSchema 
+    },
+    httpRequest: {
+      method: "GET",
+      endpoint: `/event/upcomingEvents`
+    }
+  }),
+
+
+  /**
    * Registers for the user for push notifications given a push token and a
    * platform name.
    */
