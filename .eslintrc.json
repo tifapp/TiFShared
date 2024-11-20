@@ -27,6 +27,17 @@
     }
   },
   "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "node:test",
+            "message": "DELETE THIS NOW. Please use Jest for tests."
+          }
+        ]
+      }
+    ],
     "quotes": ["error", "double"],
     "no-unused-vars": "warn",
     "eqeqeq": "warn",
