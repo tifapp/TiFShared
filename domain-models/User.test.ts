@@ -45,7 +45,6 @@ describe("User tests", () => {
         "Hello @user @hello, make sure@interlinked names aren't parsed. Also the name has to be @valid(#*&$. @*($&) @world Now for a @superduperlongname"
       const matches = linkify
         .match(str)
-        //@ts-expect-error extends Match
         ?.map((m: UserHandleLinkifyMatch) => m.userHandle.toString())
       expect(matches).toEqual([
         "@user",

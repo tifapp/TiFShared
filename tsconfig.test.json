@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "outDir": ".",
+    "jsx": "react-native",
+    "baseUrl": ".",
+    "module": "commonjs",
+    "target": "esnext",
+    "lib": ["dom", "esnext"],
+    "checkJs": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "noEmit": true,
+    "strictNullChecks": true
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.test.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "npm-scripts",
+    "jest",
+    "coverage",
+  ]
+}
