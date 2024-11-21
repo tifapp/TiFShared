@@ -229,7 +229,7 @@ export const CreateEventSchema = z
     title: EventTitleSchema,
     shouldHideAfterStartDate: z.boolean(),
     isChatEnabled: z.boolean(),
-    coordinates: LocationCoordinate2DSchema
+    location: EventEditLocationSchema
   })
 
 export type CreateEvent = z.rInfer<typeof CreateEventSchema>
