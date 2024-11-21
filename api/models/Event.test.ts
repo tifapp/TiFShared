@@ -21,7 +21,13 @@ describe("EventAPIModels tests", () => {
       },
       previewAttendees: [
         {
-          id: "2fd22e4a-147c-4189-889e-15469b80eaf7"
+          id: "2fd22e4a-147c-4189-889e-15469b80eaf7",
+          name: "Caroline Parisian",
+          handle: "carolinepar0103",
+          hasArrived: false,
+          joinedDateTime: "2024-03-25T07:54:28.000Z",
+          role: "hosting",
+          relationStatus: "not-friends"
         }
       ],
       location: {
@@ -49,7 +55,7 @@ describe("EventAPIModels tests", () => {
       isChatExpired: false,
       hasArrived: false,
       updatedDateTime: "2024-03-25T07:54:28.000Z",
-      createdDateTime: "2024-03-25T07:54:28.000Z",
+      createdDateTime: "2024-03-25T07:54:28.000Z"
     }
     const result = EventResponseSchema.safeParse(json) as {
       data: EventResponse
@@ -70,7 +76,13 @@ describe("EventAPIModels tests", () => {
       },
       previewAttendees: [
         {
-          id: "2fd22e4a-147c-4189-889e-15469b80eaf7"
+          id: "2fd22e4a-147c-4189-889e-15469b80eaf7",
+          name: "Caroline Parisian",
+          handle: UserHandle.optionalParse("carolinepar0103"),
+          hasArrived: false,
+          joinedDateTime: new Date("2024-03-25T07:54:28.000Z"),
+          role: "hosting",
+          relationStatus: "not-friends"
         }
       ],
       location: {
@@ -98,7 +110,7 @@ describe("EventAPIModels tests", () => {
       isChatExpired: false,
       hasArrived: false,
       updatedDateTime: new Date("2024-03-25T07:54:28.000Z"),
-      createdDateTime: new Date("2024-03-25T07:54:28.000Z"),
+      createdDateTime: new Date("2024-03-25T07:54:28.000Z")
     })
   })
 })
