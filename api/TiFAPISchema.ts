@@ -116,34 +116,18 @@ export const TiFAPISchema = {
    *
    * @returns a list of regions of the user's upcoming events.
    */
-  arriveAtRegion: endpointSchema({
+  updateArrivalStatus: endpointSchema({
     input: {
-      body: EventRegionSchema
+      body: EventRegionSchema.extend({
+        status: z.enum(["arrived", "departed"])
+      })
     },
     outputs: {
       status200: TrackableEventArrivalRegionsSchema
     },
     httpRequest: {
       method: "POST",
-      endpoint: "/event/arrived"
-    }
-  }),
-
-  /**
-   * Indicates that the user has departed from the given region.
-   *
-   * @returns a list of regions of the user's upcoming events.
-   */
-  departFromRegion: endpointSchema({
-    input: {
-      body: EventRegionSchema
-    },
-    outputs: {
-      status200: TrackableEventArrivalRegionsSchema
-    },
-    httpRequest: {
-      method: "POST",
-      endpoint: "/event/departed"
+      endpoint: "/event/arrival/status"
     }
   }),
 
@@ -329,18 +313,15 @@ export const TiFAPISchema = {
    * Returns the upcoming events of a user.
    */
   upcomingEvents: endpointSchema({
-    input: {
-
-    },
+    input: {},
     outputs: {
-      status200: EventsInAreaResponseSchema 
+      status200: EventsInAreaResponseSchema
     },
     httpRequest: {
       method: "GET",
       endpoint: `/event/upcomingEvents`
     }
   }),
-
 
   /**
    * Registers for the user for push notifications given a push token and a
