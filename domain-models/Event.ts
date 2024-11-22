@@ -227,6 +227,9 @@ export const EventEditLocationSchema = z.discriminatedUnion("type", [
  */
 export type EventEditLocation = z.rInfer<typeof EventEditLocationSchema>
 
+/**
+ * @deprecated Use EventEdit
+ */
 export const CreateEventSchema = z.object({
   description: EventDescriptionSchema,
   dateRange: CreateFixedDateRangeSchema,

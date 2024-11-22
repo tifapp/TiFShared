@@ -1,6 +1,5 @@
 import { z } from "zod"
 import {
-  CreateEventSchema,
   EventAttendeesPageSchema,
   EventEditSchema,
   EventIDSchema,
@@ -239,6 +238,31 @@ export const TiFAPISchema = {
     httpRequest: {
       method: "POST",
       endpoint: `/event`
+    }
+  }),
+
+  /**
+   * Edits an event.
+   */
+  editEvent: endpointSchema({
+    input: { 
+      params: z.object({
+        eventId: EventIDSchema
+      }),
+      body: EventEditSchema 
+    },
+    outputs: { 
+      status200: EventResponseSchema,
+      status404: tifAPIErrorSchema("event-not-found"),
+      status403: tifAPIErrorSchema(
+        "user-not-host",
+        "event-has-ended",
+        "blocked-you",
+      ),
+    },
+    httpRequest: {
+      method: "PATCH",
+      endpoint: `/event/:eventId`
     }
   }),
 
