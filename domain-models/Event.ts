@@ -51,17 +51,22 @@ export const areEventRegionsEqual = (r1: EventRegion, r2: EventRegion) => {
 
 export const EventAttendeeSchema = z.object({
   id: UserIDSchema,
-  role: z.enum(['hosting', 'attending']),
+  role: z.enum(["hosting", "attending"]),
   hasArrived: z.boolean(),
   name: z.string(),
   handle: UserHandleSchema,
   profileImageURL: z.string().url().optional(),
   relationStatus: UnblockedUserRelationsSchema,
   joinedDateTime: z.coerce.date(),
-  arrivedDateTime: z.coerce.date().optional(),
+  arrivedDateTime: z.coerce.date().optional()
 })
 
-export const EventHostSchema = EventAttendeeSchema.omit({joinedDateTime: true, arrivedDateTime: true, hasArrived: true, role: true})
+export const EventHostSchema = EventAttendeeSchema.omit({
+  joinedDateTime: true,
+  arrivedDateTime: true,
+  hasArrived: true,
+  role: true
+})
 
 /**
  * User information given for an attendee of an event.
@@ -222,23 +227,24 @@ export const EventEditLocationSchema = z.discriminatedUnion("type", [
  */
 export type EventEditLocation = z.rInfer<typeof EventEditLocationSchema>
 
-export const CreateEventSchema = z
-  .object({
-    description: EventDescriptionSchema,
-    dateRange: CreateFixedDateRangeSchema,
-    title: EventTitleSchema,
-    shouldHideAfterStartDate: z.boolean(),
-    isChatEnabled: z.boolean(),
-    location: EventEditLocationSchema
-  })
+export const CreateEventSchema = z.object({
+  description: EventDescriptionSchema,
+  dateRange: CreateFixedDateRangeSchema,
+  title: EventTitleSchema,
+  shouldHideAfterStartDate: z.boolean(),
+  isChatEnabled: z.boolean(),
+  location: EventEditLocationSchema
+})
 
 export type CreateEvent = z.rInfer<typeof CreateEventSchema>
 
 export const EventEditSchema = z.object({
   title: EventTitleSchema,
   description: EventDescriptionSchema,
-  startDateTime: z.date(),
-  duration: z.number(),
+  startDateTime: z.coerce
+    .date()
+    .refine((date) => date >= new Date().ext.addSeconds(-10)),
+  duration: z.number().min(60),
   shouldHideAfterStartDate: z.boolean(),
   location: EventEditLocationSchema
 })

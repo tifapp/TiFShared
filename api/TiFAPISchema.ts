@@ -2,6 +2,7 @@ import { z } from "zod"
 import {
   CreateEventSchema,
   EventAttendeesPageSchema,
+  EventEditSchema,
   EventIDSchema,
   EventRegionSchema,
   EventWhenBlockedByHostSchema,
@@ -233,12 +234,8 @@ export const TiFAPISchema = {
    * Creates an event.
    */
   createEvent: endpointSchema({
-    input: {
-      body: CreateEventSchema
-    },
-    outputs: {
-      status201: z.object({ id: EventIDSchema })
-    },
+    input: { body: EventEditSchema },
+    outputs: { status201: EventResponseSchema },
     httpRequest: {
       method: "POST",
       endpoint: `/event`
