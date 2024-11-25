@@ -316,7 +316,6 @@ export const TiFAPISchema = {
     outputs: {
       status403: tifAPIErrorSchema("event-was-cancelled", "event-has-ended"),
       status404: tifAPIErrorSchema("event-not-found"),
-      status400: tifAPIErrorSchema("co-host-not-found"),
       status200: z.object({ message: z.literal("not-attending") }),
       status204: "no-content"
     },
