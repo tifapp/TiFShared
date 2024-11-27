@@ -1,7 +1,7 @@
 import { z } from "zod"
 import {
-  CreateEventSchema,
   EventAttendeesPageSchema,
+  EventEditSchema,
   EventIDSchema,
   EventRegionSchema,
   EventWhenBlockedByHostSchema,
@@ -116,34 +116,18 @@ export const TiFAPISchema = {
    *
    * @returns a list of regions of the user's upcoming events.
    */
-  arriveAtRegion: endpointSchema({
+  updateArrivalStatus: endpointSchema({
     input: {
-      body: EventRegionSchema
+      body: EventRegionSchema.extend({
+        status: z.enum(["arrived", "departed"])
+      })
     },
     outputs: {
       status200: TrackableEventArrivalRegionsSchema
     },
     httpRequest: {
       method: "POST",
-      endpoint: "/event/arrived"
-    }
-  }),
-
-  /**
-   * Indicates that the user has departed from the given region.
-   *
-   * @returns a list of regions of the user's upcoming events.
-   */
-  departFromRegion: endpointSchema({
-    input: {
-      body: EventRegionSchema
-    },
-    outputs: {
-      status200: TrackableEventArrivalRegionsSchema
-    },
-    httpRequest: {
-      method: "POST",
-      endpoint: "/event/departed"
+      endpoint: "/event/arrival/status"
     }
   }),
 
@@ -249,15 +233,36 @@ export const TiFAPISchema = {
    * Creates an event.
    */
   createEvent: endpointSchema({
-    input: {
-      body: CreateEventSchema
-    },
-    outputs: {
-      status201: z.object({ id: EventIDSchema })
-    },
+    input: { body: EventEditSchema },
+    outputs: { status201: EventResponseSchema },
     httpRequest: {
       method: "POST",
       endpoint: `/event`
+    }
+  }),
+
+  /**
+   * Edits an event.
+   */
+  editEvent: endpointSchema({
+    input: { 
+      params: z.object({
+        eventId: EventIDSchema
+      }),
+      body: EventEditSchema 
+    },
+    outputs: { 
+      status200: EventResponseSchema,
+      status404: tifAPIErrorSchema("event-not-found"),
+      status403: tifAPIErrorSchema(
+        "user-not-host",
+        "event-has-ended",
+        "blocked-you",
+      ),
+    },
+    httpRequest: {
+      method: "PATCH",
+      endpoint: `/event/:eventId`
     }
   }),
 
@@ -322,6 +327,20 @@ export const TiFAPISchema = {
     httpRequest: {
       method: "POST",
       endpoint: `/event/leave/:eventId`
+    }
+  }),
+
+  /**
+   * Returns the upcoming events of a user.
+   */
+  upcomingEvents: endpointSchema({
+    input: {},
+    outputs: {
+      status200: EventsInAreaResponseSchema
+    },
+    httpRequest: {
+      method: "GET",
+      endpoint: `/event/upcomingEvents`
     }
   }),
 
