@@ -49,7 +49,8 @@ const getGitRemoteUrl = () => {
     const stdout = execSync("git config --get remote.origin.url", { encoding: 'utf8' })
     return stdout.trim().replace(/\.git$/, '');
   } catch (error) {
-    throw new Error("Error getting Git remote URL:", error)
+    console.error("Error getting Git remote URL:")
+    throw error
   }
 }
 
@@ -58,7 +59,8 @@ const getCurrentBranchName = () => {
     const stdout = execSync("git rev-parse --abbrev-ref HEAD", { encoding: 'utf8' })
     return stdout.trim()
   } catch (error) {
-    throw new Error("Error getting current git branch:", error)
+    console.error("Error getting current git branch:")
+    throw error
   }
 }
 
