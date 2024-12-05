@@ -245,20 +245,20 @@ export const TiFAPISchema = {
    * Edits an event.
    */
   editEvent: endpointSchema({
-    input: { 
+    input: {
       params: z.object({
         eventId: EventIDSchema
       }),
-      body: EventEditSchema 
+      body: EventEditSchema
     },
-    outputs: { 
+    outputs: {
       status200: EventResponseSchema,
       status404: tifAPIErrorSchema("event-not-found"),
       status403: tifAPIErrorSchema(
         "user-not-host",
         "event-has-ended",
-        "blocked-you",
-      ),
+        "blocked-you"
+      )
     },
     httpRequest: {
       method: "PATCH",
@@ -334,7 +334,9 @@ export const TiFAPISchema = {
    * Returns the upcoming events of a user.
    */
   upcomingEvents: endpointSchema({
-    input: {},
+    input: {
+      query: z.object({ userId: UserIDSchema.optional() })
+    },
     outputs: {
       status200: EventsInAreaResponseSchema
     },
