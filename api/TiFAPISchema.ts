@@ -11,7 +11,8 @@ import { LocationCoordinate2DSchema } from "../domain-models/LocationCoordinate2
 import {
   BlockedYouStatusSchema,
   UserHandleSchema,
-  UserIDSchema
+  UserIDSchema,
+  UserProfileSchema
 } from "../domain-models/User"
 import {
   APISchema,
@@ -33,7 +34,6 @@ import {
   UpdateUserSettingsRequestSchema,
   UserFriendRequestResponseSchema,
   UserNotFoundResponseSchema,
-  UserProfileSchema,
   UserSettingsResponseSchema,
   userTiFAPIErrorSchema
 } from "./models/User"
