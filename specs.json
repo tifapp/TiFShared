@@ -2361,6 +2361,17 @@
     },
     "/event/upcomingEvents": {
       "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "userId",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Object with user data.",
