@@ -2677,6 +2677,58 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "blocked-you"
+                      ]
+                    },
+                    "userId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "userId"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "enum": [
+                        "user-not-found"
+                      ]
+                    },
+                    "userId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "error",
+                    "userId"
+                  ]
+                }
+              }
+            }
           }
         }
       }
