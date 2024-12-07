@@ -4,8 +4,7 @@ import {
   FriendRequestSentStatusSchema,
   FriendsStatusSchema,
   UserHandleSchema,
-  UserIDSchema,
-  UserToProfileRelationStatusSchema
+  UserIDSchema
 } from "../../domain-models/User"
 import { tifAPIErrorSchema } from "./Error"
 
@@ -60,6 +59,7 @@ export const SelfProfileSchema = z.object({
   profileImageURL: z.string().url().optional(),
   updatedDateTime: z.coerce.date()
 })
+
 export const RegisterPushTokenRequestSchema = z.object({
   pushToken: z.string().min(1), //generic nonempty string schema?
   platformName: DevicePlatformSchema

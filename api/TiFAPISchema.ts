@@ -338,7 +338,9 @@ export const TiFAPISchema = {
       query: z.object({ userId: UserIDSchema.optional() })
     },
     outputs: {
-      status200: EventsInAreaResponseSchema
+      status200: EventsInAreaResponseSchema,
+      status403: userTiFAPIErrorSchema("blocked-you"),
+      status404: UserNotFoundResponseSchema
     },
     httpRequest: {
       method: "GET",
