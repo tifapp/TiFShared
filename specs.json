@@ -2367,7 +2367,7 @@
               "type": "string",
               "format": "uuid"
             },
-            "required": false,
+            "required": true,
             "name": "userId",
             "in": "query"
           }

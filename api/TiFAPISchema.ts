@@ -335,7 +335,7 @@ export const TiFAPISchema = {
    */
   upcomingEvents: endpointSchema({
     input: {
-      query: z.object({ userId: UserIDSchema.optional() })
+      query: z.object({ userId: UserIDSchema })
     },
     outputs: {
       status200: EventsInAreaResponseSchema,
