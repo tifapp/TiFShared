@@ -246,7 +246,7 @@ export const EventEditSchema = z.object({
   description: EventDescriptionSchema,
   startDateTime: z.coerce
     .date()
-    .refine((date) => date >= new Date().ext.addSeconds(-10)),
+    .refine((date) => date >= new Date().ext.add(-1, "days")),
   duration: z.number().min(60),
   shouldHideAfterStartDate: z.boolean(),
   location: EventEditLocationSchema
