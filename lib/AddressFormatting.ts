@@ -36,7 +36,7 @@ export const placemarkToFormattedAddress = (placemark: Placemark) => {
  */
 export const placemarkToAbbreviatedAddress = (placemark: Placemark) => {
   if (placemark.city === undefined || placemark.region === undefined) {
-    return "Unknown Location"
+    return undefined
   } else if (placemark.name === undefined) {
     return `${placemark.city}, ${placemark.region}`
   }
