@@ -220,3 +220,16 @@ linkify.add(UserHandle.LINKIFY_SCHEMA, {
     match.userHandle = _linkifyParsedHandle!
   }
 })
+
+export const UserProfileSchema = z.object({
+  id: UserIDSchema,
+  name: z.string(),
+  bio: z.string().optional(),
+  handle: UserHandleSchema,
+  createdDateTime: z.coerce.date(),
+  profileImageURL: z.string().url().optional(),
+  updatedDateTime: z.coerce.date(),
+  relationStatus: UserToProfileRelationStatusSchema
+})
+
+export type UserProfile = z.rInfer<typeof UserProfileSchema>

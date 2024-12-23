@@ -6,7 +6,6 @@ import {
   EventHostSchema,
   EventIDSchema,
   EventLocationSchema,
-  EventPreviewAttendeeSchema,
   EventSettingsSchema,
   EventTitleSchema,
   EventUserAttendeeStatusSchema,
