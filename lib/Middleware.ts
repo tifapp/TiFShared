@@ -1,7 +1,7 @@
-import { NonEmptyArray } from "./Types/HelperTypes";
+import { NonEmptyArray } from "./Types/HelperTypes"
 
 /**
- * This type of function is responsible for handling the outcome of a request 
+ * This type of function is responsible for handling the outcome of a request
  * after it has been processed by all middleware in the chain.
  */
 export type Handler<TInput, TOutput> = (request: TInput) => Promise<TOutput>
@@ -31,8 +31,7 @@ export type Middleware<TInput, TOutput> = (
  */
 export const chainMiddleware = <TInput, TOutput>(
   ...middlewares: NonEmptyArray<Middleware<TInput, TOutput>>
-): Middleware<TInput, TOutput> =>  
-  middlewares.reduce(chain2Middleware)
+): Middleware<TInput, TOutput> => middlewares.reduce(chain2Middleware)
 
 /**
  * Creates a function handler from a series of middleware functions.
@@ -54,16 +53,19 @@ export const middlewareRunner = <TInput, TOutput>(
   ...middlewares: NonEmptyArray<Middleware<TInput, TOutput>>
 ): Handler<TInput, TOutput> => {
   middlewares.push(async () => {
-    throw new Error("Middleware chain does not handle the request fully.");
+    throw new Error("Middleware chain does not handle the request fully.")
   })
   return middlewares.reduce(chain2Middleware) as Handler<TInput, TOutput>
 }
 
 const chain2Middleware = <TInput, TOutput>(
-  m1: Middleware<TInput, TOutput>,
-  m2: Middleware<TInput, TOutput>
+  middleware1: Middleware<TInput, TOutput>,
+  middleware2: Middleware<TInput, TOutput>
 ): Middleware<TInput, TOutput> => {
   return async (request, next) => {
-    return await m1(request, async (request) => await m2(request, next))
+    return await middleware1(
+      request,
+      async (request) => await middleware2(request, next)
+    )
   }
 }
