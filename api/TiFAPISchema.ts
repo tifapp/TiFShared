@@ -338,7 +338,7 @@ export const TiFAPISchema = {
     input: {
       query: z.object({
         userId: UserIDSchema,
-        maxSecondsToStart: z.number().optional()
+        maxSecondsToStart: z.coerce.number().optional()
       })
     },
     outputs: {
