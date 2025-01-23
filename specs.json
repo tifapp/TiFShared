@@ -2370,6 +2370,15 @@
             "required": true,
             "name": "userId",
             "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true
+            },
+            "required": false,
+            "name": "maxSecondsToStart",
+            "in": "query"
           }
         ],
         "responses": {
