@@ -6,6 +6,7 @@ import isToday from "dayjs/plugin/isToday"
 import isTomorrow from "dayjs/plugin/isTomorrow"
 import isYesterday from "dayjs/plugin/isYesterday"
 import relativeTime from "dayjs/plugin/relativeTime"
+import timezone from "dayjs/plugin/timezone"
 import { Extension, protoypeExtension } from "./Extend"
 import { AnyClassInstance } from "./Types/HelperTypes"
 
@@ -16,6 +17,7 @@ dayjs.extend(isTomorrow)
 dayjs.extend(isYesterday)
 dayjs.extend(isBetween)
 dayjs.extend(relativeTime)
+dayjs.extend(timezone)
 
 const durationExtensions = {
   /**
