@@ -25,6 +25,7 @@ import {
   EventNotFoundErrorSchema,
   EventResponseSchema,
   EventsInAreaResponseSchema,
+  EventsResponseSchema,
   JoinEventResponseSchema
 } from "./models/Event"
 import {
@@ -335,10 +336,13 @@ export const TiFAPISchema = {
    */
   upcomingEvents: endpointSchema({
     input: {
-      query: z.object({ userId: UserIDSchema })
+      query: z.object({
+        userId: UserIDSchema,
+        maxSecondsToStart: z.coerce.number().optional()
+      })
     },
     outputs: {
-      status200: EventsInAreaResponseSchema,
+      status200: EventsResponseSchema,
       status403: userTiFAPIErrorSchema("blocked-you"),
       status404: UserNotFoundResponseSchema
     },
