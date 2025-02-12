@@ -59,11 +59,13 @@ export const apiTransport = (
     signal
   }) => {
     try {
+      const headerValues = new Headers(headers)
+      headerValues.set("Content-Type", "application/json")
       const resp = await fetch(
         urlString({ baseURL, endpoint, params, query }),
         {
           method,
-          headers: { "Content-Type": "application/json", ...headers },
+          headers: headerValues,
           body: body ? JSON.stringify(body) : undefined,
           signal
         }
