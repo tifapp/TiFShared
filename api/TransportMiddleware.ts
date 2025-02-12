@@ -32,7 +32,7 @@ export const requestLoggingMiddleware = (
 ): APIMiddleware<ClientExtensions> => {
   const log = logger(`${apiName}.api.requests`)
   return async (request, next) => {
-    const requestId = uuidString()
+    const requestId = new Headers(request.headers).get(REQUEST_ID_HEADER)
     const method = request.endpointSchema.httpRequest.method
     const path = urlString({
       endpoint: request.endpointSchema.httpRequest.endpoint,
@@ -49,5 +49,24 @@ export const requestLoggingMiddleware = (
       requestId
     })
     return resp
+  }
+}
+
+export type RequestIDGenerator = () => string
+
+export const REQUEST_ID_HEADER = "X-TiF-Shared-Request-ID"
+
+/**
+ * Adds a request id to every request at the header value denoted by {@link REQUEST_ID_HEADER}.
+ *
+ * @param generator A function to generate a unique id for each request.
+ */
+export const requestIdMiddleware = (
+  generator: RequestIDGenerator = uuidString
+): APIMiddleware<ClientExtensions> => {
+  return async (request, next) => {
+    const headers = new Headers(request.headers)
+    headers.set(REQUEST_ID_HEADER, generator())
+    return await next({ ...request, headers })
   }
 }
