@@ -340,7 +340,7 @@ export const TiFAPISchema = {
       query: z.object({
         userId: UserIDSchema,
         maxSecondsToStart: z.coerce.number().optional(),
-        dateRange: UpcomingEventsFixedDateRangeSchema
+        dateRange: UpcomingEventsFixedDateRangeSchema.optional()
       })
     },
     outputs: {
