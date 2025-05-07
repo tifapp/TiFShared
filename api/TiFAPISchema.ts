@@ -38,6 +38,7 @@ import {
   UserSettingsResponseSchema,
   userTiFAPIErrorSchema
 } from "./models/User"
+import { UpcomingEventsFixedDateRangeSchema } from "./models/FixedDateRange"
 
 export const TiFAPISchema = {
   /**
@@ -338,7 +339,8 @@ export const TiFAPISchema = {
     input: {
       query: z.object({
         userId: UserIDSchema,
-        maxSecondsToStart: z.coerce.number().optional()
+        maxSecondsToStart: z.coerce.number().optional(),
+        dateRange: UpcomingEventsFixedDateRangeSchema
       })
     },
     outputs: {
