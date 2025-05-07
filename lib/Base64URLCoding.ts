@@ -10,3 +10,13 @@ export const base64URLDecode = (input: string) => {
   input += "=".repeat(padLength)
   return atob(input)
 }
+
+/**
+ * A Base64 URL String Encoder.
+ *
+ * @param input The string to encode.
+ * @returns The encoded string.
+ */
+export const base64URLEncode = (input: string) => {
+  return btoa(input).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
+}
