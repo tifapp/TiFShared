@@ -2379,6 +2379,14 @@
             "required": false,
             "name": "maxSecondsToStart",
             "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "dateRange",
+            "in": "query"
           }
         ],
         "responses": {
