@@ -82,10 +82,12 @@ export const EventWhenBlockedByHostResponseSchema =
     tifAPIErrorSchema(BlockedYouStatusSchema.value)
   )
 
-export const EventsTimelinePageTokenSchema = z.object({
-  forwardStartDate: z.date(),
-  backwardStartDate: z.date()
-})
+export const EventsTimelinePageTokenSchema = z
+  .object({
+    forwardStartDate: z.date(),
+    backwardStartDate: z.date()
+  })
+  .partial()
 
 export const EventsTimelineDirectionSchema = z.enum(["forwards", "backwards"])
 
