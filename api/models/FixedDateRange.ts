@@ -1,6 +1,5 @@
 import { z } from "zod"
 import { FixedDateRange } from "../../domain-models/FixedDateRange"
-import { base64URLDecode } from "../../lib/Base64URLCoding"
 
 /**
  * A zod schema to parse an {@link FixedDateRange} where the start and end dates
@@ -20,12 +19,8 @@ export const FixedDateRangeSchema = z.optionalParseable(
 
 export const MIN_EVENT_DURATION = 60
 
-export const UpcomingEventsFixedDateRangeSchema = z.optionalParseable(
-  FixedDateRange,
-  z.string().transform((str) => {
-    return FixedDateRangeSchema.parse(JSON.parse(base64URLDecode(str)))
-  })
-)
+export const UpcomingEventsFixedDateRangeSchema =
+  z.base64URLDecodedJSON(FixedDateRangeSchema)
 
 /**
  * A Zod schema for creating a FixedDateRange with additional constraints for new Events:

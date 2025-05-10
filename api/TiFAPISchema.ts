@@ -24,9 +24,11 @@ import { tifAPIErrorSchema } from "./models/Error"
 import {
   EventNotFoundErrorSchema,
   EventResponseSchema,
+  EventsTimelineResponseSchema,
   EventsInAreaResponseSchema,
   EventsResponseSchema,
-  JoinEventResponseSchema
+  JoinEventResponseSchema,
+  EventsTimelinePageTokenSchema
 } from "./models/Event"
 import {
   RegisterPushTokenRequestSchema,
@@ -351,6 +353,24 @@ export const TiFAPISchema = {
     httpRequest: {
       method: "GET",
       endpoint: `/event/upcomingEvents`
+    }
+  }),
+
+  /**
+   * Returns the user's events timeline.
+   */
+  timeline: endpointSchema({
+    input: {
+      query: z.object({
+        token: z.base64URLDecodedJSON(EventsTimelinePageTokenSchema).optional()
+      })
+    },
+    outputs: {
+      status200: EventsTimelineResponseSchema
+    },
+    httpRequest: {
+      method: "GET",
+      endpoint: `/event/timeline`
     }
   }),
 

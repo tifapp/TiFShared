@@ -2750,6 +2750,339 @@
         }
       }
     },
+    "/event/timeline": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "token",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Object with user data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "title": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 75
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 500
+                          },
+                          "color": {
+                            "type": "string"
+                          },
+                          "attendeeCount": {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          "joinedDateTime": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "createdDateTime": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "updatedDateTime": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "hasArrived": {
+                            "type": "boolean"
+                          },
+                          "isChatExpired": {
+                            "type": "boolean"
+                          },
+                          "userAttendeeStatus": {
+                            "type": "string",
+                            "enum": [
+                              "not-participating",
+                              "hosting",
+                              "attending"
+                            ]
+                          },
+                          "settings": {
+                            "type": "object",
+                            "properties": {
+                              "shouldHideAfterStartDate": {
+                                "type": "boolean"
+                              },
+                              "isChatEnabled": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "shouldHideAfterStartDate",
+                              "isChatEnabled"
+                            ]
+                          },
+                          "time": {
+                            "type": "object",
+                            "properties": {
+                              "secondsToStart": {
+                                "type": "number"
+                              },
+                              "todayOrTomorrow": {
+                                "type": "string",
+                                "enum": [
+                                  "today",
+                                  "tomorrow"
+                                ]
+                              },
+                              "dateRange": {
+                                "type": "object",
+                                "properties": {
+                                  "startDateTime": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "endDateTime": {
+                                    "type": "string",
+                                    "nullable": true
+                                  }
+                                },
+                                "required": [
+                                  "startDateTime",
+                                  "endDateTime"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "secondsToStart",
+                              "dateRange"
+                            ]
+                          },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "coordinate": {
+                                "type": "object",
+                                "properties": {
+                                  "latitude": {
+                                    "type": "number",
+                                    "minimum": -90,
+                                    "maximum": 90
+                                  },
+                                  "longitude": {
+                                    "type": "number",
+                                    "minimum": -180,
+                                    "maximum": 180
+                                  }
+                                },
+                                "required": [
+                                  "latitude",
+                                  "longitude"
+                                ]
+                              },
+                              "arrivalRadiusMeters": {
+                                "type": "number"
+                              },
+                              "isInArrivalTrackingPeriod": {
+                                "type": "boolean"
+                              },
+                              "timezoneIdentifier": {
+                                "type": "string"
+                              },
+                              "placemark": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "country": {
+                                    "type": "string"
+                                  },
+                                  "postalCode": {
+                                    "type": "string"
+                                  },
+                                  "street": {
+                                    "type": "string"
+                                  },
+                                  "streetNumber": {
+                                    "type": "string"
+                                  },
+                                  "region": {
+                                    "type": "string"
+                                  },
+                                  "isoCountryCode": {
+                                    "type": "string"
+                                  },
+                                  "city": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "required": [
+                              "coordinate",
+                              "arrivalRadiusMeters",
+                              "isInArrivalTrackingPeriod",
+                              "timezoneIdentifier"
+                            ]
+                          },
+                          "previewAttendees": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid"
+                                },
+                                "role": {
+                                  "type": "string",
+                                  "enum": [
+                                    "hosting",
+                                    "attending"
+                                  ]
+                                },
+                                "hasArrived": {
+                                  "type": "boolean"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "handle": {
+                                  "type": "string",
+                                  "pattern": "^[A-Za-z0-9_]{1,15}"
+                                },
+                                "profileImageURL": {
+                                  "type": "string",
+                                  "format": "uri"
+                                },
+                                "relationStatus": {
+                                  "type": "string",
+                                  "enum": [
+                                    "blocked-them",
+                                    "not-friends",
+                                    "friend-request-sent",
+                                    "friend-request-received",
+                                    "friends",
+                                    "current-user"
+                                  ]
+                                },
+                                "joinedDateTime": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "arrivedDateTime": {
+                                  "type": "string",
+                                  "nullable": true
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "role",
+                                "hasArrived",
+                                "name",
+                                "handle",
+                                "relationStatus",
+                                "joinedDateTime"
+                              ]
+                            }
+                          },
+                          "host": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "handle": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9_]{1,15}"
+                              },
+                              "profileImageURL": {
+                                "type": "string",
+                                "format": "uri"
+                              },
+                              "relationStatus": {
+                                "type": "string",
+                                "enum": [
+                                  "blocked-them",
+                                  "not-friends",
+                                  "friend-request-sent",
+                                  "friend-request-received",
+                                  "friends",
+                                  "current-user"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "handle",
+                              "relationStatus"
+                            ]
+                          },
+                          "endedDateTime": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "attendeeCount",
+                          "createdDateTime",
+                          "updatedDateTime",
+                          "hasArrived",
+                          "isChatExpired",
+                          "userAttendeeStatus",
+                          "settings",
+                          "time",
+                          "location",
+                          "previewAttendees",
+                          "host"
+                        ]
+                      }
+                    },
+                    "nextToken": {
+                      "type": "string"
+                    },
+                    "hasNextPage": {
+                      "type": "boolean"
+                    },
+                    "hasPreviousPage": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "events",
+                    "nextToken",
+                    "hasNextPage",
+                    "hasPreviousPage"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/user/notifications/push/register": {
       "post": {
         "requestBody": {

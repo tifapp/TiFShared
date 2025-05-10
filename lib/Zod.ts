@@ -1,5 +1,14 @@
-import { IssueData, ZodError, ZodIssueCode, ZodSchema, ZodType, ZodTypeDef, z } from "zod";
-import { Prototype } from "./Types/HelperTypes";
+import {
+  IssueData,
+  ZodError,
+  ZodIssueCode,
+  ZodSchema,
+  ZodType,
+  ZodTypeDef,
+  z
+} from "zod"
+import { Prototype } from "./Types/HelperTypes"
+import { base64URLDecode } from "./Base64URLCoding"
 
 /**
  * optionalParse creates a Zod schema that accepts either an instance of a class
@@ -14,38 +23,50 @@ const optionalParse = <Output extends Prototype, Input>(
   schema: ZodType<Output, ZodTypeDef, Input>,
   openapiSchema?: ZodType<Input>
 ) => {
-  if (process.env.API_GENERATION_ENVIRONMENT) { // NB: dateRange is null when generating openapi schema
-    return openapiSchema ?? schema;
+  if (process.env.API_GENERATION_ENVIRONMENT) {
+    // NB: dateRange is null when generating openapi schema
+    return openapiSchema ?? schema
   }
 
-  let issues: IssueData[] = [];
-  
+  let issues: IssueData[] = []
+
   return z
     .custom<Input>()
     .transform((arg) => {
       if (arg instanceof clazz) {
-        return arg as unknown as Output;
+        return arg as unknown as Output
       }
 
       try {
-        return schema.parse(arg);
+        return schema.parse(arg)
       } catch (e) {
-        issues = e instanceof ZodError
-          ? e.issues
-          : [{
-              message: e.message,
-              code: ZodIssueCode.custom,
-              params: { arg },
-              fatal: true,
-            }];
-        return arg;
+        issues =
+          e instanceof ZodError
+            ? e.issues
+            : [
+                {
+                  message: e.message,
+                  code: ZodIssueCode.custom,
+                  params: { arg },
+                  fatal: true
+                }
+              ]
+        return arg
       }
     })
     .superRefine((_, ctx) => {
-      issues.forEach(ctx.addIssue);
-      issues.length = 0; // NB: Clear issues between calls
-    });
-};
+      issues.forEach(ctx.addIssue)
+      issues.length = 0 // NB: Clear issues between calls
+    })
+}
+
+const base64URLDecodedJSON = <Output, Input>(
+  schema: ZodType<Output, ZodTypeDef, Input>
+) => {
+  return z.string().transform((str) => {
+    return schema.parse(JSON.parse(base64URLDecode(str)))
+  })
+}
 
 declare module "zod" {
   export namespace z {
@@ -77,6 +98,10 @@ declare module "zod" {
       openapiSchema?: ZodType<Input>
     ): ZodType<Output["prototype"], ZodTypeDef, Input>
 
+    function base64URLDecodedJSON<Output, Input>(
+      schema: ZodType<Output, ZodTypeDef, Input>
+    ): ZodType<Output, ZodTypeDef, string>
+
     /**
      * Infers a zod schema as a "Readonly" type.
      */
@@ -85,3 +110,4 @@ declare module "zod" {
 }
 
 z.optionalParseable = optionalParse
+z.base64URLDecodedJSON = base64URLDecodedJSON
