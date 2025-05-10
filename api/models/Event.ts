@@ -81,3 +81,18 @@ export const EventWhenBlockedByHostResponseSchema =
   EventWhenBlockedByHostSchema.merge(
     tifAPIErrorSchema(BlockedYouStatusSchema.value)
   )
+
+export const EventsTimelinePageTokenSchema = z
+  .object({
+    forwardStartDate: z.date(),
+    backwardStartDate: z.date()
+  })
+  .partial()
+
+export const EventsTimelineDirectionSchema = z.enum(["forwards", "backwards"])
+
+export const EventsTimelineResponseSchema = EventsResponseSchema.extend({
+  nextToken: z.string(),
+  hasNextPage: z.boolean(),
+  hasPreviousPage: z.boolean()
+})
