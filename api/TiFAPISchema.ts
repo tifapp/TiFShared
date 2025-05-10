@@ -363,6 +363,7 @@ export const TiFAPISchema = {
   timeline: endpointSchema({
     input: {
       query: z.object({
+        limit: z.coerce.number(),
         direction: EventsTimelineDirectionSchema,
         token: z.base64URLDecodedJSON(EventsTimelinePageTokenSchema).optional()
       })
