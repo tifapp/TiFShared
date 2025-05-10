@@ -2755,6 +2755,18 @@
         "parameters": [
           {
             "schema": {
+              "type": "string",
+              "enum": [
+                "forwards",
+                "backwards"
+              ]
+            },
+            "required": true,
+            "name": "direction",
+            "in": "query"
+          },
+          {
+            "schema": {
               "type": "string"
             },
             "required": false,

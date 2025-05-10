@@ -87,6 +87,8 @@ export const EventsTimelinePageTokenSchema = z.object({
   backwardStartDate: z.date()
 })
 
+export const EventsTimelineDirectionSchema = z.enum(["forwards", "backwards"])
+
 export const EventsTimelineResponseSchema = EventsResponseSchema.extend({
   nextToken: z.string(),
   hasNextPage: z.boolean(),

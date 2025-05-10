@@ -28,7 +28,8 @@ import {
   EventsInAreaResponseSchema,
   EventsResponseSchema,
   JoinEventResponseSchema,
-  EventsTimelinePageTokenSchema
+  EventsTimelinePageTokenSchema,
+  EventsTimelineDirectionSchema
 } from "./models/Event"
 import {
   RegisterPushTokenRequestSchema,
@@ -362,6 +363,7 @@ export const TiFAPISchema = {
   timeline: endpointSchema({
     input: {
       query: z.object({
+        direction: EventsTimelineDirectionSchema,
         token: z.base64URLDecodedJSON(EventsTimelinePageTokenSchema).optional()
       })
     },
