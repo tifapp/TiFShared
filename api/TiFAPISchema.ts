@@ -359,6 +359,24 @@ export const TiFAPISchema = {
 
   /**
    * Returns the user's events timeline.
+   *
+   * You pass the direction and the number of events you want to fetch from the timeline as query
+   * parameters. When fetching in the backwards direction, ongoing events are included, but no
+   * ongoing events are included when fetching forwards.
+   *
+   * The first request will divide the `limit` parameter, and fetch half the limit in the forwards
+   * direction, and half the limit in the backwards direction.
+   *
+   * After the first request, the endpoint will respond with a `nextToken` field. Include this
+   * token as a query parameter on all subsequent requests to this endpoint in order to get the
+   * most up to date events (regardless of direction).
+   *
+   * To check if there are no more pages to fetch in a specific direction, each response includes
+   * a `hasNextForwardPage` and `hasNextBackwardPage` fields that indicates whether or not you can
+   * fetch another page in the direction you passed to the request.
+   *
+   * The client is responsible for handling duplicate events returned on different pages. This is
+   * to ensure that we display up to date data as much as possible in the UI.
    */
   timeline: endpointSchema({
     input: {

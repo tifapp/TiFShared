@@ -84,15 +84,28 @@ export const EventWhenBlockedByHostResponseSchema =
 
 export const EventsTimelinePageTokenSchema = z
   .object({
-    forwardStartDate: z.date(),
-    backwardStartDate: z.date()
+    startDate: z.coerce.date(),
+    forwardOffset: z.coerce.number().optional(),
+    backwardOffset: z.coerce.number().optional()
   })
   .partial()
 
+export type EventsTimelinePageToken = z.infer<
+  typeof EventsTimelinePageTokenSchema
+>
+
 export const EventsTimelineDirectionSchema = z.enum(["forwards", "backwards"])
+
+export type EventsTimelineDirection = z.infer<
+  typeof EventsTimelineDirectionSchema
+>
 
 export const EventsTimelineResponseSchema = EventsResponseSchema.extend({
   nextToken: z.string(),
-  hasNextPage: z.boolean(),
-  hasPreviousPage: z.boolean()
+  hasNextForwardPage: z.boolean(),
+  hasNextBackwardPage: z.boolean()
 })
+
+export type EventsTimelineResponse = z.infer<
+  typeof EventsTimelineResponseSchema
+>
