@@ -3084,18 +3084,18 @@
                     "nextToken": {
                       "type": "string"
                     },
-                    "hasNextPage": {
+                    "hasNextForwardPage": {
                       "type": "boolean"
                     },
-                    "hasPreviousPage": {
+                    "hasNextBackwardPage": {
                       "type": "boolean"
                     }
                   },
                   "required": [
                     "events",
                     "nextToken",
-                    "hasNextPage",
-                    "hasPreviousPage"
+                    "hasNextForwardPage",
+                    "hasNextBackwardPage"
                   ]
                 }
               }
